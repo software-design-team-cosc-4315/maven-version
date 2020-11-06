@@ -1,0 +1,6 @@
+icon download site: https://remixicon.com
+downloaded icons:
+- close-line.png
+- delete-bin-2-fill.png
+- edit-2-fill.png
+- settings-5-fill.png

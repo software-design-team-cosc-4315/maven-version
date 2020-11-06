@@ -25,6 +25,34 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.sample</groupId>
+      <artifactId>TaskManager</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/dist/TaskManager.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.sample</groupId>
+      <artifactId>AbsoluteLayout</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/dist/lib/AbsoluteLayout.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.sample</groupId>
+      <artifactId>ojdbc7</artifactId>
+      <version>7</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/dist/lib/ojdbc7.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.sample</groupId>
+      <artifactId>beansbinding</artifactId>
+      <version>1.2.1</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/dist/lib/beansbinding-1.2.1.jar</systemPath>
+    </dependency>
   </dependencies>
 
   <build>
