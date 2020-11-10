@@ -30,6 +30,12 @@ public class AppTest
         output.append("c");
     }
 
+    @Test
+    @Order(4)
+    public void canary() {
+        Assert.assertTrue(true);
+    }
+
     @AfterAll
     public static void assertOutput() {
         System.out.println(output.toString());

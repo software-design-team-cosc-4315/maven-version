@@ -1,1 +1,3 @@
 /home/timothy/Education/Software_Design/maven-version/my-app/src/test/java/com/mycompany/app/AppTest.java
+/home/timothy/Education/Software_Design/maven-version/my-app/src/test/java/taskmanager/TaskManagerTest.java
+/home/timothy/Education/Software_Design/maven-version/my-app/src/test/java/taskmanager/DBConnectionTest.java
