@@ -6,16 +6,16 @@
 package taskmanager;
 
 
-
 import java.util.*;
-import java.awt.*;
 import java.awt.event.*;
+import java.awt.Dimension;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import javax.swing.DefaultListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.ListModel;
 import javax.swing.event.*;
+import oracle.jdbc.OracleTypes;
 
 
 
@@ -45,6 +45,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     
     // Data structures: 
     private TreeMap<String, TaskCategory> _task_category_map = new TreeMap<>();
+    private TreeMap<String, WorkLoadGroup> _member_workload_stat_map = new TreeMap<>();
+    private WorkLoadGroup _team_workload_stat;
     private java.util.List<AppUser> _user_list = new ArrayList<>();
     
     
@@ -65,6 +67,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         header_pane = new javax.swing.JPanel();
         team_leaders_page_header_buttons_pane = new javax.swing.JPanel();
@@ -913,38 +916,27 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             .addComponent(team_productivity_title_label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
+        java.awt.FlowLayout flowLayout1 = new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0);
+        flowLayout1.setAlignOnBaseline(true);
+        team_productivity_progress_panel.setLayout(flowLayout1);
+
         team_productivity_progress_completed.setBackground(new java.awt.Color(51, 255, 255));
         team_productivity_progress_completed.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         team_productivity_progress_completed.setText("23%");
         team_productivity_progress_completed.setOpaque(true);
+        team_productivity_progress_panel.add(team_productivity_progress_completed);
 
         team_productivity_progress_in_progress.setBackground(new java.awt.Color(255, 0, 255));
         team_productivity_progress_in_progress.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         team_productivity_progress_in_progress.setText("46%");
         team_productivity_progress_in_progress.setOpaque(true);
+        team_productivity_progress_panel.add(team_productivity_progress_in_progress);
 
         team_productivity_progress_not_started.setBackground(new java.awt.Color(204, 204, 204));
         team_productivity_progress_not_started.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         team_productivity_progress_not_started.setText("31%");
         team_productivity_progress_not_started.setOpaque(true);
-
-        javax.swing.GroupLayout team_productivity_progress_panelLayout = new javax.swing.GroupLayout(team_productivity_progress_panel);
-        team_productivity_progress_panel.setLayout(team_productivity_progress_panelLayout);
-        team_productivity_progress_panelLayout.setHorizontalGroup(
-            team_productivity_progress_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(team_productivity_progress_panelLayout.createSequentialGroup()
-                .addComponent(team_productivity_progress_completed, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(team_productivity_progress_in_progress, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(team_productivity_progress_not_started, javax.swing.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE))
-        );
-        team_productivity_progress_panelLayout.setVerticalGroup(
-            team_productivity_progress_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(team_productivity_progress_completed, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
-            .addComponent(team_productivity_progress_in_progress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(team_productivity_progress_not_started, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
+        team_productivity_progress_panel.add(team_productivity_progress_not_started);
 
         team_productivity_completed_label.setText("completed work");
 
@@ -1121,7 +1113,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             .addGroup(team_productivity_panelLayout.createSequentialGroup()
                 .addComponent(team_productivity_title_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(team_productivity_progress_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(team_productivity_progress_panel, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(team_productivity_completed_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
@@ -1155,38 +1147,27 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             .addComponent(member_productivity_title_label, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
+        java.awt.FlowLayout flowLayout2 = new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0);
+        flowLayout2.setAlignOnBaseline(true);
+        member_productivity_progress_panel.setLayout(flowLayout2);
+
         member_productivity_progress_completed.setBackground(new java.awt.Color(51, 255, 255));
         member_productivity_progress_completed.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         member_productivity_progress_completed.setText("23%");
         member_productivity_progress_completed.setOpaque(true);
+        member_productivity_progress_panel.add(member_productivity_progress_completed);
 
         member_productivity_progress_in_progress.setBackground(new java.awt.Color(255, 0, 255));
         member_productivity_progress_in_progress.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         member_productivity_progress_in_progress.setText("46%");
         member_productivity_progress_in_progress.setOpaque(true);
+        member_productivity_progress_panel.add(member_productivity_progress_in_progress);
 
         member_productivity_progress_not_started.setBackground(new java.awt.Color(204, 204, 204));
         member_productivity_progress_not_started.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         member_productivity_progress_not_started.setText("31%");
         member_productivity_progress_not_started.setOpaque(true);
-
-        javax.swing.GroupLayout member_productivity_progress_panelLayout = new javax.swing.GroupLayout(member_productivity_progress_panel);
-        member_productivity_progress_panel.setLayout(member_productivity_progress_panelLayout);
-        member_productivity_progress_panelLayout.setHorizontalGroup(
-            member_productivity_progress_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(member_productivity_progress_panelLayout.createSequentialGroup()
-                .addComponent(member_productivity_progress_completed, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(member_productivity_progress_in_progress, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(member_productivity_progress_not_started, javax.swing.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE))
-        );
-        member_productivity_progress_panelLayout.setVerticalGroup(
-            member_productivity_progress_panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(member_productivity_progress_completed, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
-            .addComponent(member_productivity_progress_in_progress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(member_productivity_progress_not_started, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
+        member_productivity_progress_panel.add(member_productivity_progress_not_started);
 
         member_productivity_completed_label.setText("completed work");
 
@@ -1363,7 +1344,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             .addGroup(member_productivity_panelLayout.createSequentialGroup()
                 .addComponent(member_productivity_title_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(member_productivity_progress_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(member_productivity_progress_panel, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(member_productivity_completed_panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
@@ -1808,6 +1789,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this._focused_task = null;
         this._focused_subtask = null;
         this._task_category_map.clear();
+        this._member_workload_stat_map.clear();
         this._user_list.clear();
         
         
@@ -1943,7 +1925,6 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             DBConnection.disconnect(); return;
         }
         
-        
         // Query all team members in the current team:
         ps = DBConnection.prepared_statement("SELECT USERNAME, MEMBER_ROLE FROM MEMBERS WHERE TEAM_ID = ? AND DELETED != 'Y' ORDER BY USERNAME ASC");
         loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
@@ -1960,12 +1941,60 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             System.out.println(e);
             loaded = false;
         }
-        
-        DBConnection.disconnect();
         if (!loaded) {
             this.header_team_label.setText("Team Members Not Properly Loaded!");
             return;
         }
+        
+        
+        
+        // Query productivity statistics:
+        cs = DBConnection.callable_statement("COMPUTE_PRODUCTIVITY(?, ?, ?)");
+        loaded = (cs != null)? DBConnection.set_statement_value(cs, 1, SystemController.current_team.team_ID()) : false;
+        loaded = loaded? DBConnection.register_out_parameter(cs, 2, OracleTypes.CURSOR) : false;
+        loaded = loaded? DBConnection.register_out_parameter(cs, 3, OracleTypes.CURSOR) : false;
+        DBConnection.execute(cs);
+        
+        try {
+            // load member workload statistics
+            String last_user = "";
+            String user = "";
+            rs = (ResultSet) cs.getObject(2);
+            while (rs.next()) {
+                user = rs.getString("USERNAME");
+                // use this._team_workload_stat to temporarily store the user's workload statistics:
+                if (last_user.equals(user)) // collect workload of the same user for a different status
+                    this._team_workload_stat.set_record(rs.getFloat("SUBTASK_WEIGHTS"), rs.getInt("SUBTASK_COUNT"), rs.getString("STATUS"));
+                else { // start collecting workload of a different user
+                    last_user = user;
+                    this._team_workload_stat = new WorkLoadGroup();
+                    this._team_workload_stat.set_record(rs.getFloat("SUBTASK_WEIGHTS"), rs.getInt("SUBTASK_COUNT"), rs.getString("STATUS"));
+                    this._member_workload_stat_map.put(user, this._team_workload_stat);
+                }
+            }
+            
+            // load team workload statistics
+            this._team_workload_stat = new WorkLoadGroup();
+            this._team_workload_stat.set_member_count(this._user_list.size());
+            rs = (ResultSet) cs.getObject(3);
+            while (rs.next()) 
+                this._team_workload_stat.set_record(rs.getFloat("TASK_WEIGHTS"), rs.getInt("TASK_COUNT"), rs.getString("STATUS"));
+            
+        } catch (Exception e) {
+            System.out.println(e);
+            loaded = false;
+        }
+        
+        
+        DBConnection.disconnect();
+        if (!loaded) {
+            this.header_team_label.setText("Productivity Statistics Not Properly Loaded!");
+            return;
+        }
+        
+        
+        
+        
         
         
         // Refresh the page:
@@ -2092,6 +2121,51 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     
     private void fill_productivity_panel() {
         
+        if (-1 < team_member_list.getSelectedIndex() ) {
+            String[] user_info = team_member_list.getSelectedValue().toString().split(" - ", 2);
+            WorkLoadGroup workload_group = this._member_workload_stat_map.get(user_info[1]); // user_info[1] is the selected username
+            this.member_productivity_username_value.setText(user_info[1]); 
+            
+            float completed_portion = 0.0f;
+            float in_progress_portion = 0.0f;
+            float not_started_portion = 0.0f;
+            if (workload_group == null) {
+                this.member_productivity_workload_value.setText( String.format("%.2f", 0.0f) );
+                this.member_productivity_evaluation_value.setText( String.format("%.2f", 0.0f) );
+            } else {
+                this.member_productivity_workload_value.setText( String.format("%.2f", workload_group.get_total_workload()) );
+                this.member_productivity_evaluation_value.setText( String.format("%.2f", workload_group.compute_productivity()) );
+                completed_portion = workload_group.get_workload_portion(WorkLoadGroup.COMPLETED);
+                in_progress_portion = workload_group.get_workload_portion(WorkLoadGroup.IN_PROGRESS);
+                not_started_portion = workload_group.get_workload_portion(WorkLoadGroup.NOT_STARTED);
+            }
+            
+            int height = this.member_productivity_progress_panel.getHeight();
+            int total_width = this.member_productivity_progress_panel.getWidth();
+            this.member_productivity_progress_completed.setPreferredSize(new Dimension((int) (total_width * completed_portion), height));
+            this.member_productivity_progress_in_progress.setPreferredSize(new Dimension((int) (total_width * in_progress_portion), height));
+            this.member_productivity_progress_not_started.setPreferredSize(new Dimension((int) (total_width * not_started_portion), height));
+            this.member_productivity_progress_completed.setText( String.format("%.2f", 100.0f * completed_portion) + "%" );
+            this.member_productivity_progress_in_progress.setText( String.format("%.2f", 100.0f * in_progress_portion) + "%" );
+            this.member_productivity_progress_not_started.setText( String.format("%.2f", 100.0f * not_started_portion) + "%" );
+        }
+        
+        this.team_productivity_member_count_value.setText( Integer.toString(this._team_workload_stat.get_member_count()) );
+        this.team_productivity_workload_value.setText( String.format("%.2f", this._team_workload_stat.get_total_workload()) );
+        this.team_productivity_evaluation_value.setText( String.format("%.2f", this._team_workload_stat.compute_productivity()) );
+        
+        int height = this.team_productivity_progress_panel.getHeight();
+        int total_width = this.team_productivity_progress_panel.getWidth();
+        float completed_portion = this._team_workload_stat.get_workload_portion(WorkLoadGroup.COMPLETED);
+        float in_progress_portion = this._team_workload_stat.get_workload_portion(WorkLoadGroup.IN_PROGRESS);
+        float not_started_portion = this._team_workload_stat.get_workload_portion(WorkLoadGroup.NOT_STARTED);
+        this.team_productivity_progress_completed.setPreferredSize(new Dimension((int) (total_width * completed_portion), height));
+        this.team_productivity_progress_in_progress.setPreferredSize(new Dimension((int) (total_width * in_progress_portion), height));
+        this.team_productivity_progress_not_started.setPreferredSize(new Dimension((int) (total_width * not_started_portion), height));
+        this.team_productivity_progress_completed.setText( String.format("%.2f", 100.0f * completed_portion) + "%" );
+        this.team_productivity_progress_in_progress.setText( String.format("%.2f", 100.0f * in_progress_portion) + "%" );
+        this.team_productivity_progress_not_started.setText( String.format("%.2f", 100.0f * not_started_portion) + "%" );
+        
         
         // Reset visibility:
         this.task_category_edit_separator.setVisible(false);
@@ -2102,6 +2176,12 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this.subtask_edit_pane.setVisible(false);
         this.productivity_separator.setVisible(true);
         this.productivity_panel.setVisible(true);
+        
+        
+        this.member_productivity_progress_panel.revalidate();
+        this.team_productivity_progress_panel.revalidate();
+        this.member_productivity_progress_panel.repaint();
+        this.team_productivity_progress_panel.repaint();
     }
     
     
@@ -2142,13 +2222,13 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 user_model.addElement(AppUser.user_type_to_string(user.role()) + " - " + user.username());
             
             // Reset visibility:
-            for (Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
+            for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
                 component.setEnabled(true);
             this.hide_edit_panels();
             
         } else { // if the user enters the page through an edit buttion in the Task Page
             
-            for (Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
+            for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
                 component.setEnabled(false);
             if (this._focus == Focus.TASK_CATEGORY) {
                 
