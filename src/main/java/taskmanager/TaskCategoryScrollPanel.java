@@ -115,7 +115,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
         );
 
         // 3. alteration
-        this._delete_button.setIcon(new ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        this._delete_button.setIcon(new ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         this._delete_button.setToolTipText("delete cateogry");
         this._delete_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -124,7 +124,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
             }
         });
 
-        this._edit_button.setIcon(new ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        this._edit_button.setIcon(new ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         this._edit_button.setToolTipText("modify category");
         this._edit_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

@@ -843,7 +843,7 @@
                         <Component class="javax.swing.JButton" name="task_page_graphics_category_delete_button">
                           <Properties>
                             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                              <Image iconType="3" name="/taskmanager/assets/images/delete-bin-2-fill.png"/>
+                              <Image iconType="3" name="/delete-bin-2-fill.png"/>
                             </Property>
                             <Property name="toolTipText" type="java.lang.String" value="delete cateogry"/>
                             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -854,7 +854,7 @@
                         <Component class="javax.swing.JButton" name="task_page_graphics_category_edit_button">
                           <Properties>
                             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                              <Image iconType="3" name="/taskmanager/assets/images/edit-2-fill.png"/>
+                              <Image iconType="3" name="/edit-2-fill.png"/>
                             </Property>
                             <Property name="toolTipText" type="java.lang.String" value="modify category"/>
                             <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1045,7 +1045,7 @@
                             <Component class="javax.swing.JButton" name="task_page_graphics_background_development_delete_button">
                               <Properties>
                                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                  <Image iconType="3" name="/taskmanager/assets/images/delete-bin-2-fill.png"/>
+                                  <Image iconType="3" name="/delete-bin-2-fill.png"/>
                                 </Property>
                                 <Property name="toolTipText" type="java.lang.String" value="delete task"/>
                                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1056,7 +1056,7 @@
                             <Component class="javax.swing.JButton" name="task_page_graphics_background_development_edit_button">
                               <Properties>
                                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                  <Image iconType="3" name="/taskmanager/assets/images/edit-2-fill.png"/>
+                                  <Image iconType="3" name="/edit-2-fill.png"/>
                                 </Property>
                                 <Property name="toolTipText" type="java.lang.String" value="modify task"/>
                                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1228,7 +1228,7 @@
                                 <Component class="javax.swing.JButton" name="task_page_graphics_twilight_delete_button">
                                   <Properties>
                                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                      <Image iconType="3" name="/taskmanager/assets/images/delete-bin-2-fill.png"/>
+                                      <Image iconType="3" name="/delete-bin-2-fill.png"/>
                                     </Property>
                                     <Property name="toolTipText" type="java.lang.String" value="delete task"/>
                                     <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1239,7 +1239,7 @@
                                 <Component class="javax.swing.JButton" name="task_page_graphics_twilight_edit_button">
                                   <Properties>
                                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                      <Image iconType="3" name="/taskmanager/assets/images/edit-2-fill.png"/>
+                                      <Image iconType="3" name="/edit-2-fill.png"/>
                                     </Property>
                                     <Property name="toolTipText" type="java.lang.String" value="modify task"/>
                                     <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1338,7 +1338,7 @@
                                 <Component class="javax.swing.JButton" name="task_page_graphics_afternoon_delete_button">
                                   <Properties>
                                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                      <Image iconType="3" name="/taskmanager/assets/images/delete-bin-2-fill.png"/>
+                                      <Image iconType="3" name="/delete-bin-2-fill.png"/>
                                     </Property>
                                     <Property name="toolTipText" type="java.lang.String" value="delete task"/>
                                     <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1349,7 +1349,7 @@
                                 <Component class="javax.swing.JButton" name="task_page_graphics_afternoon_edit_button">
                                   <Properties>
                                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                      <Image iconType="3" name="/taskmanager/assets/images/edit-2-fill.png"/>
+                                      <Image iconType="3" name="/edit-2-fill.png"/>
                                     </Property>
                                     <Property name="toolTipText" type="java.lang.String" value="modify task"/>
                                     <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1448,7 +1448,7 @@
                                 <Component class="javax.swing.JButton" name="task_page_graphics_night_delete_button">
                                   <Properties>
                                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                      <Image iconType="3" name="/taskmanager/assets/images/delete-bin-2-fill.png"/>
+                                      <Image iconType="3" name="/delete-bin-2-fill.png"/>
                                     </Property>
                                     <Property name="toolTipText" type="java.lang.String" value="delete task"/>
                                     <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1459,7 +1459,7 @@
                                 <Component class="javax.swing.JButton" name="task_page_graphics_night_edit_button">
                                   <Properties>
                                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                      <Image iconType="3" name="/taskmanager/assets/images/edit-2-fill.png"/>
+                                      <Image iconType="3" name="/edit-2-fill.png"/>
                                     </Property>
                                     <Property name="toolTipText" type="java.lang.String" value="modify task"/>
                                     <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1590,7 +1590,7 @@
                             <Component class="javax.swing.JButton" name="task_page_graphics_cathedral_modelling_delete_button">
                               <Properties>
                                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                  <Image iconType="3" name="/taskmanager/assets/images/delete-bin-2-fill.png"/>
+                                  <Image iconType="3" name="/delete-bin-2-fill.png"/>
                                 </Property>
                                 <Property name="toolTipText" type="java.lang.String" value="delete task"/>
                                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1601,7 +1601,7 @@
                             <Component class="javax.swing.JButton" name="task_page_graphics_cathedral_modelling_edit_button">
                               <Properties>
                                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                  <Image iconType="3" name="/taskmanager/assets/images/edit-2-fill.png"/>
+                                  <Image iconType="3" name="/edit-2-fill.png"/>
                                 </Property>
                                 <Property name="toolTipText" type="java.lang.String" value="modify task"/>
                                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1764,7 +1764,7 @@
                             <Component class="javax.swing.JButton" name="task_page_graphics_indoor_lighting_delete_button">
                               <Properties>
                                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                  <Image iconType="3" name="/taskmanager/assets/images/delete-bin-2-fill.png"/>
+                                  <Image iconType="3" name="/delete-bin-2-fill.png"/>
                                 </Property>
                                 <Property name="toolTipText" type="java.lang.String" value="delete task"/>
                                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1775,7 +1775,7 @@
                             <Component class="javax.swing.JButton" name="task_page_graphics_indoor_lighting_edit_button">
                               <Properties>
                                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                  <Image iconType="3" name="/taskmanager/assets/images/edit-2-fill.png"/>
+                                  <Image iconType="3" name="/edit-2-fill.png"/>
                                 </Property>
                                 <Property name="toolTipText" type="java.lang.String" value="modify task"/>
                                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1944,7 +1944,7 @@
                                 <Component class="javax.swing.JButton" name="task_page_graphics_candles_delete_button">
                                   <Properties>
                                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                      <Image iconType="3" name="/taskmanager/assets/images/delete-bin-2-fill.png"/>
+                                      <Image iconType="3" name="/delete-bin-2-fill.png"/>
                                     </Property>
                                     <Property name="toolTipText" type="java.lang.String" value="delete task"/>
                                     <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -1955,7 +1955,7 @@
                                 <Component class="javax.swing.JButton" name="task_page_graphics_candles_edit_button">
                                   <Properties>
                                     <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                      <Image iconType="3" name="/taskmanager/assets/images/edit-2-fill.png"/>
+                                      <Image iconType="3" name="/edit-2-fill.png"/>
                                     </Property>
                                     <Property name="toolTipText" type="java.lang.String" value="modify task"/>
                                     <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -2165,7 +2165,7 @@
                                     <Component class="javax.swing.JButton" name="task_page_graphics_chandelier_delete_button">
                                       <Properties>
                                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                          <Image iconType="3" name="/taskmanager/assets/images/delete-bin-2-fill.png"/>
+                                          <Image iconType="3" name="/delete-bin-2-fill.png"/>
                                         </Property>
                                         <Property name="toolTipText" type="java.lang.String" value="delete task"/>
                                         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
@@ -2176,7 +2176,7 @@
                                     <Component class="javax.swing.JButton" name="task_page_graphics_chandelier_edit_button">
                                       <Properties>
                                         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                                          <Image iconType="3" name="/taskmanager/assets/images/edit-2-fill.png"/>
+                                          <Image iconType="3" name="/edit-2-fill.png"/>
                                         </Property>
                                         <Property name="toolTipText" type="java.lang.String" value="modify task"/>
                                         <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
