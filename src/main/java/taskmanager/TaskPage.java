@@ -1604,7 +1604,7 @@ public class TaskPage extends javax.swing.JFrame {
         }
 
         // Delete the subtask with @subtask_name, whose team_ID is the ID of the current team, from the database.
-        ps = DBConnection.prepared_statement("DELETE FROM SUBTASK " +
+        ps = DBConnection.prepared_statement("UPDATE SUBTASK SET DELETED = 'Y' " +
                 "WHERE NAME = ? AND SUBTASK_TO IN(SELECT TASK_ID FROM TASKS WHERE TEAM_ID = ?) AND DELETED != 'Y'");
         page_loaded = (ps != null) ? DBConnection.set_statement_value(ps, 1, subtask_name) : false;
         page_loaded = page_loaded ? DBConnection.set_statement_value(ps, 2, SystemController.current_team.team_ID()) : false;
@@ -1639,7 +1639,7 @@ public class TaskPage extends javax.swing.JFrame {
         // Delete the task category with @category_name, whose team_ID is the ID of the current team, from the database.
         boolean page_loaded = true;
         DBConnection.connect();
-        PreparedStatement ps = DBConnection.prepared_statement("DELETE FROM TASKCATEGORIES "+
+        PreparedStatement ps = DBConnection.prepared_statement("UPDATE TASKCATEGORIES SET DELETED = 'Y' "+
                 "WHERE NAME = ? AND TEAM_ID = ?");
         page_loaded = (ps != null) ? DBConnection.set_statement_value(ps, 1, category_name) : false;
         page_loaded = page_loaded ? DBConnection.set_statement_value(ps, 2, SystemController.current_team.team_ID()) : false;
