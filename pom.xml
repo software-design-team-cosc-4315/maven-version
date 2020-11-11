@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.mycompany.app</groupId>
@@ -9,14 +9,15 @@
   <version>1.0-SNAPSHOT</version>
 
   <name>my-app</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <url>https://github.com/software-design-team-cosc-4315/maven-version</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
   </properties>
+
+
 
   <dependencies>
     <dependency>
@@ -31,26 +32,21 @@
       <scope>system</scope>
       <systemPath>${project.basedir}/dist/TaskManager.jar</systemPath>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.netbeans.external/AbsoluteLayout -->
     <dependency>
-      <groupId>com.sample</groupId>
+      <groupId>org.netbeans.external</groupId>
       <artifactId>AbsoluteLayout</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/dist/lib/AbsoluteLayout.jar</systemPath>
+      <version>RELEASE121</version>
     </dependency>
     <dependency>
-      <groupId>com.sample</groupId>
-      <artifactId>ojdbc7</artifactId>
-      <version>7</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/dist/lib/ojdbc7.jar</systemPath>
+      <groupId>com.oracle.ojdbc</groupId>
+      <artifactId>ojdbc8</artifactId>
+      <version>19.3.0.0</version>
     </dependency>
     <dependency>
-      <groupId>com.sample</groupId>
+      <groupId>net.java.dev.beansbinding</groupId>
       <artifactId>beansbinding</artifactId>
       <version>1.2.1</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/dist/lib/beansbinding-1.2.1.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -67,6 +63,11 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources/images</directory>
+      </resource>
+    </resources>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->

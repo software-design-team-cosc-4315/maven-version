@@ -583,11 +583,11 @@ public class TaskPage extends javax.swing.JFrame {
                 .addComponent(task_page_graphics_category_creation_date_label))
         );
 
-        task_page_graphics_category_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        task_page_graphics_category_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         task_page_graphics_category_delete_button.setToolTipText("delete cateogry");
         task_page_graphics_category_delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        task_page_graphics_category_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        task_page_graphics_category_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         task_page_graphics_category_edit_button.setToolTipText("modify category");
         task_page_graphics_category_edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
@@ -670,11 +670,11 @@ public class TaskPage extends javax.swing.JFrame {
 
         task_page_graphics_background_development_name_label.setText("Background Development");
 
-        task_page_graphics_background_development_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        task_page_graphics_background_development_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         task_page_graphics_background_development_delete_button.setToolTipText("delete task");
         task_page_graphics_background_development_delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        task_page_graphics_background_development_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        task_page_graphics_background_development_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         task_page_graphics_background_development_edit_button.setToolTipText("modify task");
         task_page_graphics_background_development_edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
@@ -764,11 +764,11 @@ public class TaskPage extends javax.swing.JFrame {
 
         task_page_graphics_twilight_name_label.setText("Twilight");
 
-        task_page_graphics_twilight_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        task_page_graphics_twilight_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         task_page_graphics_twilight_delete_button.setToolTipText("delete task");
         task_page_graphics_twilight_delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        task_page_graphics_twilight_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        task_page_graphics_twilight_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         task_page_graphics_twilight_edit_button.setToolTipText("modify task");
         task_page_graphics_twilight_edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
@@ -831,11 +831,11 @@ public class TaskPage extends javax.swing.JFrame {
 
         task_page_graphics_afternoon_name_label.setText("Afternoon");
 
-        task_page_graphics_afternoon_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        task_page_graphics_afternoon_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         task_page_graphics_afternoon_delete_button.setToolTipText("delete task");
         task_page_graphics_afternoon_delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        task_page_graphics_afternoon_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        task_page_graphics_afternoon_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         task_page_graphics_afternoon_edit_button.setToolTipText("modify task");
         task_page_graphics_afternoon_edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
@@ -898,11 +898,11 @@ public class TaskPage extends javax.swing.JFrame {
 
         task_page_graphics_night_name_label.setText("Starry Night");
 
-        task_page_graphics_night_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        task_page_graphics_night_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         task_page_graphics_night_delete_button.setToolTipText("delete task");
         task_page_graphics_night_delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        task_page_graphics_night_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        task_page_graphics_night_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         task_page_graphics_night_edit_button.setToolTipText("modify task");
         task_page_graphics_night_edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
@@ -1030,11 +1030,11 @@ public class TaskPage extends javax.swing.JFrame {
 
         task_page_graphics_cathedral_modelling_name_label.setText("Cathedral Modelling");
 
-        task_page_graphics_cathedral_modelling_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        task_page_graphics_cathedral_modelling_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         task_page_graphics_cathedral_modelling_delete_button.setToolTipText("delete task");
         task_page_graphics_cathedral_modelling_delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        task_page_graphics_cathedral_modelling_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        task_page_graphics_cathedral_modelling_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         task_page_graphics_cathedral_modelling_edit_button.setToolTipText("modify task");
         task_page_graphics_cathedral_modelling_edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
@@ -1112,11 +1112,11 @@ public class TaskPage extends javax.swing.JFrame {
 
         task_page_graphics_indoor_lighting_name_label.setText("In-door Lighting");
 
-        task_page_graphics_indoor_lighting_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        task_page_graphics_indoor_lighting_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         task_page_graphics_indoor_lighting_delete_button.setToolTipText("delete task");
         task_page_graphics_indoor_lighting_delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        task_page_graphics_indoor_lighting_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        task_page_graphics_indoor_lighting_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         task_page_graphics_indoor_lighting_edit_button.setToolTipText("modify task");
         task_page_graphics_indoor_lighting_edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
@@ -1206,11 +1206,11 @@ public class TaskPage extends javax.swing.JFrame {
 
         task_page_graphics_candles_name_label.setText("Candles");
 
-        task_page_graphics_candles_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        task_page_graphics_candles_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         task_page_graphics_candles_delete_button.setToolTipText("delete task");
         task_page_graphics_candles_delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        task_page_graphics_candles_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        task_page_graphics_candles_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         task_page_graphics_candles_edit_button.setToolTipText("modify task");
         task_page_graphics_candles_edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
@@ -1302,11 +1302,11 @@ public class TaskPage extends javax.swing.JFrame {
 
         task_page_graphics_chandelier_name_label.setText("Chandelier");
 
-        task_page_graphics_chandelier_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        task_page_graphics_chandelier_delete_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         task_page_graphics_chandelier_delete_button.setToolTipText("delete task");
         task_page_graphics_chandelier_delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        task_page_graphics_chandelier_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        task_page_graphics_chandelier_edit_button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         task_page_graphics_chandelier_edit_button.setToolTipText("modify task");
         task_page_graphics_chandelier_edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
