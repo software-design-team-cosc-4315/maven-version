@@ -18,7 +18,7 @@ public class DBConnectionTest {
     }
 
     @Test
-    @Order(2)
+    @Order(4)
     public void disconnect() {
         assertEquals(true, DBConnection.disconnect());
     }
