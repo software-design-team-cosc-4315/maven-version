@@ -5,7 +5,6 @@
  */
 package taskmanager;
 
-import java.util.Date;
 import java.awt.Color;
 
 /**
@@ -18,8 +17,8 @@ public class TaskPrototype {
     protected int _ID;
     protected String _name;
     protected String _description;
-    protected Date _due_date;
-    protected Date _created_on;
+    protected java.util.Date _due_date;
+    protected java.util.Date _created_on;
     protected int _creator_ID;
     protected String _creator_username;
     protected String _status;
@@ -39,9 +38,9 @@ public class TaskPrototype {
     public int ID() { return this._ID; }
     public String name() { return this._name; }
     public String description() { return this._description; }
-    public Date due_date() { return this._due_date; }
+    public java.util.Date due_date() { return this._due_date; }
     public String str_due_date() { return DBConnection.__date_format__.format(this._due_date); }
-    public Date created_on() { return this._created_on; }
+    public java.util.Date created_on() { return this._created_on; }
     public String str_created_on() { return DBConnection.__date_format__.format(this._created_on); }
     public int creator_ID() { 
         if (SystemController.current_user.role() != AppUser.UserType.MANAGER) {
@@ -64,15 +63,19 @@ public class TaskPrototype {
     public void set_ID(int ID) { this._ID = ID; }
     public void set_name(String name) { this._name = name; }
     public void set_description(String description) { this._description = description; }
-    public void set_due_date(Date due_date) { this._due_date = due_date; }
+    public void set_due_date(java.util.Date due_date) { this._due_date = due_date; }
     public void set_due_date(String due_date) {
         try { this._due_date = DBConnection.__date_format__.parse(due_date); } 
         catch (Exception e) { System.out.println("DATE PARSING ERROR: Entered date [" + due_date + "] is in the wrong format!"); }
     }
-    public void set_created_on(Date created_on) { this._created_on = created_on; }
+    public void set_due_date(java.sql.Date due_date) { this._due_date = new java.util.Date(due_date.getTime()); }
+    public void set_created_on(java.util.Date created_on) { this._created_on = created_on; }
     public void set_created_on(String created_on) {
         try { this._created_on = DBConnection.__date_format__.parse(created_on); } 
         catch (Exception e) { System.out.println("DATE PARSING ERROR: Entered date [" + created_on + "] is in the wrong format!"); }
+    }
+    public void set_created_on(java.sql.Date creation_date) {
+        this._created_on = new java.util.Date(creation_date.getTime());
     }
     public void set_creator_ID(int creator_ID) { 
         if (SystemController.current_user.role() != AppUser.UserType.MANAGER) System.out.println("INVALID CREATOR ID: Only managers have the priviledge to access ID's.");
