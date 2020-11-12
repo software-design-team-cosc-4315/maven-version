@@ -7,18 +7,19 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DBConnectionTest {
 
     @Test
     @Order(1)
     public void connect() {
-        assertTrue(DBConnection.connect());
+        assertEquals(true, DBConnection.connect());
     }
 
     @Test
-    @Order(2)
+    @Order(4)
     public void disconnect() {
-        assertTrue(DBConnection.disconnect());
+        assertEquals(true, DBConnection.disconnect());
     }
 }

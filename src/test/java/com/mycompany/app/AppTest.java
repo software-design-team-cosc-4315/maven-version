@@ -33,7 +33,7 @@ public class AppTest
     @Test
     @Order(4)
     public void canary() {
-        Assert.assertTrue(true);
+        Assert.assertEquals(true, true);
     }
 
     @AfterAll

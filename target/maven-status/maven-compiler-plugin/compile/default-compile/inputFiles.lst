@@ -1,3 +1,4 @@
+/home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/WorkLoadGroup.java
 /home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/TaskCategory.java
 /home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/LoginPage.java
 /home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/TaskPanel.java
@@ -14,6 +15,7 @@
 /home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/AppUser.java
 /home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/TeamLeadersPage.java
 /home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/DBConnection.java
+/home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/WorkLoadRecord.java
 /home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/GeneralUIFunctions.java
 /home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/TeamlessMemberPanel.java
 /home/timothy/Education/Software_Design/maven-version/my-app/src/main/java/taskmanager/TaskCategoryScrollPanel.java

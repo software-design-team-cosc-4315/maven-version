@@ -1819,7 +1819,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 category.set_name(rs.getString("NAME"));
                 category.set_description(rs.getString("CATEGORY_DESCRIPTION"));
                 category.set_creator_username(rs.getString("CREATOR_USERNAME"));
-                category.set_created_on(rs.getString("CREATED_ON"));
+                category.set_created_on(rs.getDate("CREATED_ON"));
                 category.set_team_ID(team_ID);
                 
                 this._task_category_map.put(category.name(), category);
@@ -1848,9 +1848,9 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 task.set_ID(rs.getInt("TASK_ID"));
                 task.set_name(rs.getString("NAME"));
                 task.set_description(rs.getString("TASK_DESCRIPTION"));
-                task.set_due_date(rs.getString("DUE_DATE"));
+                task.set_due_date(rs.getDate("DUE_DATE"));
                 task.set_recur_interval(rs.getInt("RECUR_INTERVAL"));
-                task.set_created_on(rs.getString("CREATED_ON"));
+                task.set_created_on(rs.getDate("CREATED_ON"));
                 task.set_creator_username(rs.getString("CREATOR_USERNAME"));
                 task.set_status(rs.getString("STATUS"));
                 task.set_priority(rs.getShort("TASK_PRIORITY"));
@@ -1883,8 +1883,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                     subtask.set_ID(rs.getInt("SUBTASK_ID"));
                     subtask.set_name(rs.getString("NAME"));
                     subtask.set_description(rs.getString("DESCRIPTION"));
-                    subtask.set_due_date(rs.getString("DUE_DATE"));
-                    subtask.set_created_on(rs.getString("CREATED_ON"));
+                    subtask.set_due_date(rs.getDate("DUE_DATE"));
+                    subtask.set_created_on(rs.getDate("CREATED_ON"));
                     subtask.set_creator_username(rs.getString("CREATOR_USERNAME"));
                     subtask.set_status(rs.getString("STATUS"));
                     subtask.set_priority(rs.getShort("PRIORITY"));

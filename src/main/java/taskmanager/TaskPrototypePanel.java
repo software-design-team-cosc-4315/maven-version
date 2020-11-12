@@ -104,11 +104,11 @@ public abstract class TaskPrototypePanel extends JPanel {
         
         
         // 3. alteration buttons
-        this._delete_button.setIcon(new ImageIcon(getClass().getResource("/taskmanager/assets/images/delete-bin-2-fill.png"))); // NOI18N
+        this._delete_button.setIcon(new ImageIcon(getClass().getResource("/delete-bin-2-fill.png"))); // NOI18N
         this._delete_button.setToolTipText("delete task");
         this._delete_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
-        this._edit_button.setIcon(new ImageIcon(getClass().getResource("/taskmanager/assets/images/edit-2-fill.png"))); // NOI18N
+        this._edit_button.setIcon(new ImageIcon(getClass().getResource("/edit-2-fill.png"))); // NOI18N
         this._edit_button.setToolTipText("modify task");
         this._edit_button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 

@@ -16,6 +16,7 @@ taskmanager/ManagersPage$13.class
 taskmanager/TeamLeadersPage$2.class
 taskmanager/TeamLeadersPage$8.class
 taskmanager/TeamLeadersPage$Focus.class
+taskmanager/WorkLoadGroup.class
 taskmanager/AppUser$UserType.class
 taskmanager/TaskCategory.class
 taskmanager/ManagersPage$2.class
@@ -52,6 +53,7 @@ taskmanager/DBConnection.class
 taskmanager/TeamLeadersPage$3.class
 taskmanager/TeamLeadersPage$7.class
 taskmanager/ManagersPage$12.class
+taskmanager/WorkLoadRecord.class
 taskmanager/ManagersPage$18.class
 taskmanager/TeamLeadersPage$12.class
 taskmanager/DBConnection$Transaction.class
