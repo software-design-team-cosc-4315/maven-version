@@ -277,8 +277,6 @@ public class LoginPage extends javax.swing.JFrame {
             this.login_message.setText(auth_message);
     }//GEN-LAST:event_login_page_button_submit_loginActionPerformed
 
-    
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel login_message;
     private javax.swing.JButton login_page_button_submit_login;

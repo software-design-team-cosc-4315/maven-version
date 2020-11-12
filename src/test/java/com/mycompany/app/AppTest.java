@@ -1,7 +1,9 @@
 package com.mycompany.app;
 
-import org.junit.Assert;
+//import org.junit.Assert;
 import org.junit.jupiter.api.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AppTest
@@ -33,13 +35,13 @@ public class AppTest
     @Test
     @Order(4)
     public void canary() {
-        Assert.assertTrue(true);
+        assertTrue(true);
     }
 
     @AfterAll
     public static void assertOutput() {
         System.out.println(output.toString());
-        Assert.assertEquals(output.toString(), "abc");
+        assertEquals(output.toString(), "abc");
     }
 }
 
