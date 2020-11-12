@@ -14,12 +14,12 @@ public class DBConnectionTest {
     @Test
     @Order(1)
     public void connect() {
-        assertTrue(DBConnection.connect());
+        assertEquals(true, DBConnection.connect());
     }
 
     @Test
     @Order(2)
     public void disconnect() {
-        assertTrue(DBConnection.disconnect());
+        assertEquals(true, DBConnection.disconnect());
     }
 }
