@@ -1,6 +1,0 @@
-taskmanager/TaskPrototypeTest.class
-taskmanager/DBConnectionTest.class
-taskmanager/TaskLifeCycleTest.class
-taskmanager/AppUserTest.class
-com/mycompany/app/AppTest.class
-taskmanager/SystemControllerTest.class
