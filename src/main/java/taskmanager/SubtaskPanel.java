@@ -74,7 +74,7 @@ public class SubtaskPanel extends TaskPrototypePanel {
             for (short i=0; i < 5; ++i) this.__UI_gaps__[i].setVisible(false);
             this.__expanded__ = false;
         } else {
-            this.setBorder(BorderFactory.createTitledBorder("Task: loading..."));   // TODO: get info from data source
+            this.setBorder(BorderFactory.createTitledBorder("SubTask: " + this._data_source.name()));
             this._description_panel.setVisible(true);
             this._assignment_panel.setVisible(true);
             this._due_date_panel.setVisible(true);

@@ -35,7 +35,7 @@ public class AppTest
     @Test
     @Order(4)
     public void canary() {
-        assertTrue(true);
+        assert(true);
     }
 
     @AfterAll

@@ -8,11 +8,9 @@
 package taskmanager;
 
 
-import javax.swing.*;
 import java.util.TreeMap;
 import java.util.Map;
 import java.util.Collection;
-import java.sql.*;
 
 
 
@@ -117,6 +115,9 @@ public class TaskCategory {
         } catch (Exception e) {
             System.out.println("DATE PARSING ERROR: Entered date [" + creation_date + "] is in the wrong format!");
         }
+    }
+    public void set_created_on(java.sql.Date creation_date) {
+        this._created_on = new java.util.Date(creation_date.getTime());
     }
     //public void set_created_on(java.sql.Date creation_date) { this._created_on = new java.util.Date(creation_date.getTime()); }
     public void set_team_ID(String name) { this._team_ID = name; }

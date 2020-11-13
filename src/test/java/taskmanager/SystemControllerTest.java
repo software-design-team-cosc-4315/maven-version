@@ -31,7 +31,7 @@ public class SystemControllerTest {
     public void testLoadCurrentTeam() {
         String team_ID = "presentationteam";
         SystemController.load_current_team(team_ID);
-        assertTrue(SystemController.current_team.team_ID().equals(team_ID));
+        assertEquals(true, SystemController.current_team.team_ID().equals(team_ID));
     }
     
     @Test

@@ -48,17 +48,17 @@ public class TaskLifeCycleTest {
         
         DBConnection.connect();
         PreparedStatement ps = DBConnection.prepared_statement("INSERT INTO TASKS(NAME, TASK_DESCRIPTION, DUE_DATE, CREATED_BY_MEMBER_ID, TASK_PRIORITY, ASSIGNED_TO_MEMBER_ID, TEAM_ID, RECUR_INTERVAL) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
-        assertTrue(ps != null);
-        assertTrue( DBConnection.set_statement_value(ps, 1, "__test_non_recurrent_task__") );
-        assertTrue( DBConnection.set_statement_value(ps, 2, "__This is a test task.__") );
-        assertTrue( DBConnection.set_statement_value(ps, 3, new java.sql.Date(calendar.getTimeInMillis())) );
-        assertTrue( DBConnection.set_statement_value(ps, 4, 141) ); // creator ID
-        assertTrue( DBConnection.set_statement_value(ps, 5, 2) );  // priority
-        assertTrue( DBConnection.set_statement_value(ps, 6, 157) );  // team leader ID
-        assertTrue( DBConnection.set_statement_value(ps, 7, "presentationteam") ); // team ID
-        assertTrue( DBConnection.set_statement_value(ps, 8, 0) ); // interval of recurrence
+        assertEquals(true, ps != null);
+        assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_non_recurrent_task__") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 2, "__This is a test task.__") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 3, new java.sql.Date(calendar.getTimeInMillis())) );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 4, 141) ); // creator ID
+        assertEquals(true,  DBConnection.set_statement_value(ps, 5, 2) );  // priority
+        assertEquals(true,  DBConnection.set_statement_value(ps, 6, 157) );  // team leader ID
+        assertEquals(true,  DBConnection.set_statement_value(ps, 7, "presentationteam") ); // team ID
+        assertEquals(true,  DBConnection.set_statement_value(ps, 8, 0) ); // interval of recurrence
         
-        assertTrue( DBConnection.execute_update(ps, true) );
+        assertEquals(true,  DBConnection.execute_update(ps, true) );
         DBConnection.disconnect();
         
     }
@@ -70,16 +70,16 @@ public class TaskLifeCycleTest {
         
         DBConnection.connect();
         PreparedStatement ps = DBConnection.prepared_statement("SELECT TASK_ID FROM TASKS WHERE NAME = ? AND TEAM_ID = ? AND DELETED = 'N'");
-        assertTrue(ps != null);
-        assertTrue( DBConnection.set_statement_value(ps, 1, "__test_non_recurrent_task__") );
-        assertTrue( DBConnection.set_statement_value(ps, 2, "presentationteam") );
+        assertEquals(true, ps != null);
+        assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_non_recurrent_task__") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 2, "presentationteam") );
         ResultSet rs = DBConnection.execute_query(ps);
         
         try { 
-            assertTrue(rs.next()); 
+            assertEquals(true, rs.next()); 
             test_task_ID = rs.getInt("TASK_ID"); 
         }  catch (Exception e) { 
-            assertTrue(false); 
+            assertEquals(true, false); 
         }
         DBConnection.disconnect();
     }
@@ -94,16 +94,16 @@ public class TaskLifeCycleTest {
         
         DBConnection.connect();
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TASKS SET NAME = ?, TASK_DESCRIPTION = ?, DUE_DATE = ?, TASK_PRIORITY = ?, RECUR_INTERVAL = ?, STATUS = ? WHERE NAME = ? AND TEAM_ID = ? AND DELETED <> 'Y'");
-        assertTrue( DBConnection.set_statement_value(ps, 1, "__test_monthly_task__") );
-        assertTrue( DBConnection.set_statement_value(ps, 2, "__Changed description__") );
-        assertTrue( DBConnection.set_statement_value(ps, 3, new java.sql.Date(calendar.getTimeInMillis())) );
-        assertTrue( DBConnection.set_statement_value(ps, 4, 1) );  // priority
-        assertTrue( DBConnection.set_statement_value(ps, 5, 30) ); // interval of recurrence
-        assertTrue( DBConnection.set_statement_value(ps, 6, "In Progress") );
-        assertTrue( DBConnection.set_statement_value(ps, 7, "__test_non_recurrent_task__") );
-        assertTrue( DBConnection.set_statement_value(ps, 8, "presentationteam") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_monthly_task__") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 2, "__Changed description__") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 3, new java.sql.Date(calendar.getTimeInMillis())) );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 4, 1) );  // priority
+        assertEquals(true,  DBConnection.set_statement_value(ps, 5, 30) ); // interval of recurrence
+        assertEquals(true,  DBConnection.set_statement_value(ps, 6, "In Progress") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 7, "__test_non_recurrent_task__") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 8, "presentationteam") );
         
-        assertTrue( DBConnection.execute_update(ps, true) );
+        assertEquals(true,  DBConnection.execute_update(ps, true) );
         DBConnection.disconnect();
         
     }
@@ -114,22 +114,22 @@ public class TaskLifeCycleTest {
         
         DBConnection.connect();
         PreparedStatement ps = DBConnection.prepared_statement("SELECT TASK_ID, TASK_DESCRIPTION, DUE_DATE, TASK_PRIORITY, RECUR_INTERVAL, STATUS FROM TASKS WHERE NAME = ? AND TEAM_ID = ? AND DELETED <> 'Y'");
-        assertTrue( DBConnection.set_statement_value(ps, 1, "__test_monthly_task__") );
-        assertTrue( DBConnection.set_statement_value(ps, 2, "presentationteam") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_monthly_task__") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 2, "presentationteam") );
         ResultSet rs = DBConnection.execute_query(ps);
         
         SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd");
         
         try {
-            assertTrue(rs.next());
+            assertEquals(true, rs.next());
             assertEquals(rs.getInt("TASK_ID"), test_task_ID);
-            assertTrue(rs.getString("TASK_DESCRIPTION").equals("__Changed description__"));
-            assertTrue(rs.getDate("DUE_DATE").toString().equals(date_format.format(calendar.getTime())));
+            assertEquals(true, rs.getString("TASK_DESCRIPTION").equals("__Changed description__"));
+            assertEquals(true, rs.getDate("DUE_DATE").toString().equals(date_format.format(calendar.getTime())));
             assertEquals(rs.getInt("TASK_PRIORITY"), 1);
             assertEquals(rs.getInt("RECUR_INTERVAL"), 30);
-            assertTrue(rs.getString("STATUS").equals("In Progress"));
+            assertEquals(true, rs.getString("STATUS").equals("In Progress"));
         } catch (Exception e) {
-            assertTrue(false);
+            assertEquals(true, false);
         }
         DBConnection.disconnect();
         
@@ -142,9 +142,9 @@ public class TaskLifeCycleTest {
         
         DBConnection.connect();
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TASKS SET DELETED = 'Y' WHERE NAME = ? and TEAM_ID = ? AND DELETED != 'Y'");
-        assertTrue( DBConnection.set_statement_value(ps, 1, "__test_monthly_task__") );
-        assertTrue( DBConnection.set_statement_value(ps, 2, "presentationteam") );
-        assertTrue( DBConnection.execute_update(ps, true) );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_monthly_task__") );
+        assertEquals(true,  DBConnection.set_statement_value(ps, 2, "presentationteam") );
+        assertEquals(true,  DBConnection.execute_update(ps, true) );
         DBConnection.disconnect();
         
     }

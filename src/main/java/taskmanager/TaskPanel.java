@@ -131,7 +131,7 @@ public class TaskPanel extends TaskPrototypePanel {
             this.__UI_gaps__[5].setVisible(true);
             this.__expanded__ = false;
         } else {
-            this.setBorder(BorderFactory.createTitledBorder("Task: loading..."));   // TODO: get info from data source
+            this.setBorder(BorderFactory.createTitledBorder("Task: " + this._data_source.name()));
             this._description_panel.setVisible(true);
             this._assignment_panel.setVisible(true);
             this._due_date_panel.setVisible(true);

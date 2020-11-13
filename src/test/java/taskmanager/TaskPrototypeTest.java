@@ -27,21 +27,21 @@ public class TaskPrototypeTest {
     public void testDueDate() {
         Date current = new Date();
         test_task_proto.set_due_date(current);
-        assertTrue(test_task_proto.str_due_date().equals(DBConnection.__date_format__.format(current)));
+        assertEquals(true, test_task_proto.str_due_date().equals(DBConnection.__date_format__.format(current)));
     }
     
     @Test
     public void testCreationDate() {
         Date current = new Date();
         test_task_proto.set_created_on(current);
-        assertTrue(test_task_proto.str_created_on().equals(DBConnection.__date_format__.format(current)));
+        assertEquals(true, test_task_proto.str_created_on().equals(DBConnection.__date_format__.format(current)));
     }
     
     @Test
     public void testColour() {
         test_task_proto.set_priority((short) 3);
         Color colour = test_task_proto.color();
-        assertTrue(colour.getRed() == 255 && colour.getGreen() == 255 && colour.getBlue() == 0);
+        assertEquals(true, colour.getRed() == 255 && colour.getGreen() == 255 && colour.getBlue() == 0);
     }
     
     @Test
