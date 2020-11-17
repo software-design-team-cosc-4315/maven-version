@@ -28,7 +28,6 @@ linter:
     ignore:
       - warning
       - info
-    properties: checkstyle.properties
 
 # https://help.sider.review/getting-started/custom-configuration#ignore
 ignore:
