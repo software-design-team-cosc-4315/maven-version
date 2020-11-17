@@ -1,0 +1,43 @@
+linter:
+# https://help.sider.review/getting-started/custom-configuration
+
+  # https://help.sider.review/tools/others/misspell
+  misspell:
+    exclude:
+      - dist
+      - sql_data
+    target:
+      - target
+    locale: US
+
+  # https://help.sider.review/tools/java/pmd
+  pmd_java:
+    rulesets:
+      - category/java/bestpractices.xml
+      - category/java/codestyle.xml
+      - category/java/design.xml
+      - category/java/documentation.xml
+      - category/java/errorprone.xml
+      - category/java/performance.xml
+      - category/java/security.xml
+
+  # https://help.sider.review/tools/java/checkstyle
+  checkstyle:
+    config: google
+    dir: src
+    ignore:
+      - warning
+      - info
+
+# https://help.sider.review/getting-started/custom-configuration#ignore
+ignore:
+  - "*.pdf"
+  - "*.mp4"
+  - "images/**"
+
+# https://help.sider.review/getting-started/custom-configuration#branchesexclude
+branches:
+  exclude:
+    - master
+    - development
+    - /^release-.*$/
