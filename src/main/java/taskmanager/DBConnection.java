@@ -251,71 +251,79 @@ public class DBConnection {
     // Transaction command:
     public static void transaction(Transaction command) {
         
-        if (command == Transaction.BEGIN) {
-            if (DBConnection.__in_transaction__) {
-                System.out.println("TRANSACTION ERROR: System is processing another transaction and cannot start a new transaction yet!");
-                return;
-            }
+        switch (command) {
+            case BEGIN:
+                DBConnection.__begin_transaction__();
+                break;
+            case ROLLBACK:
+                DBConnection.__rollback_transaction__();
+                break;
+            case END:
+                DBConnection.__end_transaction__();
+                break;
+            default:
+                // Invalid transaction command:
+                System.out.println("TRANSACTION COMMAND ERROR: Invalid transaction command {" + command + "}");
+        }
+        
+    }
+    
+    
+    private static void __begin_transaction__() {
+        if (DBConnection.__in_transaction__) {
+            System.out.println("TRANSACTION ERROR: System is processing another transaction and cannot start a new transaction yet!");
+            return;
+        }
                 
-            try {
-                DBConnection.connection.setAutoCommit(false);
-                DBConnection.__save_point__ = DBConnection.connection.setSavepoint(); 
-                DBConnection.__in_transaction__ = true;
-            } catch(SQLException e) { 
-                System.out.println("TRANSACTION ERROR: There was an error when starting the transaction. Transaction aborted!");
-                System.out.println(e);
-                DBConnection.__save_point__ = null;
-                DBConnection.__in_transaction__ = false;
-            }
+        try {
+            DBConnection.connection.setAutoCommit(false);
+            DBConnection.__save_point__ = DBConnection.connection.setSavepoint(); 
+            DBConnection.__in_transaction__ = true;
+        } catch(SQLException e) { 
+            System.out.println("TRANSACTION ERROR: There was an error when starting the transaction. Transaction aborted!");
+            System.out.println(e);
+            DBConnection.__save_point__ = null;
+            DBConnection.__in_transaction__ = false;
+        }
+    }
+    
+    private static void __rollback_transaction__() {
+        if (!DBConnection.__in_transaction__) {
+            System.out.println("TRANSACTION ERROR: System is not processing a transaction and cannot make a rollback!");
             return;
         }
-        
-        
-        if (command == Transaction.ROLLBACK) {
-            if (!DBConnection.__in_transaction__) {
-                System.out.println("TRANSACTION ERROR: System is not processing a transaction and cannot make a rollback!");
-                return;
-            }
 
-            try {
-                DBConnection.connection.rollback(DBConnection.__save_point__);
-                DBConnection.connection.commit();
-            } catch (SQLException e) {
-                System.out.println("TRANSACTION ERROR: There was an error when rolling back the transaction. Rollback aborted!");
-                System.out.println(e);
-            }
+        try {
+            DBConnection.connection.rollback(DBConnection.__save_point__);
+            DBConnection.connection.commit();
+        } catch (SQLException e) {
+            System.out.println("TRANSACTION ERROR: There was an error when rolling back the transaction. Rollback aborted!");
+            System.out.println(e);
+        }
+    }
+    
+    private static void __end_transaction__() {
+        if (!DBConnection.__in_transaction__) {
+            System.out.println("TRANSACTION ERROR: System is not processing a transaction and cannot commit anything!");
             return;
         }
-        
-        
-        if (command == Transaction.END) {
-            if (!DBConnection.__in_transaction__) {
-                System.out.println("TRANSACTION ERROR: System is not processing a transaction and cannot commit anything!");
-                return;
-            }
 
-            try {
-                DBConnection.connection.commit();
-                DBConnection.__save_point__ = null;
-                DBConnection.__in_transaction__ = false;
-            } catch (SQLException e) {
-                System.out.println("TRANSACTION ERROR: There was an error when finishing up the transaction. Transaction not ended!");
-                System.out.println(e);
-            }
-
-            // Restore auto-commit:
-            try {
-                DBConnection.connection.setAutoCommit(true);
-            } catch (SQLException e) {
-                System.out.println("WARNING: Database auto-commit may be turned off. Restore the auto-commit immediately!");
-                System.out.println("POST-TRANSACTION ERROR: " + e);
-            }
-            return;
+        try {
+            DBConnection.connection.commit();
+            DBConnection.__save_point__ = null;
+            DBConnection.__in_transaction__ = false;
+        } catch (SQLException e) {
+            System.out.println("TRANSACTION ERROR: There was an error when finishing up the transaction. Transaction not ended!");
+            System.out.println(e);
         }
-        
-        
-        // Invalid transaction command:
-        System.out.println("TRANSACTION COMMAND ERROR: Invalid transaction command {" + command + "}");
+
+        // Restore auto-commit:
+        try {
+            DBConnection.connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            System.out.println("WARNING: Database auto-commit may be turned off. Restore the auto-commit immediately!");
+            System.out.println("POST-TRANSACTION ERROR: " + e);
+        }
     }
     
 }
