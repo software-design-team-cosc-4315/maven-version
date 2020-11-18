@@ -12,7 +12,7 @@ linter:
 
   # https://help.sider.review/tools/java/checkstyle
   checkstyle:
-    config: sun
+    config: google
     dir: src
     ignore:
       - warning
