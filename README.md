@@ -37,7 +37,7 @@ Made by Erick Flores, Kevin Do, Ganondorf Jallida, Timothy Chandler
 </details>
 
 <details>
-	<summary>Timothy "Ernalldis" Chandler</summary>
+	<summary>Timothy "Ernaldis" Chandler</summary>
 	<ul>
 		<li> Created VCS repository and guided team members in its use </li>
 		<li> Assisted in the creation of the schema of the database </li>
@@ -48,6 +48,3 @@ Made by Erick Flores, Kevin Do, Ganondorf Jallida, Timothy Chandler
 		<li> Advised programme and database structures </li>
 	</ul>
 </details>
-
-In order to compile, ojdbc7 from the extern folder must be added along with the AbsoluteLayout and beansbinding-1.2.1 from the dist/lib folder
-Alternatively, dist/TaskManager.jar is the compiled project and double clicking it will launch the app
