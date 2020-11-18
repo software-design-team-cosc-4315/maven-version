@@ -36,6 +36,7 @@ public class TaskLifeCycleTest {
         creation_date = new java.util.Date();
         calendar = Calendar.getInstance();
         test_task_ID = -1;
+        DBConnection.connect();
     }
     
     
@@ -45,8 +46,7 @@ public class TaskLifeCycleTest {
         
         calendar.setTime(creation_date);
         calendar.add(Calendar.DATE, 2);
-        
-        DBConnection.connect();
+
         PreparedStatement ps = DBConnection.prepared_statement("INSERT INTO TASKS(NAME, TASK_DESCRIPTION, DUE_DATE, CREATED_BY_MEMBER_ID, TASK_PRIORITY, ASSIGNED_TO_MEMBER_ID, TEAM_ID, RECUR_INTERVAL) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
         assertEquals(true, ps != null);
         assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_non_recurrent_task__") );
@@ -59,16 +59,12 @@ public class TaskLifeCycleTest {
         assertEquals(true,  DBConnection.set_statement_value(ps, 8, 0) ); // interval of recurrence
         
         assertEquals(true,  DBConnection.execute_update(ps, true) );
-        DBConnection.disconnect();
-        
     }
     
     
     @Test
     @Order(2)
     public void testSelectCreatedTask() {
-        
-        DBConnection.connect();
         PreparedStatement ps = DBConnection.prepared_statement("SELECT TASK_ID FROM TASKS WHERE NAME = ? AND TEAM_ID = ? AND DELETED = 'N'");
         assertEquals(true, ps != null);
         assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_non_recurrent_task__") );
@@ -81,7 +77,6 @@ public class TaskLifeCycleTest {
         }  catch (Exception e) { 
             assertEquals(true, false); 
         }
-        DBConnection.disconnect();
     }
     
     
@@ -91,8 +86,7 @@ public class TaskLifeCycleTest {
         
         calendar.setTime(creation_date);
         calendar.add(Calendar.DATE, 15);
-        
-        DBConnection.connect();
+
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TASKS SET NAME = ?, TASK_DESCRIPTION = ?, DUE_DATE = ?, TASK_PRIORITY = ?, RECUR_INTERVAL = ?, STATUS = ? WHERE NAME = ? AND TEAM_ID = ? AND DELETED <> 'Y'");
         assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_monthly_task__") );
         assertEquals(true,  DBConnection.set_statement_value(ps, 2, "__Changed description__") );
@@ -104,15 +98,12 @@ public class TaskLifeCycleTest {
         assertEquals(true,  DBConnection.set_statement_value(ps, 8, "presentationteam") );
         
         assertEquals(true,  DBConnection.execute_update(ps, true) );
-        DBConnection.disconnect();
-        
     }
     
     @Test
     @Order(4)
     public void testSelectUpdatedTask() {
-        
-        DBConnection.connect();
+
         PreparedStatement ps = DBConnection.prepared_statement("SELECT TASK_ID, TASK_DESCRIPTION, DUE_DATE, TASK_PRIORITY, RECUR_INTERVAL, STATUS FROM TASKS WHERE NAME = ? AND TEAM_ID = ? AND DELETED <> 'Y'");
         assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_monthly_task__") );
         assertEquals(true,  DBConnection.set_statement_value(ps, 2, "presentationteam") );
@@ -131,22 +122,17 @@ public class TaskLifeCycleTest {
         } catch (Exception e) {
             assertEquals(true, false);
         }
-        DBConnection.disconnect();
-        
     }
     
     
     @Test
     @Order(5)
     public void testDeleteTask() {
-        
-        DBConnection.connect();
+
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TASKS SET DELETED = 'Y' WHERE NAME = ? and TEAM_ID = ? AND DELETED != 'Y'");
         assertEquals(true,  DBConnection.set_statement_value(ps, 1, "__test_monthly_task__") );
         assertEquals(true,  DBConnection.set_statement_value(ps, 2, "presentationteam") );
         assertEquals(true,  DBConnection.execute_update(ps, true) );
-        DBConnection.disconnect();
-        
     }
     
     
@@ -154,8 +140,6 @@ public class TaskLifeCycleTest {
     
     @AfterAll
     public static void cleanUpTestedDatabaseRecords() {
-        
-        DBConnection.connect();
         DBConnection.transaction(DBConnection.Transaction.BEGIN);
         
         // clean the task history:
@@ -166,8 +150,8 @@ public class TaskLifeCycleTest {
         // clean the task:
         ps = DBConnection.prepared_statement("DELETE FROM TASKS WHERE TASK_ID = ?");
         cleaned = cleaned && (ps != null);
-        cleaned = cleaned? DBConnection.set_statement_value(ps, 1, test_task_ID) : false;
-        cleaned = cleaned? DBConnection.execute_update(ps, true) : false;
+        cleaned = cleaned && DBConnection.set_statement_value(ps, 1, test_task_ID);
+        cleaned = cleaned && DBConnection.execute_update(ps, true);
         
         if (!cleaned) {
             System.out.println("ERROR: Task life-cycle test clean-up failed! Please remove the test records from the database manually.");
@@ -176,8 +160,5 @@ public class TaskLifeCycleTest {
         
         DBConnection.transaction(DBConnection.Transaction.END);
         DBConnection.disconnect();
-        
     }
-    
-    
 }
