@@ -156,6 +156,7 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+dist/nbactions.xml
 
 # End of https://www.toptal.com/developers/gitignore/api/maven,intellij,netbeans,java
 target/**
