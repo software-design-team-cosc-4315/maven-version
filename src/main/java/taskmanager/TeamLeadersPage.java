@@ -1796,229 +1796,53 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this._member_workload_stat_map.clear();
         this._user_list.clear();
         
-        
-        String team_ID = SystemController.current_team.team_ID();
-        boolean loaded = true;
+        // Load data from the database:
         DBConnection.connect();
-        
-        // TODO: Set up a restriction for this update to fire only once-per hour
-        // Update the database task recurrences:
-        CallableStatement cs = DBConnection.callable_statement("RENEW_TEAM_TASKS(?, ?)");
-        loaded = (cs != null)? DBConnection.set_statement_value(cs, 1, SystemController.current_team.team_ID()) : false;
-        loaded = loaded? DBConnection.register_out_parameter(cs, 2, Types.VARCHAR) : false;
-        DBConnection.execute(cs);
-        loaded = loaded? DBConnection.close_statement(cs) : false;
-        
-        
-        // Query all the task categories, tasks and subtasks in the current team:
-        loaded = this.__reload_task_structure__(search_name);
-        if (!loaded) {
-            this.header_team_label.setText("Task Structure Not Properly Loaded!");
-            DBConnection.disconnect(); 
-            return;
-        }
-        /*
-        
-        PreparedStatement ps = DBConnection.prepared_statement("SELECT TC.TASK_CATEGORY_ID, TC.NAME, TC.CATEGORY_DESCRIPTION, CREATOR.USERNAME AS CREATOR_USERNAME, TC.CREATED_ON FROM TASKCATEGORIES TC, MEMBERS CREATOR WHERE TC.TEAM_ID = ? AND TC.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID");
-        loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
-        ResultSet rs = DBConnection.execute_query(ps);
-        
-        try {
-            while(rs.next()) {
-                TaskCategory category = new TaskCategory();
-                category.set_ID(rs.getInt("TASK_CATEGORY_ID"));
-                category.set_name(rs.getString("NAME"));
-                category.set_description(rs.getString("CATEGORY_DESCRIPTION"));
-                category.set_creator_username(rs.getString("CREATOR_USERNAME"));
-                category.set_created_on(rs.getDate("CREATED_ON"));
-                category.set_team_ID(team_ID);
-                
-                this._task_category_map.put(category.name(), category);
-                if ( this._focus == Focus.TASK_CATEGORY && search_name.equals(category.name()) )
-                    this._focused_task_category = category;
-            }
-        } catch(Exception e) {
-            System.out.println(e);
-            loaded = false;
-        }
-        loaded = loaded? DBConnection.close_statement(ps) : false;
-        if (!loaded) {
-            this.header_team_label.setText("Task Categories Not Properly Loaded!");
-            DBConnection.disconnect(); return;
-        }
-        
-        
-        // Query all the tasks in the current team:
-        TreeMap<Integer, Task> task_map = new TreeMap<>();
-        ps = DBConnection.prepared_statement("SELECT T.TASK_ID, T.NAME, T.TASK_DESCRIPTION, T.DUE_DATE, T.RECUR_INTERVAL, T.CREATED_ON, CREATOR.USERNAME AS CREATOR_USERNAME, T.STATUS, T.TASK_PRIORITY, U.USERNAME AS ASSIGNED_USERNAME FROM TASKS T, MEMBERS CREATOR, MEMBERS U WHERE T.TEAM_ID = ? AND T.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND T.ASSIGNED_TO_MEMBER_ID = U.MEMBER_ID AND T.DELETED != 'Y' AND U.DELETED != 'Y'");
-        loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
-        rs = DBConnection.execute_query(ps);
-        
-        try {
-            while (rs.next()) {
-                Task task = new Task();
-                task.set_ID(rs.getInt("TASK_ID"));
-                task.set_name(rs.getString("NAME"));
-                task.set_description(rs.getString("TASK_DESCRIPTION"));
-                task.set_due_date(rs.getDate("DUE_DATE"));
-                task.set_recur_interval(rs.getInt("RECUR_INTERVAL"));
-                task.set_created_on(rs.getDate("CREATED_ON"));
-                task.set_creator_username(rs.getString("CREATOR_USERNAME"));
-                task.set_status(rs.getString("STATUS"));
-                task.set_priority(rs.getShort("TASK_PRIORITY"));
-                task.set_assigned_to_member_username(rs.getString("ASSIGNED_USERNAME"));
-                task.set_team_ID(team_ID);
-                
-                task_map.put(task.ID(), task);
-                if ( this._focus == Focus.TASK && search_name.equals(task.name()) )
-                    this._focused_task = task;
-            }
-        } catch(Exception e) {
-            System.out.println(e);
-            loaded = false;
-        }
-        loaded = loaded? DBConnection.close_statement(ps) : false;
-        if (!loaded) {
-            this.header_team_label.setText("Tasks Not Properly Loaded!");
-            DBConnection.disconnect(); return;
-        }
-        
-        
-        // Query all the subtasks in the current team:
-        ps = DBConnection.prepared_statement("SELECT S.SUBTASK_ID, S.NAME, S.DESCRIPTION, S.DUE_DATE, S.CREATED_ON, CREATOR.USERNAME AS CREATOR_USERNAME, S.STATUS, S.PRIORITY, U.USERNAME AS ASSIGNED_USERNAME FROM SUBTASK S, MEMBERS CREATOR, MEMBERS U WHERE SUBTASK_TO = ? AND S.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND S.ASSIGNED_TO_MEMBER_ID = U.MEMBER_ID AND S.DELETED != 'Y' AND U.DELETED != 'Y'");
-        for (Task task: task_map.values()) {
-            loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, task.ID()) : false;
-            rs = DBConnection.execute_query(ps);
-            
-            try {
-                while(rs.next()) {
-                    Subtask subtask = new Subtask(task);
-                    subtask.set_ID(rs.getInt("SUBTASK_ID"));
-                    subtask.set_name(rs.getString("NAME"));
-                    subtask.set_description(rs.getString("DESCRIPTION"));
-                    subtask.set_due_date(rs.getDate("DUE_DATE"));
-                    subtask.set_created_on(rs.getDate("CREATED_ON"));
-                    subtask.set_creator_username(rs.getString("CREATOR_USERNAME"));
-                    subtask.set_status(rs.getString("STATUS"));
-                    subtask.set_priority(rs.getShort("PRIORITY"));
-                    subtask.set_assigned_to_member_username(rs.getString("ASSIGNED_USERNAME"));
-                    
-                    task.add_subtask(subtask);
-                    if (this._focus == Focus.SUBTASK && search_name.equals(subtask.name()))
-                        this._focused_subtask = subtask;
-                }
-            } catch(Exception e) {
-                System.out.println(e);
-                loaded = false;
-            }
-            if (!loaded) {
-                this.header_team_label.setText("Subtasks Not Properly Loaded!");
-                DBConnection.disconnect(); return;
-            }
-        }
-        loaded = loaded? DBConnection.close_statement(ps) : false;
-        
-        
-        // Query tasks in categories to find task-category matches:
-        ps = DBConnection.prepared_statement("SELECT TIC.TASK_ID, TC.NAME FROM TASKINCATEGORIES TIC, TASKCATEGORIES TC WHERE TC.TEAM_ID = ? AND TIC.TASK_CATEGORY_ID = TC.TASK_CATEGORY_ID");
-        loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
-        rs = DBConnection.execute_query(ps);
-        
-        try {
-            while (rs.next()) {
-                TaskCategory category = this._task_category_map.get(rs.getString("NAME"));
-                Task task = task_map.get(rs.getInt("TASK_ID"));
-                category.add_task(task);    // couple local tasks and task categories
-            }
-        } catch(Exception e) {
-            System.out.println(e);
-            loaded = false;
-        }
-        loaded = loaded? DBConnection.close_statement(ps) : false;
-        if (!loaded) {
-            this.header_team_label.setText("Task-Category Relations Not Properly Loaded!");
-            DBConnection.disconnect(); return;
-        }
-        */
-        
-        // Query all team members in the current team:
-        PreparedStatement ps = DBConnection.prepared_statement("SELECT USERNAME, MEMBER_ROLE FROM MEMBERS WHERE TEAM_ID = ? AND DELETED != 'Y' ORDER BY USERNAME ASC");
-        loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
-        ResultSet rs = DBConnection.execute_query(ps);
-        
-        try {
-            while (rs.next()) {
-                AppUser user = new AppUser();
-                user.set_username(rs.getString("USERNAME"));
-                user.set_role(AppUser.to_user_type(rs.getString("MEMBER_ROLE")));
-                this._user_list.add(user);
-            }
-        } catch(Exception e) {
-            System.out.println(e);
-            loaded = false;
-        }
-        loaded = loaded? DBConnection.close_statement(ps) : false;
-        if (!loaded) {
-            this.header_team_label.setText("Team Members Not Properly Loaded!");
-            DBConnection.disconnect(); return;
-        }
-        
-        
-        
-        // Query productivity statistics:
-        cs = DBConnection.callable_statement("COMPUTE_PRODUCTIVITY(?, ?, ?)");
-        loaded = (cs != null)? DBConnection.set_statement_value(cs, 1, SystemController.current_team.team_ID()) : false;
-        loaded = loaded? DBConnection.register_out_parameter(cs, 2, OracleTypes.CURSOR) : false;
-        loaded = loaded? DBConnection.register_out_parameter(cs, 3, OracleTypes.CURSOR) : false;
-        DBConnection.execute(cs);
-        
-        try {
-            // load member workload statistics
-            String last_user = "";
-            String user = "";
-            rs = (ResultSet) cs.getObject(2);
-            while (rs.next()) {
-                user = rs.getString("USERNAME");
-                // use this._team_workload_stat to temporarily store the user's workload statistics:
-                if (last_user.equals(user)) // collect workload of the same user for a different status
-                    this._team_workload_stat.set_record(rs.getFloat("SUBTASK_WEIGHTS"), rs.getInt("SUBTASK_COUNT"), rs.getString("STATUS"));
-                else { // start collecting workload of a different user
-                    last_user = user;
-                    this._team_workload_stat = new WorkLoadGroup();
-                    this._team_workload_stat.set_record(rs.getFloat("SUBTASK_WEIGHTS"), rs.getInt("SUBTASK_COUNT"), rs.getString("STATUS"));
-                    this._member_workload_stat_map.put(user, this._team_workload_stat);
-                }
-            }
-            
-            // load team workload statistics
-            this._team_workload_stat = new WorkLoadGroup();
-            this._team_workload_stat.set_member_count(this._user_list.size());
-            rs = (ResultSet) cs.getObject(3);
-            while (rs.next()) 
-                this._team_workload_stat.set_record(rs.getFloat("TASK_WEIGHTS"), rs.getInt("TASK_COUNT"), rs.getString("STATUS"));
-            
-        } catch (Exception e) {
-            System.out.println(e);
-            loaded = false;
-        }
-        
-        loaded = loaded? DBConnection.close_statement(cs) : false;
+        boolean loaded = this.__renew_team_tasks__()
+                        && this.__reload_task_structure__(search_name)
+                        && this.__reload_members__()
+                        && this.__reload_productivity__();
         DBConnection.disconnect();
         if (!loaded) {
-            this.header_team_label.setText("Productivity Statistics Not Properly Loaded!");
+            this.header_team_label.setText("Page Loading Failed Due to Database Error!");
             return;
+            /*
+            Possible issues:
+            1. Periodic Tasks not Updated
+            2. Task Structure Not Properly Loaded
+            3. Team Members Not Properly Loaded
+            4. Productivity Statistics Not Properly Loaded
+            */
         }
-        
-        
-        
-        
-        
         
         // Refresh the page:
         this.refresh();
     }
     
     
+    /*
+        Function to have the database update periodic tasks.
+        Function call must be between a DBConnection.connect and .disconnect session.
+    */
+    private boolean __renew_team_tasks__() {
+        // TODO: Set up a restriction for this update to fire only once-per hour
+        // Update the database task recurrences:
+        CallableStatement cs = DBConnection.callable_statement("RENEW_TEAM_TASKS(:team_ID, :message)");
+        boolean loaded = (cs != null) 
+                        && DBConnection.set_statement_value(cs, ":team_ID", SystemController.current_team.team_ID())
+                        && DBConnection.register_out_parameter(cs, ":message", Types.VARCHAR)
+                        && DBConnection.execute(cs)
+                        && DBConnection.close_statement(cs);
+        if (!loaded)
+            System.out.println("ERROR: Periodic task update failed!");
+        return loaded;
+    }
+    
+    
+    /*
+        Function to load task categories, tasks, and subtasks of the current team from the database.
+        Function call must be between a DBConnection.connect and .disconnect session.
+    */
     private boolean __reload_task_structure__(String search_name) {
         
         String team_ID = SystemController.current_team.team_ID();
@@ -2047,7 +1871,6 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         }
         
         // Get task categories:
-        TreeMap<Integer, String> category_name_map = new TreeMap<>();
         ResultSet rs = DBConnection.get_cursor_result(cs, ":tsk_cat_cur");
         try {
             while (rs.next()) {
@@ -2059,7 +1882,6 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 category.set_created_on(rs.getDate("CREATED_ON"));
                 category.set_team_ID(team_ID);
                 
-                category_name_map.put(category.ID(), category.name());
                 this._task_category_map.put(category.name(), category);
                 if ( this._focus == Focus.TASK_CATEGORY && search_name.equals(category.name()) )
                     this._focused_task_category = category;
@@ -2129,8 +1951,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         rs = DBConnection.get_cursor_result(cs, ":tsk_group_cur");
         try {
             while (rs.next()) {
-                String cat_name = category_name_map.get(rs.getInt("TASK_CATEGORY_ID"));
-                TaskCategory category = this._task_category_map.get(cat_name);
+                TaskCategory category = this._task_category_map.get(rs.getString("CATEGORY_NAME"));
                 Task task = task_map.get(rs.getInt("TASK_ID"));
                 category.add_task(task);    // couple local tasks and task categories
             }
@@ -2143,8 +1964,85 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         return loaded;
     }
     
+    /*
+        Function to load the member data of this team from the database.
+        Function call must be between a DBConnection.connect and .disconnect session.
+    */
+    private boolean __reload_members__() {
+        PreparedStatement ps = DBConnection.prepared_statement("SELECT USERNAME, MEMBER_ROLE FROM MEMBERS WHERE TEAM_ID = ? AND DELETED != 'Y' ORDER BY USERNAME ASC");
+        boolean loaded = (ps != null) && DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID());
+        ResultSet rs = DBConnection.execute_query(ps);
+        
+        try {
+            while (rs.next()) {
+                AppUser user = new AppUser();
+                user.set_username(rs.getString("USERNAME"));
+                user.set_role(AppUser.to_user_type(rs.getString("MEMBER_ROLE")));
+                this._user_list.add(user);
+            }
+        } catch(Exception e) {
+            System.out.println("ERROR: Users' data loading failed!");
+            System.out.println(e);
+            loaded = false;
+        }
+        
+        loaded = DBConnection.close_statement(ps) && loaded;
+        return loaded;
+    }
     
-    
+    /*
+        Function to load the productivity measurements from the database.
+        Function call must be between a DBConnection.connect and .disconnect session.
+    */
+    private boolean __reload_productivity__() {
+        // Query productivity statistics:
+        CallableStatement cs = DBConnection.callable_statement("COMPUTE_PRODUCTIVITY(:team_ID, :member_workload, :team_workload)");
+        boolean loaded = (cs != null) 
+                        && DBConnection.set_statement_value(cs, ":team_ID", SystemController.current_team.team_ID())
+                        && DBConnection.register_out_parameter(cs, ":member_workload", OracleTypes.CURSOR)
+                        && DBConnection.register_out_parameter(cs, ":team_workload", OracleTypes.CURSOR)
+                        && DBConnection.execute(cs);
+        
+        // Load member workload statistics:
+        String last_user = "";
+        String user = "";
+        ResultSet rs = DBConnection.get_cursor_result(cs, ":member_workload");
+        try {
+            while (rs.next()) {
+                user = rs.getString("USERNAME");
+                // use this._team_workload_stat to temporarily store the user's workload statistics:
+                if (last_user.equals(user)) // collect workload of the same user for a different status
+                    this._team_workload_stat.set_record(rs.getFloat("SUBTASK_WEIGHTS"), rs.getInt("SUBTASK_COUNT"), rs.getString("STATUS"));
+                else { // start collecting workload of a different user
+                    last_user = user;
+                    this._team_workload_stat = new WorkLoadGroup();
+                    this._team_workload_stat.set_record(rs.getFloat("SUBTASK_WEIGHTS"), rs.getInt("SUBTASK_COUNT"), rs.getString("STATUS"));
+                    this._member_workload_stat_map.put(user, this._team_workload_stat);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR: Failed to load member workload statistics!");
+            System.out.println(e);
+            DBConnection.close_statement(cs);
+            return false;
+        }
+            
+        // Load team workload statistics
+        this._team_workload_stat = new WorkLoadGroup();
+        this._team_workload_stat.set_member_count(this._user_list.size());
+        rs = DBConnection.get_cursor_result(cs, ":team_workload");
+        try {
+            while (rs.next()) 
+                this._team_workload_stat.set_record(rs.getFloat("TASK_WEIGHTS"), rs.getInt("TASK_COUNT"), rs.getString("STATUS"));
+        } catch (Exception e) {
+            System.out.println("ERROR: Failed to load team workload statistics!");
+            System.out.println(e);
+            loaded = false;
+        }
+        
+        loaded = DBConnection.close_statement(cs) && loaded;
+        return loaded;
+    }
     
     
     

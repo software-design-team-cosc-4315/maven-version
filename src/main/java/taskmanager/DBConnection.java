@@ -120,6 +120,18 @@ public class DBConnection {
         }
     }
     
+    public static boolean set_statement_value(CallableStatement cs, String parameter, int value) {
+        try { 
+            cs.setInt(parameter, value);
+            return true;
+        }
+        catch (Exception e) { 
+            System.out.println("--- STATEMENT VALUE ERROR ---"); 
+            System.out.println(e);
+            return false;
+        }
+    }
+    
     public static boolean set_statement_value(PreparedStatement ps, int index, String value) {
         try { 
             ps.setString(index, value); 
