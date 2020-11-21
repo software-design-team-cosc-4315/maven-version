@@ -7,6 +7,7 @@ package taskmanager;
 
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.awt.event.*;
 import java.awt.Dimension;
 import java.sql.*;
@@ -16,6 +17,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.ListModel;
 import javax.swing.event.*;
 import oracle.jdbc.OracleTypes;
+
 
 
 
@@ -2232,112 +2234,23 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     
     public void refresh() {
         
-        DefaultListModel category_model = (DefaultListModel) this.task_category_list.getModel();
-        DefaultListModel task_model = (DefaultListModel) this.task_list.getModel();
-        DefaultListModel subtask_model = (DefaultListModel) this.subtask_list.getModel();
-        DefaultListModel user_model = (DefaultListModel) this.team_member_list.getModel();
-        
-        TreeSet<String> task_set = new TreeSet<>();
-        TreeSet<String> subtask_set = new TreeSet<>();
-        TreeSet<String> user_set = new TreeSet<>();
+        DefaultListModel[] lst_models = {
+            (DefaultListModel) this.task_category_list.getModel(),
+            (DefaultListModel) this.task_list.getModel(),
+            (DefaultListModel) this.subtask_list.getModel(),
+            (DefaultListModel) this.team_member_list.getModel()
+        };
         
         this.header_team_label.setText(SystemController.current_team.team_ID() + " - Team Leader's Page");
-        category_model.removeAllElements();
-        task_model.removeAllElements();
-        subtask_model.removeAllElements();
-        user_model.removeAllElements();
+        for (DefaultListModel model : lst_models)
+            model.removeAllElements();
         
         if (this._focus == null) {  // if the user enters the page through the page navigation button
-            
-            // List all content
-            for (TaskCategory category: this._task_category_map.values()) {
-                category_model.addElement(category.name());
-                for (Task task: category.tasks_in_category()) {
-                    task_set.add(task.name());
-                    for (Subtask subtask: task.get_subtasks())
-                        subtask_set.add(subtask.name());
-                }
-            }
-            
-            for (String task_name: task_set)
-                task_model.addElement(task_name);
-            for (String subtask_name: subtask_set)
-                subtask_model.addElement(subtask_name);
-            for (AppUser user: this._user_list)
-                user_model.addElement(AppUser.user_type_to_string(user.role()) + " - " + user.username());
-            
-            // Reset visibility:
-            for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
-                component.setEnabled(true);
-            this.hide_edit_panels();
-            
-        } else { // if the user enters the page through an edit buttion in the Task Page
-            
+            this.__refresh_null_focus__(lst_models);
+        } else {                    // if the user enters the page through an edit buttion in the Task Page
             for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
                 component.setEnabled(false);
-            if (this._focus == Focus.TASK_CATEGORY) {
-                
-                // List content related to the focused task category:
-                category_model.addElement(this._focused_task_category.name());
-                Task[] tasks = this._focused_task_category.tasks_in_category();
-                for (Task task: tasks) {
-                    task_model.addElement(task.name());
-                    for (Subtask subtask: task.get_subtasks()) {
-                        subtask_set.add(subtask.name());
-                        user_set.add(subtask.assigned_to_member_username());
-                    }
-                }
-                if (tasks.length != 0) user_set.add(tasks[0].assigned_to_member_username());
-                    
-                for (String subtask_name: subtask_set)
-                    subtask_model.addElement(subtask_name);
-                for (String username: user_set)
-                    user_model.addElement(username);
-                
-                // Reset visibility:
-                this.fill_task_category_edit_panel();
-                
-            } else if (this._focus == Focus.TASK) {
-                
-                // List content related to the focused task:
-                for (TaskCategory category: this._task_category_map.values()) {
-                    if ( category.find_task(this._focused_task.name()) )
-                        category_model.addElement(category.name());   
-                }
-                
-                task_model.addElement(this._focused_task.name());
-                for (Subtask subtask: this._focused_task.get_subtasks()) {
-                    subtask_model.addElement(subtask.name());
-                    user_set.add(subtask.assigned_to_member_username());
-                }
-                user_set.add(this._focused_task.assigned_to_member_username());
-                    
-                for (String username: user_set)
-                    user_model.addElement(username);
-                
-                // Reset visibility:
-                this.fill_task_edit_panel();
-                
-            } else if (this._focus == Focus.SUBTASK) {
-                
-                // List content related to the focused subtask:
-                for (TaskCategory category: this._task_category_map.values()) {
-                    if ( category.find_task(this._focused_subtask.parent_task().name()) )
-                        category_model.addElement(category.name());   
-                    for (Task task: category.tasks_in_category())
-                        task_set.add(task.name());
-                }
-                
-                task_model.addElement(this._focused_subtask.parent_task().name());
-                subtask_model.addElement(this._focused_subtask.name());
-                user_model.addElement(this._focused_subtask.assigned_to_member_username());
-                
-                // Reset visibility:
-                this.fill_subtask_edit_panel();
-                
-            } else
-                System.out.println("ERROR: Leader's page focus parameter has been corrupted!");
-            
+            this.__refresh_non_null_focus__(lst_models);
         }     
         
         this.task_category_edit_message.setText("");
@@ -2345,6 +2258,116 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this.subtask_edit_actions_message.setText("");
         
     }
+    
+    
+    private void __refresh_null_focus__(DefaultListModel[] lst_models) {
+        // @lst_models = { category_model, task_model, subtask_model, user_model }
+        TreeSet<String> task_set = new TreeSet<>();
+        TreeSet<String> subtask_set = new TreeSet<>();
+        // List all content
+        for (TaskCategory category: this._task_category_map.values()) {
+            lst_models[0].addElement(category.name());
+            for (Task task: category.tasks_in_category()) {
+                if ( !task_set.add(task.name()) ) continue;
+                // look for subtasks only when task is seen for the first time
+                for (Subtask subtask: task.get_subtasks())
+                    subtask_set.add(subtask.name());
+            }
+        }
+        
+        for (String task_name: task_set)
+            lst_models[1].addElement(task_name);
+        for (String subtask_name: subtask_set)
+            lst_models[2].addElement(subtask_name);
+        for (AppUser user: this._user_list)
+            lst_models[3].addElement(AppUser.user_type_to_string(user.role()) + " - " + user.username());
+            
+        // Reset visibility:
+        for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
+            component.setEnabled(true);
+        this.hide_edit_panels();
+    }
+    
+    private void __refresh_non_null_focus__(DefaultListModel[] lst_model) {
+        // @lst_models = {category_model, task_model, subtask_model, user_model}
+        if (this._focus == Focus.TASK_CATEGORY)
+            this.__refresh_category_focus__(lst_model);
+        else if (this._focus == Focus.TASK)
+            this.__refresh_task_focus__(lst_model);
+        else if (this._focus == Focus.SUBTASK)
+            this.__refresh_subtask_focus__(lst_model);
+        else
+            System.out.println("ERROR: Leader's page focus parameter has been corrupted!");
+    }
+    
+    private void __refresh_category_focus__(DefaultListModel[] lst_model) {
+        // @lst_models = {category_model, task_model, subtask_model, user_model}
+        TreeSet<String> subtask_set = new TreeSet<>();
+        TreeSet<String> user_set = new TreeSet<>();
+        // List content related to the focused task category:
+        lst_model[0].addElement(this._focused_task_category.name());
+        Task[] tasks = this._focused_task_category.tasks_in_category();
+        for (Task task: tasks) {
+            lst_model[1].addElement(task.name());
+            for (Subtask subtask: task.get_subtasks()) {
+                subtask_set.add(subtask.name());
+                user_set.add(subtask.assigned_to_member_username());
+            }
+        }
+        if (tasks.length != 0) user_set.add(tasks[0].assigned_to_member_username());
+            
+        for (String subtask_name: subtask_set)
+            lst_model[2].addElement(subtask_name);
+        for (String username: user_set)
+            lst_model[3].addElement(username);
+                
+        // Reset visibility:
+        this.fill_task_category_edit_panel();
+    }
+    
+    private void __refresh_task_focus__(DefaultListModel[] lst_model) {
+        // @lst_models = {category_model, task_model, subtask_model, user_model}
+        TreeSet<String> user_set = new TreeSet<>();
+        // List content related to the focused task:
+        for (TaskCategory category: this._task_category_map.values()) {
+            if ( category.find_task(this._focused_task.name()) )
+                lst_model[0].addElement(category.name());   
+        }
+                
+        lst_model[1].addElement(this._focused_task.name());
+        for (Subtask subtask: this._focused_task.subtask_collection()) {
+            lst_model[2].addElement(subtask.name());
+            user_set.add(subtask.assigned_to_member_username());
+        }
+        user_set.add(this._focused_task.assigned_to_member_username());
+                    
+        for (String username: user_set)
+            lst_model[3].addElement(username);
+                
+        // Reset visibility:
+        this.fill_task_edit_panel();
+    }
+    
+    private void __refresh_subtask_focus__(DefaultListModel[] lst_model) {
+        // @lst_models = {category_model, task_model, subtask_model, user_model}
+        // List content related to the focused subtask:
+        for (TaskCategory category: this._task_category_map.values()) {
+            if ( category.find_task(this._focused_subtask.parent_task().name()) )
+                lst_model[0].addElement(category.name());   
+        }
+                
+        lst_model[1].addElement(this._focused_subtask.parent_task().name());
+        lst_model[2].addElement(this._focused_subtask.name());
+        lst_model[3].addElement(this._focused_subtask.assigned_to_member_username());
+                
+        // Reset visibility:
+        this.fill_subtask_edit_panel();
+    }
+    
+    
+    
+    
+    
     
     
     /*
