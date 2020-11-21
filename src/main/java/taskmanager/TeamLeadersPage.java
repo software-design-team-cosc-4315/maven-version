@@ -1465,6 +1465,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         updated = (updated && description_changed)? DBConnection.set_statement_value(ps, field_counter++, new_description) : updated;
         updated = updated? DBConnection.set_statement_value(ps, field_counter, this._focused_task_category.ID()) : false;
         updated = updated? DBConnection.execute_update(ps) : false;
+        updated = updated? DBConnection.close_statement(ps) : false;
         
         DBConnection.disconnect();
         if (!updated) {
@@ -1591,6 +1592,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             updated = (updated && status_changed)? DBConnection.set_statement_value(ps, field_counter++, new_status) : updated;
             updated = updated? DBConnection.set_statement_value(ps, field_counter, this._focused_task.ID()) : false;
             updated = updated? DBConnection.execute_update(ps, true) : false;
+            updated = updated? DBConnection.close_statement(ps) : false;
 
             if (!updated) {
                 this.task_edit_actions_message.setText("Error updating the task. Task name might have been used.");
@@ -1610,6 +1612,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             updated = (ps != null)? DBConnection.set_statement_value(ps, 1, this._focused_task.ID()) : false;
             updated = updated? DBConnection.set_statement_value(ps, 2, this._task_category_map.get(selected_category).ID()) : false; // set category ID
             updated = updated? DBConnection.execute_update(ps) : false;
+            updated = updated? DBConnection.close_statement(ps) : false;
             if (!updated) {
                 this.task_edit_actions_message.setText("Error updating the task. Failed to update the selected task category.");
                 DBConnection.transaction(DBConnection.Transaction.ROLLBACK);
@@ -1740,6 +1743,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         updated = (updated && parent_changed)? DBConnection.set_statement_value(ps, field_counter++, new_parent_ID) : updated;
         updated = updated ? DBConnection.set_statement_value(ps, field_counter, this._focused_subtask.ID()) : false;
         updated = updated ? DBConnection.execute_update(ps) : false;
+        updated = updated? DBConnection.close_statement(ps) : false;
 
         DBConnection.disconnect();
         
@@ -1803,11 +1807,18 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         loaded = (cs != null)? DBConnection.set_statement_value(cs, 1, SystemController.current_team.team_ID()) : false;
         loaded = loaded? DBConnection.register_out_parameter(cs, 2, Types.VARCHAR) : false;
         DBConnection.execute(cs);
+        loaded = loaded? DBConnection.close_statement(cs) : false;
         
         
+        // Query all the task categories, tasks and subtasks in the current team:
+        loaded = this.__reload_task_structure__(search_name);
+        if (!loaded) {
+            this.header_team_label.setText("Task Structure Not Properly Loaded!");
+            DBConnection.disconnect(); 
+            return;
+        }
+        /*
         
-        
-        // Query all the task categories in the current team:
         PreparedStatement ps = DBConnection.prepared_statement("SELECT TC.TASK_CATEGORY_ID, TC.NAME, TC.CATEGORY_DESCRIPTION, CREATOR.USERNAME AS CREATOR_USERNAME, TC.CREATED_ON FROM TASKCATEGORIES TC, MEMBERS CREATOR WHERE TC.TEAM_ID = ? AND TC.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID");
         loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
         ResultSet rs = DBConnection.execute_query(ps);
@@ -1830,6 +1841,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             System.out.println(e);
             loaded = false;
         }
+        loaded = loaded? DBConnection.close_statement(ps) : false;
         if (!loaded) {
             this.header_team_label.setText("Task Categories Not Properly Loaded!");
             DBConnection.disconnect(); return;
@@ -1865,6 +1877,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             System.out.println(e);
             loaded = false;
         }
+        loaded = loaded? DBConnection.close_statement(ps) : false;
         if (!loaded) {
             this.header_team_label.setText("Tasks Not Properly Loaded!");
             DBConnection.disconnect(); return;
@@ -1903,6 +1916,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 DBConnection.disconnect(); return;
             }
         }
+        loaded = loaded? DBConnection.close_statement(ps) : false;
         
         
         // Query tasks in categories to find task-category matches:
@@ -1920,15 +1934,17 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             System.out.println(e);
             loaded = false;
         }
+        loaded = loaded? DBConnection.close_statement(ps) : false;
         if (!loaded) {
             this.header_team_label.setText("Task-Category Relations Not Properly Loaded!");
             DBConnection.disconnect(); return;
         }
+        */
         
         // Query all team members in the current team:
-        ps = DBConnection.prepared_statement("SELECT USERNAME, MEMBER_ROLE FROM MEMBERS WHERE TEAM_ID = ? AND DELETED != 'Y' ORDER BY USERNAME ASC");
+        PreparedStatement ps = DBConnection.prepared_statement("SELECT USERNAME, MEMBER_ROLE FROM MEMBERS WHERE TEAM_ID = ? AND DELETED != 'Y' ORDER BY USERNAME ASC");
         loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
-        rs = DBConnection.execute_query(ps);
+        ResultSet rs = DBConnection.execute_query(ps);
         
         try {
             while (rs.next()) {
@@ -1941,9 +1957,10 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             System.out.println(e);
             loaded = false;
         }
+        loaded = loaded? DBConnection.close_statement(ps) : false;
         if (!loaded) {
             this.header_team_label.setText("Team Members Not Properly Loaded!");
-            return;
+            DBConnection.disconnect(); return;
         }
         
         
@@ -1985,7 +2002,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             loaded = false;
         }
         
-        
+        loaded = loaded? DBConnection.close_statement(cs) : false;
         DBConnection.disconnect();
         if (!loaded) {
             this.header_team_label.setText("Productivity Statistics Not Properly Loaded!");
@@ -2000,6 +2017,136 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         // Refresh the page:
         this.refresh();
     }
+    
+    
+    private boolean __reload_task_structure__(String search_name) {
+        
+        String team_ID = SystemController.current_team.team_ID();
+        
+        CallableStatement cs = DBConnection.full_callable_statement(
+            "DECLARE " +
+                "tsk_table TASK_STRUCTURE_PKG.TSK_TABLE; " +
+                "sbtsk_table TASK_STRUCTURE_PKG.SBTSK_TABLE; " +
+            "BEGIN " +
+                "SELECT_TASK_STRUCT(:leader_username, :tsk_cat_cur, :tsk_cur, :sbtsk_cur, :tsk_group_cur, tsk_table, sbtsk_table); " +
+            "END;"
+        );
+        
+        boolean loaded = (cs != null) 
+                        && DBConnection.set_statement_value(cs, ":leader_username", SystemController.current_team.leader_username()) 
+                        && DBConnection.register_out_parameter(cs, ":tsk_cat_cur", OracleTypes.CURSOR)
+                        && DBConnection.register_out_parameter(cs, ":tsk_cur", OracleTypes.CURSOR)
+                        && DBConnection.register_out_parameter(cs, ":sbtsk_cur", OracleTypes.CURSOR)
+                        && DBConnection.register_out_parameter(cs, ":tsk_group_cur", OracleTypes.CURSOR)
+                        && DBConnection.execute(cs);
+        
+        if (!loaded) {
+            System.out.println("Task structure query failed for Team Leader's Page!");
+            DBConnection.close_statement(cs);
+            return false;
+        }
+        
+        // Get task categories:
+        TreeMap<Integer, String> category_name_map = new TreeMap<>();
+        ResultSet rs = DBConnection.get_cursor_result(cs, ":tsk_cat_cur");
+        try {
+            while (rs.next()) {
+                TaskCategory category = new TaskCategory();
+                category.set_ID(rs.getInt("TASK_CATEGORY_ID"));
+                category.set_name(rs.getString("NAME"));
+                category.set_description(rs.getString("CATEGORY_DESCRIPTION"));
+                category.set_creator_username(rs.getString("CREATOR_USERNAME"));
+                category.set_created_on(rs.getDate("CREATED_ON"));
+                category.set_team_ID(team_ID);
+                
+                category_name_map.put(category.ID(), category.name());
+                this._task_category_map.put(category.name(), category);
+                if ( this._focus == Focus.TASK_CATEGORY && search_name.equals(category.name()) )
+                    this._focused_task_category = category;
+            }
+        } catch(Exception e) {
+            System.out.println(e);
+            DBConnection.close_statement(cs);
+            return false;
+        }
+        
+        // Get tasks:
+        TreeMap<Integer, Task> task_map = new TreeMap<>();
+        rs = DBConnection.get_cursor_result(cs, ":tsk_cur");
+        try {
+            while (rs.next()) {
+                Task task = new Task();
+                task.set_ID(rs.getInt("TASK_ID"));
+                task.set_name(rs.getString("NAME"));
+                task.set_description(rs.getString("DESCRIPTION"));
+                task.set_due_date(rs.getDate("DUE_DATE"));
+                task.set_recur_interval(rs.getInt("RECUR_INTERVAL"));
+                task.set_created_on(rs.getDate("CREATED_ON"));
+                task.set_creator_username(rs.getString("CREATOR_USERNAME"));
+                task.set_status(rs.getString("STATUS"));
+                task.set_priority(rs.getShort("PRIORITY"));
+                task.set_assigned_to_member_username(rs.getString("ASSIGNED_USERNAME"));
+                task.set_team_ID(team_ID);
+                
+                task_map.put(task.ID(), task);
+                if ( this._focus == Focus.TASK && search_name.equals(task.name()) )
+                    this._focused_task = task;
+            }
+        } catch(Exception e) {
+            System.out.println(e);
+            DBConnection.close_statement(cs);
+            return false;
+        }
+        
+        // Get subtasks:
+        rs = DBConnection.get_cursor_result(cs, ":sbtsk_cur");
+        try {
+            Task task;
+            while(rs.next()) {
+                task = task_map.get(rs.getInt("PARENT_ID"));
+                Subtask subtask = new Subtask(task);
+                subtask.set_ID(rs.getInt("SUBTASK_ID"));
+                subtask.set_name(rs.getString("NAME"));
+                subtask.set_description(rs.getString("DESCRIPTION"));
+                subtask.set_due_date(rs.getDate("DUE_DATE"));
+                subtask.set_created_on(rs.getDate("CREATED_ON"));
+                subtask.set_creator_username(rs.getString("CREATOR_USERNAME"));
+                subtask.set_status(rs.getString("STATUS"));
+                subtask.set_priority(rs.getShort("PRIORITY"));
+                subtask.set_assigned_to_member_username(rs.getString("ASSIGNED_USERNAME"));
+                    
+                task.add_subtask(subtask);
+                if (this._focus == Focus.SUBTASK && search_name.equals(subtask.name()))
+                    this._focused_subtask = subtask;
+                }
+        } catch(Exception e) {
+            System.out.println(e);
+            DBConnection.close_statement(cs);
+            return false;
+        }
+            
+        // Get category-task groupings:
+        rs = DBConnection.get_cursor_result(cs, ":tsk_group_cur");
+        try {
+            while (rs.next()) {
+                String cat_name = category_name_map.get(rs.getInt("TASK_CATEGORY_ID"));
+                TaskCategory category = this._task_category_map.get(cat_name);
+                Task task = task_map.get(rs.getInt("TASK_ID"));
+                category.add_task(task);    // couple local tasks and task categories
+            }
+        } catch(Exception e) {
+            System.out.println(e);
+            loaded = false;
+        }
+        
+        DBConnection.close_statement(cs);
+        return loaded;
+    }
+    
+    
+    
+    
+    
     
     private void hide_edit_panels() {
         this.task_category_edit_separator.setVisible(false);

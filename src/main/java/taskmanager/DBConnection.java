@@ -86,6 +86,15 @@ public class DBConnection {
         return null;
     }
     
+    public static CallableStatement full_callable_statement(String statement) {
+        try { return DBConnection.connection.prepareCall(statement); }
+        catch(Exception e) {
+            System.out.println("--- CALLBABLE STATEMENT ERROR ---");
+            System.out.println(e);
+        }
+        return null;
+    }
+    
     
     public static boolean set_statement_value(PreparedStatement ps, int index, int value) {
         try { 
@@ -135,6 +144,18 @@ public class DBConnection {
         }
     }
     
+    public static boolean set_statement_value(CallableStatement cs, String parameter, String value) {
+        try {
+            cs.setString(parameter, value);
+            return true;
+        }
+        catch (Exception e) {
+            System.out.println("--- STATEMENT VALUE ERROR ---");
+            System.out.println(e);
+            return false;
+        }
+    }
+    
     public static boolean set_statement_value(PreparedStatement ps, int index, Date value) {
         try { 
             ps.setDate(index, value);
@@ -169,6 +190,17 @@ public class DBConnection {
             return false;
         }
     }
+    
+    public static boolean register_out_parameter(CallableStatement cs, String parameter, int sqlType) {
+        try {
+            cs.registerOutParameter(parameter, sqlType);
+            return true;
+        } catch(Exception e) {
+            System.out.println("--- OUT PARAMETER REGISTRATION ERROR ---");
+            System.out.println(e);
+            return false;
+        }
+    } 
     
     public static boolean execute(CallableStatement cs) {
         try {
@@ -206,6 +238,39 @@ public class DBConnection {
         }
         catch (Exception e) {
             System.out.println("--- UPDATE ERROR ---");
+            System.out.println(e);
+            return false;
+        }
+    }
+    
+    
+    public static ResultSet get_cursor_result(CallableStatement cs, int index) {
+        try {
+            return (ResultSet) cs.getObject(index);
+        } catch (Exception e) {
+            System.out.println("--- CALLALBE STATEMENT OUTPUT ERROR ---");
+            System.out.println(e);
+            return null;
+        }
+    }
+    
+    public static ResultSet get_cursor_result(CallableStatement cs, String parameter) {
+        try {
+            return (ResultSet) cs.getObject(parameter);
+        } catch (Exception e) {
+            System.out.println("--- CALLALBE STATEMENT OUTPUT ERROR ---");
+            System.out.println(e);
+            return null;
+        }
+    }
+    
+    
+    public static boolean close_statement(Statement s) {
+        try { 
+            s.close(); 
+            return true;
+        } catch(Exception e) {
+            System.out.println("--- STATEMENT CLOSING ERROR ---");
             System.out.println(e);
             return false;
         }

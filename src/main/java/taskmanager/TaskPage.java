@@ -1974,11 +1974,11 @@ public class TaskPage extends javax.swing.JFrame {
         // Query the names of the tasks that are in the category with @category_name and in the current team, but those tasks are only in this one category and no other:
         DBConnection.connect();
         
+        boolean page_loaded;
             // 1. get the task names from the database:
-        boolean page_loaded = true;
         PreparedStatement ps = DBConnection.prepared_statement("SELECT DISTINCT TA.NAME AS TASK_NAME " +
                 "FROM TASKS TA, TASKINCATEGORIES TIC " +
-                "WHERE TA.TEAM_ID = ? AND TA.TASK_ID = TIC.TASK_ID AND TA.DELETED != 'Y' "+
+                "WHERE TA.TEAM_ID = ? AND TA.TASK_ID = TIC.TASK_ID AND TA.DELETED != 'Y' " +
                 "GROUP BY TA.TASK_ID, TA.NAME " +
                 "HAVING COUNT(*) = 1 " +
                 "INTERSECT " +
