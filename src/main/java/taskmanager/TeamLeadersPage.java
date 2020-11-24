@@ -2290,14 +2290,10 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     
     private void __refresh_non_null_focus__(DefaultListModel[] lst_model) {
         // @lst_models = {category_model, task_model, subtask_model, user_model}
-        if (this._focus == Focus.TASK_CATEGORY)
-            this.__refresh_category_focus__(lst_model);
-        else if (this._focus == Focus.TASK)
-            this.__refresh_task_focus__(lst_model);
-        else if (this._focus == Focus.SUBTASK)
-            this.__refresh_subtask_focus__(lst_model);
-        else
-            System.out.println("ERROR: Leader's page focus parameter has been corrupted!");
+        if (this._focus == Focus.TASK_CATEGORY) this.__refresh_category_focus__(lst_model);
+        else if (this._focus == Focus.TASK)     this.__refresh_task_focus__(lst_model);
+        else if (this._focus == Focus.SUBTASK)  this.__refresh_subtask_focus__(lst_model);
+        else    System.out.println("ERROR: Leader's page focus parameter has been corrupted!");
     }
     
     private void __refresh_category_focus__(DefaultListModel[] lst_model) {
