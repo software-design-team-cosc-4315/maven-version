@@ -8,6 +8,8 @@
 package taskmanager;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
@@ -43,12 +45,12 @@ public class TaskCategory {
     
     
     // Member functions:
-    public void add_task(Task task) {
+    public void add_task(@NotNull Task task) {
         if (this._task_map.containsKey(task.name())) System.out.println("INVALID TASK INSERT: Task Name: {" + task.name() + "} is already in the task map for Category Name: {" + this._name + "}.");
         else this._task_map.put(task.name(), task);
     }
     
-    public void remove_task(Task task) {
+    public void remove_task(@NotNull Task task) {
         this._task_map.remove(task.name());
     }
     
@@ -116,7 +118,7 @@ public class TaskCategory {
             System.out.println("DATE PARSING ERROR: Entered date [" + creation_date + "] is in the wrong format!");
         }
     }
-    public void set_created_on(java.sql.Date creation_date) {
+    public void set_created_on(@NotNull java.sql.Date creation_date) {
         this._created_on = new java.util.Date(creation_date.getTime());
     }
     //public void set_created_on(java.sql.Date creation_date) { this._created_on = new java.util.Date(creation_date.getTime()); }

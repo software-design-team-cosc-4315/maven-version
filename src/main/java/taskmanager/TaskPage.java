@@ -6,6 +6,8 @@
 package taskmanager;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -2048,7 +2050,7 @@ public class TaskPage extends javax.swing.JFrame {
         this.task_page_category_tabs_pane.repaint();
     }
 
-    public void refresh_task_delete_pop_up_panel(Task task) {
+    public void refresh_task_delete_pop_up_panel(@NotNull Task task) {
         this.task_page_delete_task_name_label.setText(task.name());
         javax.swing.DefaultListModel subtask_model = (javax.swing.DefaultListModel) this.task_page_delete_subtasks_list.getModel();
         Subtask[] subtasks = task.get_subtasks();
@@ -2061,7 +2063,7 @@ public class TaskPage extends javax.swing.JFrame {
         this.task_page_subtask_delete_message_label.setText("");
     }
 
-    public void refresh_task_category_delete_pop_up_panel(TaskCategory category) {
+    public void refresh_task_category_delete_pop_up_panel(@NotNull TaskCategory category) {
         this.task_page_delete_task_category_name_label.setText(category.name());
         javax.swing.DefaultListModel task_model = (javax.swing.DefaultListModel) this.task_page_uncategorized_tasks_list.getModel();
         Task[] tasks = category.tasks_in_category();

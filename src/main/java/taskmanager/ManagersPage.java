@@ -5,6 +5,8 @@
  */
 package taskmanager;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
@@ -1844,7 +1846,7 @@ public class ManagersPage extends javax.swing.JFrame {
         
         javax.swing.event.ChangeListener change_listener = new javax.swing.event.ChangeListener() {
             @Override
-            public void stateChanged(javax.swing.event.ChangeEvent changeEvent) {
+            public void stateChanged(@NotNull javax.swing.event.ChangeEvent changeEvent) {
                 javax.swing.JTabbedPane tab_pane = (javax.swing.JTabbedPane) changeEvent.getSource();
                 String tab_name = tab_pane.getTitleAt(tab_pane.getSelectedIndex());
                 

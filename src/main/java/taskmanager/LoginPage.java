@@ -18,33 +18,6 @@ public class LoginPage extends javax.swing.JFrame {
     public LoginPage() {
         initComponents();
         this.refresh();
-        
-        /*
-        DBConnection.connect();
-        
-        boolean loaded;
-        CallableStatement cs = DBConnection.callable_statement("COMPUTE_PRODUCTIVITY(?, ?, ?)");
-        loaded = (cs != null)? DBConnection.set_statement_value(cs, 1, "presentationteam") : false;
-        loaded = loaded? DBConnection.register_out_parameter(cs, 2, OracleTypes.CURSOR) : false;
-        loaded = loaded? DBConnection.register_out_parameter(cs, 3, OracleTypes.CURSOR) : false;
-        DBConnection.execute(cs);
-        
-        try {
-            ResultSet rs = (ResultSet) cs.getObject(2);
-            while (rs.next())
-                System.out.println(rs.getDouble("SUBTASK_WEIGHTS") + " " + rs.getInt("SUBTASK_COUNT") + " " + rs.getString("STATUS") + " " + rs.getString("USERNAME"));
-            System.out.println("\n");
-            
-            rs = (ResultSet) cs.getObject(3);
-            while (rs.next())
-                System.out.println(rs.getDouble("TASK_WEIGHT") + " " + rs.getInt("TASK_COUNT") + " " + rs.getString("STATUS"));
-        
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        
-        DBConnection.disconnect();
-        */
     }
     
     

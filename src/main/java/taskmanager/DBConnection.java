@@ -6,6 +6,9 @@
 package taskmanager;
 
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.*;
 import java.text.SimpleDateFormat;
 
@@ -65,6 +68,7 @@ public class DBConnection {
     }
     
     
+    @Nullable
     public static PreparedStatement prepared_statement(String statement) {
         try { return DBConnection.connection.prepareStatement(statement); }
         catch (Exception e) { 
@@ -74,6 +78,7 @@ public class DBConnection {
         return null;
     }
     
+    @Nullable
     public static CallableStatement callable_statement(String statement) {
         try { return DBConnection.connection.prepareCall("{call " + statement + "}"); }
         catch(Exception e) {
@@ -178,6 +183,7 @@ public class DBConnection {
         }
     }
     
+    @Nullable
     public static ResultSet execute_query(PreparedStatement ps) {
         try { return ps.executeQuery(); } 
         catch (Exception e) {
@@ -246,7 +252,7 @@ public class DBConnection {
     
     
     // Transaction command:
-    public static void transaction(Transaction command) {
+    public static void transaction(@NotNull Transaction command) {
         
         switch (command) {
             case BEGIN:

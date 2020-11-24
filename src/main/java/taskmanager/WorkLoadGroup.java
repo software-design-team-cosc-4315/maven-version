@@ -6,6 +6,8 @@
 package taskmanager;
 
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  *
  * @author Ganondorfjallida
@@ -31,7 +33,7 @@ public class WorkLoadGroup {
     
     public void set_member_count(int count) { this.member_count = count; }
     
-    public void set_record(float task_weights, int task_count, String status) {
+    public void set_record(float task_weights, int task_count, @NotNull String status) {
         if (status.equals("Completed")) {
             this.workload_records[0].task_weights = task_weights;
             this.workload_records[0].task_count = task_count;

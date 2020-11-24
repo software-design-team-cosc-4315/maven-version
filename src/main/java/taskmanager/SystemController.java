@@ -6,6 +6,8 @@
 package taskmanager;
 
 
+import org.jetbrains.annotations.Nullable;
+
 import javax.swing.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -53,6 +55,7 @@ public class SystemController {
     
     
     
+    @Nullable
     public static String authenticate(String username, char[] password) {
         
         // Use DBConnection to call statement in order to retrieve user information.

@@ -6,6 +6,8 @@
 package taskmanager;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
@@ -56,7 +58,7 @@ public class Task extends TaskPrototype {
         return this._subtasks.values();
     }
     
-    public void add_subtask(Subtask subtask) {
+    public void add_subtask(@NotNull Subtask subtask) {
         if (subtask.parent_task() == this) this._subtasks.put(subtask.name(), subtask);
         else System.out.println("You cannot add a subtask that already is part of another task.");  //Other task is the parent
     }
@@ -92,7 +94,7 @@ public class Task extends TaskPrototype {
             this._recur_interval = interval; 
     }
     
-    public static int to_recur_interval(String recurrence_type) {
+    public static int to_recur_interval(@NotNull String recurrence_type) {
         if (recurrence_type.equals(Task.__NONRECURRENT__)) return Task.__NONRECUR__;
         if (recurrence_type.equals(Task.__WEEKLY__)) return Task.__WEEK__;
         if (recurrence_type.equals(Task.__MONTHLY__)) return Task.__MONTH__;

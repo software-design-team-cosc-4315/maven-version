@@ -5,6 +5,9 @@
  */
 package taskmanager;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.awt.*;
 
 /**
@@ -68,13 +71,13 @@ public class TaskPrototype {
         try { this._due_date = DBConnection.__date_format__.parse(due_date); } 
         catch (Exception e) { System.out.println("DATE PARSING ERROR: Entered date [" + due_date + "] is in the wrong format!"); }
     }
-    public void set_due_date(java.sql.Date due_date) { this._due_date = new java.util.Date(due_date.getTime()); }
+    public void set_due_date(@NotNull java.sql.Date due_date) { this._due_date = new java.util.Date(due_date.getTime()); }
     public void set_created_on(java.util.Date created_on) { this._created_on = created_on; }
     public void set_created_on(String created_on) {
         try { this._created_on = DBConnection.__date_format__.parse(created_on); } 
         catch (Exception e) { System.out.println("DATE PARSING ERROR: Entered date [" + created_on + "] is in the wrong format!"); }
     }
-    public void set_created_on(java.sql.Date creation_date) {
+    public void set_created_on(@NotNull java.sql.Date creation_date) {
         this._created_on = new java.util.Date(creation_date.getTime());
     }
     public void set_creator_ID(int creator_ID) { 
@@ -96,6 +99,7 @@ public class TaskPrototype {
     
     
 
+    @Nullable
     public static Color color(short priority) {
         if (priority == 1) return new Color(255, 0, 102);
         if (priority == 2) return new Color(255, 170, 0);

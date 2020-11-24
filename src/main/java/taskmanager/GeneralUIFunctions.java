@@ -6,6 +6,8 @@
 package taskmanager;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,8 @@ import java.util.List;
  */
 public class GeneralUIFunctions {
     
-    public static List<Component> getAllComponents(final Container c) {
+    @NotNull
+    public static List<Component> getAllComponents(@NotNull final Container c) {
         Component[] comps = c.getComponents();
         List<Component> compList = new ArrayList<Component>();
         for (Component comp : comps) {
