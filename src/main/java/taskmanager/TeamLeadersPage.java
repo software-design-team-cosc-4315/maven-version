@@ -2416,14 +2416,14 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             java.util.List<String> tasks = this.task_list.getSelectedValuesList();
             
             // Collect category names to which the selected task names belong:
-            for (TaskCategory category : this._task_category_map.values()) {
-                for (String task_name : tasks) {
-                    if (category.find_task(task_name)) {
-                        category_set.add(category.name());
-                        break;
-                    }
-                }
-            }
+            this._task_category_map.values().stream()
+            .filter(category -> {
+                boolean is_group = false;
+                for (String task_name : tasks) is_group = is_group || category.find_task(task_name);
+                return is_group;
+            })
+            .map(category -> category.name())
+            .forEach(name -> { category_set.add(name); });
 
         } else {
             // Restrict user selection ability to single selection:
@@ -2433,13 +2433,14 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             String task_name = this.task_list.getSelectedValue();
             this._focused_task_category = null;
             this._focused_subtask = null;
-            for (TaskCategory category : this._task_category_map.values()) {
+            this._task_category_map.values().stream()
+            .filter(category -> { 
                 Task task = category.get_task(task_name);
-                if (task != null) {
-                    this._focused_task = task;
-                    category_set.add(category.name());
-                }
-            }
+                boolean is_group = (task != null);
+                this._focused_task = is_group? task : this._focused_task;
+                return is_group;
+            })
+            .forEach(category -> { category_set.add(category.name()); });
             
             // Refactor related entity selections if the selection lists are active (page entered through the page navigation button):
             subtask_model.clearSelection();
@@ -2455,17 +2456,15 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
         category_model.clearSelection();
         ListModel category_list_model = this.task_category_list.getModel();
-        Iterator<String> category_iter = category_set.iterator();
-        String current_name = category_iter.next();
-        int j = 0;
+        // 1. map categories with their indices
+        TreeMap<String, Integer> cat_indices = new TreeMap<>();
+        for (int i=0; i < category_list_model.getSize(); ++i)
+            cat_indices.put(category_list_model.getElementAt(i).toString(), i);
+        // 2. put the selected indices in an array
         int[] selected_indices = new int[category_set.size()];
-        for (int i = 0; i < category_list_model.getSize(); ++i) {
-            if (category_list_model.getElementAt(i).toString().equals(current_name)) {
-                selected_indices[j++] = i;
-                if (category_iter.hasNext()) current_name = category_iter.next();
-                else break;
-            }
-        }
+        int i = 0;
+        for (String cat_name : category_set)
+            selected_indices[i++] = cat_indices.get(cat_name);
         this.task_category_list.setSelectedIndices(selected_indices);
         
         if (!code_selected) this.__code_selection_mode__ = false;
@@ -2481,12 +2480,15 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         ListSelectionModel task_model = this.task_list.getSelectionModel();
         ListSelectionModel subtask_model = this.subtask_list.getSelectionModel();
         ListSelectionModel user_model = this.team_member_list.getSelectionModel();
-        java.util.List<Task> task_list = new ArrayList<>();
+        java.util.List<Task> selected_task_list = new ArrayList<>();
+        
+        //TreeSet<Task> task_set = new TreeSet<>();
         
         // Collect all tasks:
-        for (TaskCategory category: this._task_category_map.values()) 
-            task_list.addAll(category.task_collection());
-        Collections.sort(task_list, new Comparator<Task>() { // sort the tasks
+        for (TaskCategory category: this._task_category_map.values())
+            selected_task_list.addAll(category.task_collection());
+            //task_set.addAll(category.task_collection());
+        Collections.sort(selected_task_list, new Comparator<Task>() { // sort the tasks
             @Override
             public int compare(Task t1, Task t2) {
                 return t1.name().compareTo(t2.name());
@@ -2504,11 +2506,11 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             // Filter out tasks that are not parent to the selected subtasks
             String last_task_name = null;
             Task current_task;
-            for (Iterator<Task> task_iter=task_list.iterator(); task_iter.hasNext(); ) {
+            for (Iterator<Task> task_iter=selected_task_list.iterator(); task_iter.hasNext(); ) {
                 current_task = task_iter.next();
-                if (current_task.name().equals(last_task_name)) {
+                /*if (current_task.name().equals(last_task_name)) {
                     task_iter.remove(); continue;   // remove duplicate tasks
-                }
+                }*/
                 last_task_name = current_task.name();
                 boolean task_is_parent = false;
                 for (Iterator<String> subtask_iter=subtasks.iterator(); subtask_iter.hasNext(); ) {
@@ -2531,7 +2533,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             this._focused_task_category = null;
             this._focused_subtask = null;
             this._focused_task = null;
-            for (Iterator<Task> task_iter=task_list.iterator(); task_iter.hasNext(); ) {
+            for (Iterator<Task> task_iter=selected_task_list.iterator(); task_iter.hasNext(); ) {
                 current_task = task_iter.next();
                 if (current_task.name().equals(last_task_name) || this._focused_subtask != null) { 
                     task_iter.remove(); continue; // remove duplicate or redundant tasks
@@ -2554,10 +2556,10 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
         task_model.clearSelection();
         ListModel task_list_model = this.task_list.getModel();
-        Iterator<Task> task_iter = task_list.iterator();
+        Iterator<Task> task_iter = selected_task_list.iterator();
         String current_name = task_iter.next().name();
         int j = 0;
-        int[] selected_indices = new int[task_list.size()];
+        int[] selected_indices = new int[selected_task_list.size()];
         for (int i = 0; i < task_list_model.getSize(); ++i) {
             if (task_list_model.getElementAt(i).toString().equals(current_name)) {
                 selected_indices[j++] = i;
