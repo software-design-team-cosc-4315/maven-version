@@ -6,11 +6,8 @@
 package taskmanager;
 
 
-
-import java.text.SimpleDateFormat;
 import java.sql.*;
-import java.util.List;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 
 /**
  *

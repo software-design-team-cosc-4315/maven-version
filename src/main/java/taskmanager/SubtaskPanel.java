@@ -15,8 +15,8 @@ import javax.swing.*;
 public class SubtaskPanel extends TaskPrototypePanel {
     
     // Data source:
-    private Subtask _data_source;
-    private TaskPage _parent_page;
+    private final Subtask _data_source;
+    private final TaskPage _parent_page;
     
     
     

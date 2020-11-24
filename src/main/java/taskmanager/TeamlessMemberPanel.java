@@ -17,7 +17,7 @@ import javax.swing.*;
 public class TeamlessMemberPanel extends JPanel {
     
     // Data source:
-    private AppUser _data_source;
+    private final AppUser _data_source;
     
     
     // UI components:

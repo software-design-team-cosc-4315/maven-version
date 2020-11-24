@@ -6,10 +6,12 @@
 package taskmanager;
 
 
-
 import javax.swing.*;
-import java.util.*;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -23,8 +25,8 @@ public class TaskCategoryScrollPanel extends JScrollPane {
     
     
     // Reference to other classes:
-    private TaskCategory _data_source;
-    private TaskPage _parent_page;
+    private final TaskCategory _data_source;
+    private final TaskPage _parent_page;
     
     
     // UI components:
@@ -367,8 +369,8 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                         + " AND S.DELETED != 'Y'"
                 );
                 boolean healthy_statement = (ps != null);
-                healthy_statement = healthy_statement? DBConnection.set_statement_value(ps, 1, task.ID()) : false;
-                healthy_statement = healthy_statement? DBConnection.set_statement_value(ps, 2, SystemController.current_user.ID()) : false;
+                healthy_statement = healthy_statement && DBConnection.set_statement_value(ps, 1, task.ID());
+                healthy_statement = healthy_statement && DBConnection.set_statement_value(ps, 2, SystemController.current_user.ID());
                 if (!healthy_statement) { DBConnection.disconnect(); return; }     // do not proceed if there is an error
                 
                 rs = DBConnection.execute_query(ps);
@@ -444,6 +446,6 @@ public class TaskCategoryScrollPanel extends JScrollPane {
     
     
     
-    public TaskCategory data_source() { return this._data_source; };
-    
+    public TaskCategory data_source() { return this._data_source; }
+
 }

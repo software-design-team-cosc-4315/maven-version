@@ -5,7 +5,7 @@
  */
 package taskmanager;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  *

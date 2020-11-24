@@ -6,9 +6,10 @@
 package taskmanager;
 
 
-
 import javax.swing.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 
 /**
@@ -59,12 +60,12 @@ public class SystemController {
         DBConnection.connect();
         
         PreparedStatement ps = DBConnection.prepared_statement("SELECT MEMBER_ID, MEMBER_ROLE, TEAM_ID FROM MEMBERS WHERE USERNAME = ? AND MEMBER_PASSWORD = ? AND DELETED != 'Y'");
-        authenticated = (ps != null)? DBConnection.set_statement_value(ps, 1, username) : false;
-        authenticated = authenticated? DBConnection.set_statement_value(ps, 2, new String(password)) : false;
+        authenticated = (ps != null) && DBConnection.set_statement_value(ps, 1, username);
+        authenticated = authenticated && DBConnection.set_statement_value(ps, 2, new String(password));
         ResultSet rs = DBConnection.execute_query(ps);
         password = null;
         try {
-            authenticated = authenticated? rs.next() : false;
+            authenticated = authenticated && rs.next();
             // store user information in SystemController.current_user
             if (authenticated) {  // ***NOTE: state change to recently authenticated
                 SystemController.current_state = State.RECENTLY_AUTHENTICATED;
@@ -167,10 +168,10 @@ public class SystemController {
         DBConnection.connect();
             
         PreparedStatement ps = DBConnection.prepared_statement("SELECT L.USERNAME FROM TEAMS T, MEMBERS L WHERE T.TEAM_ID = ? AND L.MEMBER_ID = T.TEAM_LEADER_ID AND T.DELETED != 'Y' AND L.DELETED != 'Y'");
-        team_info_retrieved = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
+        team_info_retrieved = (ps != null) && DBConnection.set_statement_value(ps, 1, team_ID);
         ResultSet rs = team_info_retrieved? DBConnection.execute_query(ps) : null;
         try {
-            team_info_retrieved = team_info_retrieved? rs.next() : false;
+            team_info_retrieved = team_info_retrieved && rs.next();
             if (team_info_retrieved) {
                 SystemController.current_team = new Team();
                 SystemController.current_team.set_team_ID(team_ID);

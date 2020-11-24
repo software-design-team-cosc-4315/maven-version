@@ -16,8 +16,8 @@ import javax.swing.*;
 public class TaskPanel extends TaskPrototypePanel {
     
     // Data source:
-    private Task _data_source;
-    private TaskPage _parent_page;
+    private final Task _data_source;
+    private final TaskPage _parent_page;
     
     // UI Components:
     protected JLabel _recurrence_label;

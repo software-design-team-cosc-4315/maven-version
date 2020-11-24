@@ -6,10 +6,9 @@
 package taskmanager;
 
 
-import java.util.List;
+import java.awt.*;
 import java.util.ArrayList;
-import java.awt.Component;
-import java.awt.Container;
+import java.util.List;
 
 /**
  *

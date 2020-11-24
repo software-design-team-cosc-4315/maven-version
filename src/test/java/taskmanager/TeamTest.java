@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TeamTest {
 
-    private Team testTeam = new Team();
+    private final Team testTeam = new Team();
 
     @BeforeEach
     void setUp() {

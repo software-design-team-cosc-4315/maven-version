@@ -6,9 +6,6 @@
 package taskmanager;
 
 
-import java.sql.*;
-import oracle.jdbc.*;
-
 /**
  *
  * @author Ganondorfjallida

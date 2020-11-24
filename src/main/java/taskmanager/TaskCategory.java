@@ -8,9 +8,9 @@
 package taskmanager;
 
 
-import java.util.TreeMap;
-import java.util.Map;
 import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 
@@ -31,7 +31,7 @@ public class TaskCategory {
     
     
     // Child data structures:
-    private TreeMap<String, Task> _task_map = new TreeMap<String, Task>();
+    private final TreeMap<String, Task> _task_map = new TreeMap<String, Task>();
     
     
     

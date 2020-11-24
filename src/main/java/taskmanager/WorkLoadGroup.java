@@ -6,10 +6,6 @@
 package taskmanager;
 
 
-
-
-import java.lang.Math.*;
-
 /**
  *
  * @author Ganondorfjallida
@@ -23,7 +19,7 @@ public class WorkLoadGroup {
     
     private int member_count = 1;
     
-    private WorkLoadRecord[] workload_records = new WorkLoadRecord[] 
+    private final WorkLoadRecord[] workload_records = new WorkLoadRecord[]
     { new WorkLoadRecord(), new WorkLoadRecord(), new WorkLoadRecord() };
    
     

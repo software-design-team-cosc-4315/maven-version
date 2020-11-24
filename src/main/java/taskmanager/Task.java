@@ -6,9 +6,9 @@
 package taskmanager;
 
 
-import java.util.TreeMap;
-import java.util.Map;
 import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  *
@@ -26,7 +26,7 @@ public class Task extends TaskPrototype {
     protected int _recur_interval;
     
     // Subtasks data structure: reference by <name, subtask>
-    private TreeMap<String, Subtask> _subtasks = new TreeMap<String, Subtask>();
+    private final TreeMap<String, Subtask> _subtasks = new TreeMap<String, Subtask>();
     
     
     

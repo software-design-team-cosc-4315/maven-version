@@ -6,8 +6,9 @@
 package taskmanager;
 
 
-import java.sql.*;
-
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  *
@@ -74,13 +75,16 @@ public class AppUser {
     
     
     
-    public static UserType to_user_type(String type) {
+    @org.jetbrains.annotations.Nullable
+    public static UserType to_user_type(@NotNull String type) {
         if (type.equals(__BASE_USER__))   return UserType.BASE_USER;
         if (type.equals(__TEAM_LEAD__))   return UserType.TEAM_LEAD;
         if (type.equals(__MANAGER__))     return UserType.MANAGER;
         return null;
     }
     
+    @Nullable
+    @Contract(pure = true)
     public static String user_type_to_string(UserType type) {
         if (type == UserType.BASE_USER) return __BASE_USER__;
         if (type == UserType.TEAM_LEAD) return __TEAM_LEAD__;
@@ -88,12 +92,9 @@ public class AppUser {
         return null;
     }
     
-    public static String valid_user_role(String role) {
+    @Nullable
+    public static String valid_user_role(@NotNull String role) {
         if (role.equals(__BASE_USER__) || role.equals(__TEAM_LEAD__) || role.equals(__MANAGER__))   return role;
         return null;
     }
-    
-    
-    
-    
 }

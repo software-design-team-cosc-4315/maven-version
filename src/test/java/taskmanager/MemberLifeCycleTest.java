@@ -71,8 +71,8 @@ public class MemberLifeCycleTest {
         
         DBConnection.connect();
         PreparedStatement ps = DBConnection.prepared_statement("DELETE FROM MEMBERS WHERE USERNAME = ?");
-        boolean cleaned = (ps != null)? DBConnection.set_statement_value(ps, 1, "__test_new_username__") : false;
-        cleaned = cleaned? DBConnection.execute_update(ps, true) : false;
+        boolean cleaned = (ps != null) && DBConnection.set_statement_value(ps, 1, "__test_new_username__");
+        cleaned = cleaned && DBConnection.execute_update(ps, true);
         if (!cleaned)
             System.out.println("ERROR: Member life-cycle test clean-up failed! Please remove the test records from the database manually.");
         DBConnection.disconnect();
