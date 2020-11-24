@@ -1438,46 +1438,40 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         }
         
         // Preprocess task category data update:
-        boolean name_changed = false;
-        boolean description_changed = false;
-        String update_declaration = "UPDATE TASKCATEGORIES SET ";
-        String update_fields = "";
-        String update_conditions = "WHERE TASK_CATEGORY_ID = ?";
-        if (!this._focused_task_category.name().equals(new_name)) {
-            update_fields += "NAME = ? ";
-            name_changed = true;
-        }
-        if (!this._focused_task_category.description().equals(new_description)) {
-            if (update_fields.length() != 0) update_fields += ", ";
-            update_fields += "CATEGORY_DESCRIPTION = ? ";
-            description_changed = true;
-        }
-        if (update_fields.length() == 0) {
+        boolean edited = !(this._focused_task_category.name().equals(new_name)
+                        && this._focused_task_category.description().equals(new_description) );
+        if (!edited) {
             this.task_category_edit_message.setText("No fields were changed.");
             return;
         }
         
         // Update task category data:
         DBConnection.connect();
-        
-        boolean updated = true;
-        int field_counter = 1;
-        PreparedStatement ps = DBConnection.prepared_statement(update_declaration + update_fields + update_conditions);
-        updated = (ps != null && name_changed)? DBConnection.set_statement_value(ps, field_counter++, new_name) : updated;
-        updated = (updated && description_changed)? DBConnection.set_statement_value(ps, field_counter++, new_description) : updated;
-        updated = updated? DBConnection.set_statement_value(ps, field_counter, this._focused_task_category.ID()) : false;
-        updated = updated? DBConnection.execute_update(ps) : false;
-        updated = updated? DBConnection.close_statement(ps) : false;
-        
+        PreparedStatement ps = DBConnection.prepared_statement("UPDATE TASKCATEGORIES SET NAME = ?, CATEGORY_DESCRIPTION = ? WHERE TASK_CATEGORY_ID = ?");
+        boolean updated = (ps != null)
+                        && DBConnection.set_statement_value(ps, 1, new_name)
+                        && DBConnection.set_statement_value(ps, 2, new_description)
+                        && DBConnection.set_statement_value(ps, 3, this._focused_task_category.ID())
+                        && DBConnection.execute_update(ps, true)
+                        && DBConnection.close_statement(ps);
         DBConnection.disconnect();
         if (!updated) {
             this.task_category_edit_message.setText("Error updating the task category. Category name might have been used.");
             return;
         }
         
-        // Reload the page:
-        if (this._focus == null) this.reload();
-        else this.reload(Focus.TASK_CATEGORY, new_name);
+        // Update local record:
+        String old_name = this._focused_task_category.name();
+        TaskCategory current_category = this._task_category_map.get(old_name);
+        current_category.set_name(new_name);
+        current_category.set_description(new_description);
+        if (!new_name.equals(old_name)) {
+            this._task_category_map.remove(old_name, current_category);
+            this._task_category_map.put(new_name, current_category);   
+        }
+        
+        // Refresh the page:
+        this.refresh();
         this.task_category_edit_message.setText("Task category updated.");
         
     }//GEN-LAST:event_task_category_update_buttonActionPerformed
