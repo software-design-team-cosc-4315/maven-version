@@ -71,7 +71,7 @@ public class SystemController {
             if (authenticated) {  // ***NOTE: state change to recently authenticated
                 SystemController.current_state = State.RECENTLY_AUTHENTICATED;
                 SystemController.current_user = new AppUser();
-                SystemController.current_user.set_ID(rs.getInt("MEMBER_ID"));
+                SystemController.current_user.setId(rs.getInt("MEMBER_ID"));
                 SystemController.current_user.setUsername(username);
                 SystemController.current_user.setRole( AppUser.toUserType(rs.getString("MEMBER_ROLE")) );
                 SystemController.current_user.setTeamID(rs.getString("TEAM_ID"));

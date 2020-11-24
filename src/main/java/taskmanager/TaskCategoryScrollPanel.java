@@ -353,7 +353,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                     task.set_priority(rs.getShort("TASK_PRIORITY"));
                     task.set_name(rs.getString("NAME"));
                     task.set_description(rs.getString("TASK_DESCRIPTION"));
-                    task.set_assigned_to_member_username(SystemController.current_user.username());
+                    task.set_assigned_to_member_username(SystemController.current_user.getUsername());
                     task.set_due_date(rs.getDate("DUE_DATE"));
                     task.set_creator_username(rs.getString("CREATOR_USERNAME"));
                     task.set_created_on(rs.getDate("CREATED_ON"));
@@ -392,7 +392,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                         subtask.set_priority(rs.getShort("PRIORITY"));
                         subtask.set_name(rs.getString("NAME"));
                         subtask.set_description(rs.getString("DESCRIPTION"));
-                        subtask.set_assigned_to_member_username(SystemController.current_user.username());
+                        subtask.set_assigned_to_member_username(SystemController.current_user.getUsername());
                         subtask.set_due_date(rs.getDate("DUE_DATE"));
                         subtask.set_creator_username(rs.getString("CREATOR_USERNAME"));
                         subtask.set_created_on(rs.getDate("CREATED_ON"));

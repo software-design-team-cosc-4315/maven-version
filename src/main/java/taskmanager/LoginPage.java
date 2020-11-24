@@ -235,7 +235,7 @@ public class LoginPage extends javax.swing.JFrame {
         
         String username = this.login_page_username_text_field.getText();
         if (username.length() < 6 || this.login_page_password_field.getPassword().length < 6) {
-            this.login_message.setText("Invalid username or password!");
+            this.login_message.setText("Invalid getUsername or password!");
             return;
         }
         

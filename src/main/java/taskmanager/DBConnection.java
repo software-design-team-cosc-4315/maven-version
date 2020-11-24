@@ -251,8 +251,7 @@ public class DBConnection {
     
     
     // Transaction command:
-    public static void transaction(@NotNull Transaction command) {
-        
+    public static void transaction(@NotNull final Transaction command) {
         switch (command) {
             case BEGIN:
                 DBConnection.__begin_transaction__();

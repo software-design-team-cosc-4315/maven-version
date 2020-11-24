@@ -54,7 +54,7 @@ class TeamTest {
 
     @Test
     public void set_leader_username() {
-        //See leader username
+        //See leader getUsername
 
     }
 }

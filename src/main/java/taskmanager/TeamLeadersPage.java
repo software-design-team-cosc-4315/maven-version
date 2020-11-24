@@ -1306,7 +1306,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             .addComponent(member_productivity_workload_value, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        member_productivity_username_label.setText("Member username:");
+        member_productivity_username_label.setText("Member getUsername:");
 
         member_productivity_username_value.setText("testing");
 
@@ -2100,8 +2100,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this.subtask_edit_creation_date_label.setText("on: " + this._focused_subtask.str_created_on());
         this.subtask_edit_assignment_options.removeAllItems();
         for (AppUser user: this._user_list) {
-            this.subtask_edit_assignment_options.addItem(user.username());
-            if (user.username().equals(this._focused_subtask.assigned_to_member_username()))
+            this.subtask_edit_assignment_options.addItem(user.getUsername());
+            if (user.getUsername().equals(this._focused_subtask.assigned_to_member_username()))
                 this.subtask_edit_assignment_options.setSelectedIndex(this.subtask_edit_assignment_options.getItemCount() - 1);
         }
         this.subtask_edit_due_date_text.setText(new SimpleDateFormat("MM/dd/yyyy").format(this._focused_subtask.due_date()));
@@ -2133,7 +2133,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
         if (-1 < team_member_list.getSelectedIndex() ) {
             String[] user_info = team_member_list.getSelectedValue().split(" - ", 2);
-            WorkLoadGroup workload_group = this._member_workload_stat_map.get(user_info[1]); // user_info[1] is the selected username
+            WorkLoadGroup workload_group = this._member_workload_stat_map.get(user_info[1]); // user_info[1] is the selected getUsername
             this.member_productivity_username_value.setText(user_info[1]); 
             
             float completed_portion = 0.0f;
@@ -2229,7 +2229,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             for (String subtask_name: subtask_set)
                 subtask_model.addElement(subtask_name);
             for (AppUser user: this._user_list)
-                user_model.addElement(AppUser.userTypeToString(user.role()) + " - " + user.username());
+                user_model.addElement(AppUser.userTypeToString(user.role()) + " - " + user.getUsername());
             
             // Reset visibility:
             for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))

@@ -55,8 +55,8 @@ public class TeamlessMemberPanel extends JPanel {
         this.setPreferredSize(new java.awt.Dimension(565, 24));
         this.setMaximumSize(this.getPreferredSize());
 
-        // 1. username 
-        this._username_label.setText(this._data_source.username());        
+        // 1. getUsername
+        this._username_label.setText(this._data_source.getUsername());
         this._username_separator.setOrientation(SwingConstants.VERTICAL);
         
         // 2. add-to-team feature
