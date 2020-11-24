@@ -8,6 +8,7 @@ package taskmanager;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -538,7 +539,7 @@ public class TaskPage extends javax.swing.JFrame {
             .addComponent(task_page_to_managers_page_button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        task_page_team_label.setFont(new java.awt.Font("Lucida Grande", 1, 16)); // NOI18N
+        task_page_team_label.setFont(new java.awt.Font("Lucida Grande", Font.BOLD, 16)); // NOI18N
         task_page_team_label.setText("Team Software Designers");
 
         javax.swing.GroupLayout task_page_header_paneLayout = new javax.swing.GroupLayout(task_page_header_pane);
@@ -1520,11 +1521,11 @@ public class TaskPage extends javax.swing.JFrame {
     */
     private void query_task_category_name_for_task_current_team(String task, boolean page_loaded, List updated_cats){
         PreparedStatement ps = DBConnection.prepared_statement("SELECT DISTINCT TC.NAME AS CATEGORY_NAME "
-                +"FROM TASKCATEGORIES TC, TEAMS T, TASKS TA, TASKINCATEGORIES TIC "
-                +"WHERE TC.TEAM_ID = ? AND TA.NAME = ? AND TA.TASK_ID = TIC.TASK_ID AND TC.TASK_CATEGORY_ID = TIC.TASK_CATEGORY_ID AND T.DELETED != 'Y' AND TA.DELETED != 'Y'");
+            +"FROM TASKCATEGORIES TC, TEAMS T, TASKS TA, TASKINCATEGORIES TIC "
+            +"WHERE TC.TEAM_ID = ? AND TA.NAME = ? AND TA.TASK_ID = TIC.TASK_ID AND TC.TASK_CATEGORY_ID = TIC.TASK_CATEGORY_ID AND T.DELETED != 'Y' AND TA.DELETED != 'Y'");
         page_loaded = (ps != null)
-          && DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID())
-          && DBConnection.set_statement_value(ps, 2, task_name);
+            && DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID())
+            && DBConnection.set_statement_value(ps, 2, task);
         // Add the queried task category names into a list:
         ResultSet rs = DBConnection.execute_query(ps);
         try {
@@ -1532,20 +1533,23 @@ public class TaskPage extends javax.swing.JFrame {
             while (true) {
                 assert rs != null;
                 if (!rs.next()) break;
-                updated_categories.add(rs.getString("CATEGORY_NAME"));
+                updated_cats.add(rs.getString("CATEGORY_NAME"));
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            DBConnection.disconnect(); return;      // do not proceed if there is an error
+            System.out.println(e);
+            DBConnection.disconnect(); // do not proceed if there is an error
         }
     }
+
+
 
     private void delete_task(String task, boolean page_loaded){
         // Delete the task with @task_name, whose team_ID is the ID of the current team, from the database.
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TASKS SET DELETED = 'Y' WHERE NAME=? and TEAM_ID = ? AND DELETED != 'Y'");
-        page_loaded = (ps != null) ? DBConnection.set_statement_value(ps, 1, task) : false;
-        page_loaded = page_loaded ? DBConnection.set_statement_value(ps, 2, SystemController.current_team.team_ID()) : false;
-        page_loaded = page_loaded ? DBConnection.execute_update(ps, true) : false;
+        page_loaded = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, task)
+            && DBConnection.set_statement_value(ps, 2, SystemController.current_team.team_ID())
+            && DBConnection.execute_update(ps, true);
     }
 
     private void task_page_task_delete_confirm_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_task_page_task_delete_confirm_buttonActionPerformed
@@ -1585,8 +1589,9 @@ public class TaskPage extends javax.swing.JFrame {
         PreparedStatement ps = DBConnection.prepared_statement("SELECT TA.NAME AS PARENT_NAME "
                 +"FROM SUBTASK SB, TASKS TA "
                 +"WHERE TA.TEAM_ID = ? AND SB.NAME = ? AND SB.SUBTASK_TO = TA.TASK_ID AND TA.DELETED != 'Y' AND SB.DELETED != 'Y'");
-        page_loaded = (ps != null) ? DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID()) : false;
-        page_loaded = page_loaded ? DBConnection.set_statement_value(ps, 2, subtask) : false;
+        page_loaded = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID())
+            && DBConnection.set_statement_value(ps, 2, subtask);
         ResultSet rs = DBConnection.execute_query(ps);
         try {
             assert rs != null;
@@ -1594,16 +1599,17 @@ public class TaskPage extends javax.swing.JFrame {
             parent = rs.getString("PARENT_NAME");
         }catch(Exception e){
             e.printStackTrace();
-            DBConnection.disconnect(); return;
+            DBConnection.disconnect();
         }
     }
 
     private void subtask_delete(String subtask, boolean page_loaded){
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE SUBTASK SET DELETED = 'Y' " +
                 "WHERE NAME = ? AND SUBTASK_TO IN(SELECT TASK_ID FROM TASKS WHERE TEAM_ID = ?) AND DELETED != 'Y'");
-        page_loaded = (ps != null) ? DBConnection.set_statement_value(ps, 1, subtask) : false;
-        page_loaded = page_loaded ? DBConnection.set_statement_value(ps, 2, SystemController.current_team.team_ID()) : false;
-        page_loaded = page_loaded ? DBConnection.execute_update(ps, true) : false;
+        page_loaded = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, subtask)
+            && DBConnection.set_statement_value(ps, 2, SystemController.current_team.team_ID())
+            && DBConnection.execute_update(ps, true);
     }
 
     private void task_page_subtask_delete_confirm_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_task_page_subtask_delete_confirm_buttonActionPerformed
@@ -1643,9 +1649,10 @@ public class TaskPage extends javax.swing.JFrame {
     private void delete_task_category(String category, boolean page_loaded){
         PreparedStatement ps = DBConnection.prepared_statement("DELETE FROM TASKCATEGORIES "+
                 "WHERE NAME = ? AND TEAM_ID = ?");
-        page_loaded = (ps != null) ? DBConnection.set_statement_value(ps, 1, category) : false;
-        page_loaded = page_loaded ? DBConnection.set_statement_value(ps, 2, SystemController.current_team.team_ID()) : false;
-        page_loaded = page_loaded ? DBConnection.execute_update(ps, true) : false;
+        page_loaded = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, category)
+            && DBConnection.set_statement_value(ps, 2, SystemController.current_team.team_ID())
+            && DBConnection.execute_update(ps, true);
     }
 
     private void task_page_task_category_delete_confirm_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_task_page_task_category_delete_confirm_buttonActionPerformed
@@ -1748,7 +1755,7 @@ public class TaskPage extends javax.swing.JFrame {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            DBConnection.disconnect(); return;      // do not proceed if there is an error
+            DBConnection.disconnect(); // do not proceed if there is an error
         }
     }
 
@@ -1758,11 +1765,14 @@ public class TaskPage extends javax.swing.JFrame {
                         + " FROM TASKS T, MEMBERS CREATOR, MEMBERS U"
                         + " WHERE T.TEAM_ID = ? AND T.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND T.ASSIGNED_TO_MEMBER_ID = U.MEMBER_ID AND T.DELETED != 'Y' AND U.DELETED != 'Y'"
         );
-        page_loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID()) : false;
+        page_loaded = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID());
 
         ResultSet rs = DBConnection.execute_query(ps);
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 // Add task to task list:
                 Task task = new Task();
                 task.set_ID(rs.getInt("TASK_ID"));
@@ -1780,7 +1790,7 @@ public class TaskPage extends javax.swing.JFrame {
             }
         } catch (SQLException e) {
             System.out.println(e);
-            DBConnection.disconnect(); return;      // do not proceed if there is an error
+            DBConnection.disconnect(); // do not proceed if there is an error
         }
     }
 
@@ -1790,11 +1800,14 @@ public class TaskPage extends javax.swing.JFrame {
                         + " FROM SUBTASK S, MEMBERS CREATOR, MEMBERS U"
                         + " WHERE S.SUBTASK_TO = ? AND S.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND S.ASSIGNED_TO_MEMBER_ID = U.MEMBER_ID AND U.DELETED != 'Y' AND S.DELETED != 'Y'"
         );
-        page_loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, task.ID()) : false;
+        page_loaded = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, task.ID());
 
         ResultSet rs = DBConnection.execute_query(ps);
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 // Add subtask as child to their parent task:
                 Subtask subtask = new Subtask(task);
                 subtask.set_ID(rs.getInt("SUBTASK_ID"));
@@ -1810,8 +1823,8 @@ public class TaskPage extends javax.swing.JFrame {
                 task.add_subtask(subtask);
             }
         } catch (SQLException e) {
-            System.out.println(e);
-            DBConnection.disconnect(); return;      // do not proceed if there is an error
+            e.printStackTrace();
+            DBConnection.disconnect(); // do not proceed if there is an error
         }
     }
 
@@ -1821,11 +1834,14 @@ public class TaskPage extends javax.swing.JFrame {
                         + " FROM TASKS T, MEMBERS CREATOR, SUBTASK S"
                         + " WHERE T.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND S.SUBTASK_TO = T.TASK_ID AND S.ASSIGNED_TO_MEMBER_ID = ? AND S.DELETED != 'Y' AND T.DELETED != 'Y'"
         );
-        page_loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, SystemController.current_user.ID()) : false;
+        page_loaded = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, SystemController.current_user.ID());
 
         ResultSet rs = DBConnection.execute_query(ps);
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 // Add task to each category:
                 Task task = new Task();
                 task.set_ID(rs.getInt("TASK_ID"));
@@ -1843,18 +1859,17 @@ public class TaskPage extends javax.swing.JFrame {
             }
         } catch (SQLException e) {
             System.out.println(e);
-            DBConnection.disconnect(); return;      // do not proceed if there is an error
+            DBConnection.disconnect(); // do not proceed if there is an error
         }
     }
 
     private PreparedStatement query_category_in_task_pairs(boolean page_loaded, List task_list){
-        PreparedStatement ps = DBConnection.prepared_statement(
+
+        return DBConnection.prepared_statement(
                 "SELECT TASK_CATEGORY_ID, TASK_ID"
                         + " FROM TASKINCATEGORIES"
                         + " WHERE TASK_CATEGORY_ID = ? AND TASK_ID = ?"
         );
-
-        return ps;
     }
 
     private void query_subtask_for_task(boolean page_loaded, Task task){
@@ -1863,12 +1878,15 @@ public class TaskPage extends javax.swing.JFrame {
                         + " FROM SUBTASK S, MEMBERS CREATOR"
                         + " WHERE S.SUBTASK_TO = ? AND S.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND S.ASSIGNED_TO_MEMBER_ID = ? AND S.DELETED != 'Y'"
         );
-        page_loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, task.ID()) : false;
-        page_loaded = page_loaded? DBConnection.set_statement_value(ps, 2, SystemController.current_user.ID()) : false;
+        page_loaded = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, task.ID())
+            && DBConnection.set_statement_value(ps, 2, SystemController.current_user.ID());
 
         ResultSet rs = DBConnection.execute_query(ps);
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 // Add task to each category:
                 Subtask subtask = new Subtask(task);
                 subtask.set_ID(rs.getInt("SUBTASK_ID"));
@@ -1884,8 +1902,8 @@ public class TaskPage extends javax.swing.JFrame {
                 task.add_subtask(subtask);
             }
         } catch (SQLException e) {
-            System.out.println(e);
-            DBConnection.disconnect(); return;      // do not proceed if there is an error
+            e.printStackTrace();
+            DBConnection.disconnect(); // do not proceed if there is an error
         }
     }
 
@@ -1937,11 +1955,17 @@ public class TaskPage extends javax.swing.JFrame {
         PreparedStatement ps = query_category_in_task_pairs(page_loaded, task_list);
         for (TaskCategoryScrollPanel category_panel : this._scroll_panel_map.values()) {
             for (Task task : task_list) {
-                page_loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, category_panel.data_source().ID()) : false;
-                page_loaded = page_loaded? DBConnection.set_statement_value(ps, 2, task.ID()) : false;
+                page_loaded = (ps != null)
+                    && DBConnection.set_statement_value(ps, 1, category_panel.data_source().ID())
+                    && DBConnection.set_statement_value(ps, 2, task.ID());
 
                 ResultSet rs = DBConnection.execute_query(ps);
-                try { while (rs.next()) category_panel.data_source().add_task(task); } // add task to corresponding category
+                try { while (true) {
+                    assert rs != null;
+                    if (!rs.next()) break;
+                    category_panel.data_source().add_task(task);
+                }
+                } // add task to corresponding category
                 catch (SQLException e) {
                     e.printStackTrace();
                     DBConnection.disconnect(); return;      // do not proceed if there is an error
