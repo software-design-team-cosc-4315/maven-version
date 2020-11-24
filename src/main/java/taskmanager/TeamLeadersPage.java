@@ -2480,69 +2480,36 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         ListSelectionModel task_model = this.task_list.getSelectionModel();
         ListSelectionModel subtask_model = this.subtask_list.getSelectionModel();
         ListSelectionModel user_model = this.team_member_list.getSelectionModel();
-        java.util.List<Task> selected_task_list = new ArrayList<>();
+        //java.util.List<Task> selected_task_list = new ArrayList<>();
+        TreeSet<String> task_set = new TreeSet<>();
         
-        //TreeSet<Task> task_set = new TreeSet<>();
-        
-        // Collect all tasks:
+        Map<String, Subtask> parent_map = new TreeMap<>();
+        // Collect all subtasks:
         for (TaskCategory category: this._task_category_map.values())
-            selected_task_list.addAll(category.task_collection());
-            //task_set.addAll(category.task_collection());
-        Collections.sort(selected_task_list, new Comparator<Task>() { // sort the tasks
-            @Override
-            public int compare(Task t1, Task t2) {
-                return t1.name().compareTo(t2.name());
+            for (Task task : category.task_collection()) {
+                parent_map = task.subtask_collection().stream()
+                .collect(Collectors.toMap(subtask -> subtask.name(), subtask -> subtask));
             }
-        });
-        
         
         if (this.__code_selection_mode__) {
             // Allow programmatic changes to use multiple selection mode:
             subtask_model.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-
+            
             // Obtain selected task names:
             java.util.List<String> subtasks = this.subtask_list.getSelectedValuesList();
-            
-            // Filter out tasks that are not parent to the selected subtasks
-            String last_task_name = null;
-            Task current_task;
-            for (Iterator<Task> task_iter=selected_task_list.iterator(); task_iter.hasNext(); ) {
-                current_task = task_iter.next();
-                /*if (current_task.name().equals(last_task_name)) {
-                    task_iter.remove(); continue;   // remove duplicate tasks
-                }*/
-                last_task_name = current_task.name();
-                boolean task_is_parent = false;
-                for (Iterator<String> subtask_iter=subtasks.iterator(); subtask_iter.hasNext(); ) {
-                    if (current_task.get_subtask(subtask_iter.next()) != null) {
-                        task_is_parent = true;
-                        subtask_iter.remove();  // parent task found, remove subtask reference
-                    }
-                }
-                if (!task_is_parent) task_iter.remove();  // remove task if not parent to selected subtasks
-            }
-            
+            for (String subtask_name : subtasks)
+                task_set.add(parent_map.get(subtask_name).parent_task().name());
         } else {
             // Restrict user selection ability to single selection:
             subtask_model.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
             // Find the task that is parent to the selected subtask:
             String subtask_name = this.subtask_list.getSelectedValue();
-            String last_task_name = null;
-            Task current_task;
             this._focused_task_category = null;
             this._focused_subtask = null;
             this._focused_task = null;
-            for (Iterator<Task> task_iter=selected_task_list.iterator(); task_iter.hasNext(); ) {
-                current_task = task_iter.next();
-                if (current_task.name().equals(last_task_name) || this._focused_subtask != null) { 
-                    task_iter.remove(); continue; // remove duplicate or redundant tasks
-                }
-                last_task_name = current_task.name();
-                Subtask subtask = current_task.get_subtask(subtask_name);
-                if (subtask == null) task_iter.remove(); // remove task if not parent to selected subtask
-                else this._focused_subtask = subtask;
-            }
+            this._focused_subtask = parent_map.get(subtask_name);
+            task_set.add(this._focused_subtask.parent_task().name());
 
             // Refactor related entity selections if the selection lists are active (page entered through the page navigation button):
             user_model.clearSelection();
@@ -2556,17 +2523,15 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
         task_model.clearSelection();
         ListModel task_list_model = this.task_list.getModel();
-        Iterator<Task> task_iter = selected_task_list.iterator();
-        String current_name = task_iter.next().name();
-        int j = 0;
-        int[] selected_indices = new int[selected_task_list.size()];
-        for (int i = 0; i < task_list_model.getSize(); ++i) {
-            if (task_list_model.getElementAt(i).toString().equals(current_name)) {
-                selected_indices[j++] = i;
-                if (task_iter.hasNext()) current_name = task_iter.next().name();
-                else break;
-            }
-        }
+        // 1. map tasks with their indices
+        TreeMap<String, Integer> task_indices = new TreeMap<>();
+        for (int i=0; i < task_list_model.getSize(); ++i)
+            task_indices.put(task_list_model.getElementAt(i).toString(), i);
+        // 2. put the selected indices in an array
+        int[] selected_indices = new int[task_set.size()];
+        int i = 0;
+        for (String task_name : task_set)
+            selected_indices[i++] = task_indices.get(task_name);
         this.task_list.setSelectedIndices(selected_indices);
         
         if (!code_selected) this.__code_selection_mode__ = false;
@@ -2582,7 +2547,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         ListSelectionModel task_model = this.task_list.getSelectionModel();
         ListSelectionModel subtask_model = this.subtask_list.getSelectionModel();
         ListSelectionModel user_model = this.team_member_list.getSelectionModel();
-        java.util.List<Subtask> subtask_list = new ArrayList<>();
+        Map<String, String> assignment_map = new TreeMap<>();
         
         // Selection mode is user selection by default:
         subtask_model.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -2591,27 +2556,15 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         // Collect all subtasks:
         for (TaskCategory category: this._task_category_map.values()) {
             for (Task task: category.task_collection())
-                subtask_list.addAll(task.subtask_collection());
+                assignment_map.putAll( 
+                    task.subtask_collection().stream()
+                    .collect(Collectors.toMap(subtask -> subtask.name(), subtask -> subtask.assigned_to_member_username()))
+                );
         }
-        Collections.sort(subtask_list, new Comparator<Subtask>() { // sort the tasks
-            @Override
-            public int compare(Subtask s1, Subtask s2) {
-                return s1.name().compareTo(s2.name());
-            }
-        });
         
-        // Filter out subtasks that are not assigned to the selected user:
-        Subtask current_subtask;
-        String last_subtask_name = null;
-        for (Iterator<Subtask> subtask_iter=subtask_list.iterator(); subtask_iter.hasNext(); ) {
-            current_subtask = subtask_iter.next();
-            if (current_subtask.name().equals(last_subtask_name)) {
-                subtask_iter.remove(); continue;
-            }
-            last_subtask_name = current_subtask.name();
-            if (!current_subtask.assigned_to_member_username().equals(user_info[1]))
-                subtask_iter.remove();
-        }
+        assignment_map = assignment_map.entrySet().stream()
+        .filter(pair -> pair.getValue().equals(user_info[1]))
+        .collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()));
         
         this._focused_task_category = null;
         this._focused_task = null;
@@ -2622,28 +2575,28 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this.__code_selection_mode__ = true;
         
         subtask_model.clearSelection();
-        if (subtask_list.isEmpty()) {   // no subtask is assigned to the selected user
+        if (assignment_map.isEmpty()) {   // no subtask is assigned to the selected user
             task_model.clearSelection();
             category_model.clearSelection();
         } else {
             ListModel subtask_list_model = this.subtask_list.getModel();
-            Iterator<Subtask> subtask_iter = subtask_list.iterator();
-            String current_name = subtask_iter.next().name();
-            int j = 0;
-            int[] selected_indices = new int[subtask_list.size()];
-            for (int i = 0; i < subtask_list_model.getSize(); ++i) {
-                if (subtask_list_model.getElementAt(i).toString().equals(current_name)) {
-                    selected_indices[j++] = i;
-                    if (subtask_iter.hasNext()) current_name = subtask_iter.next().name();
-                    else break;
-                }
-            }
+            // 1. map subtasks with their indices
+            TreeMap<String, Integer> subtask_indices = new TreeMap<>();
+            for (int i=0; i < subtask_list_model.getSize(); ++i)
+                subtask_indices.put(subtask_list_model.getElementAt(i).toString(), i);
+            // 2. put the selected indices in an array
+            int[] selected_indices = new int[assignment_map.size()];
+            int i = 0;
+            for (String subtask_name : assignment_map.keySet())
+                selected_indices[i++] = subtask_indices.get(subtask_name);
             this.subtask_list.setSelectedIndices(selected_indices);
         }
         
         this.__code_selection_mode__ = false;
         
     }
+    
+    
     
     /*
         Function to define the database interaction and UI behaviours when the 
@@ -2701,26 +2654,10 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
         // Allow "adding to" or "removing from" category options to respond:
         this.task_edit_task_categories_action_options.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selected_item = self.task_edit_task_categories_action_options.getSelectedItem().toString();
-                self.task_edit_task_categories_options.removeAllItems();
-                self.task_edit_task_categories_options.addItem("[select category]");
-                
-                if (selected_item.equals("Add to")) {
-                    for (TaskCategory category: self._task_category_map.values()) {
-                        if (!category.find_task(self._focused_task.name()))
-                            self.task_edit_task_categories_options.addItem(category.name());
-                    }
-                } else if (selected_item.equals("Remove from")) {
-                    for (TaskCategory category: self._task_category_map.values()) {
-                        if (category.find_task(self._focused_task.name()))
-                            self.task_edit_task_categories_options.addItem(category.name());
-                    }
-                }
+                self.__task_category_pairing_modification_list__();
             }
-            
         });
         
         // Reflect colour of selected subtask priority when changed:
@@ -2734,6 +2671,21 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
     }
     
+    
+    private void __task_category_pairing_modification_list__() {
+        String selected_item = this.task_edit_task_categories_action_options.getSelectedItem().toString();
+        this.task_edit_task_categories_options.removeAllItems();
+        this.task_edit_task_categories_options.addItem("[select category]");
+                
+        boolean to_add = selected_item.equals("Add to");
+        for (TaskCategory category: this._task_category_map.values()) {
+            // EITHER
+            // add to category AND the task is not already in category, OR
+            // remove from category AND the task is already in category
+            if (to_add ^ category.find_task(this._focused_task.name()))
+                this.task_edit_task_categories_options.addItem(category.name());
+        }
+    }
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
