@@ -6,6 +6,8 @@
 package taskmanager;
 
 
+import java.awt.*;
+
 /**
  *
  * @author Ganondorfjallida
@@ -50,7 +52,7 @@ public class LoginPage extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setName("Login Frame"); // NOI18N
 
-        login_page_title_label.setFont(new java.awt.Font("Lucida Grande", 1, 20)); // NOI18N
+        login_page_title_label.setFont(new java.awt.Font("Lucida Grande", Font.BOLD, 20)); // NOI18N
         login_page_title_label.setText("Login Page");
 
         javax.swing.GroupLayout login_pager_inner_title_paneLayout = new javax.swing.GroupLayout(login_pager_inner_title_pane);
@@ -138,7 +140,7 @@ public class LoginPage extends javax.swing.JFrame {
         login_page_button_submit_login.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         login_page_button_submit_login.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                login_page_button_submit_loginActionPerformed(evt);
+                login_page_button_submit_loginActionPerformed();
             }
         });
 
@@ -229,7 +231,7 @@ public class LoginPage extends javax.swing.JFrame {
     /*
         Function to start authenticating the user when the submit-login button is clicked (and released)
     */
-    private void login_page_button_submit_loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_login_page_button_submit_loginActionPerformed
+    private void login_page_button_submit_loginActionPerformed() {//GEN-FIRST:event_login_page_button_submit_loginActionPerformed
         
         String username = this.login_page_username_text_field.getText();
         if (username.length() < 6 || this.login_page_password_field.getPassword().length < 6) {

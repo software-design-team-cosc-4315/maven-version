@@ -9,9 +9,9 @@ package taskmanager;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Objects;
 
 
 /**
@@ -37,9 +37,8 @@ public class SystemController {
     public static JFrame current_page = null;
     public static AppUser current_user = null;
     public static Team current_team = null;
-    public static Connection db_connection = null;
-    
-    
+
+
     public static void create_pages() {
         SystemController.login_page = new LoginPage();
         SystemController.task_page = new TaskPage();
@@ -59,16 +58,15 @@ public class SystemController {
     public static String authenticate(String username, char[] password) {
         
         // Use DBConnection to call statement in order to retrieve user information.
-        boolean authenticated = true;
+        boolean authenticated;
         DBConnection.connect();
         
         PreparedStatement ps = DBConnection.prepared_statement("SELECT MEMBER_ID, MEMBER_ROLE, TEAM_ID FROM MEMBERS WHERE USERNAME = ? AND MEMBER_PASSWORD = ? AND DELETED != 'Y'");
         authenticated = (ps != null) && DBConnection.set_statement_value(ps, 1, username);
         authenticated = authenticated && DBConnection.set_statement_value(ps, 2, new String(password));
         ResultSet rs = DBConnection.execute_query(ps);
-        password = null;
         try {
-            authenticated = authenticated && rs.next();
+            authenticated = authenticated && Objects.requireNonNull(rs).next();
             // store user information in SystemController.current_user
             if (authenticated) {  // ***NOTE: state change to recently authenticated
                 SystemController.current_state = State.RECENTLY_AUTHENTICATED;
@@ -79,7 +77,7 @@ public class SystemController {
                 SystemController.current_user.set_team_ID(rs.getString("TEAM_ID"));
             }
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             authenticated = false;
         }
         
@@ -174,14 +172,14 @@ public class SystemController {
         team_info_retrieved = (ps != null) && DBConnection.set_statement_value(ps, 1, team_ID);
         ResultSet rs = team_info_retrieved? DBConnection.execute_query(ps) : null;
         try {
-            team_info_retrieved = team_info_retrieved && rs.next();
+            team_info_retrieved = team_info_retrieved && Objects.requireNonNull(rs).next();
             if (team_info_retrieved) {
                 SystemController.current_team = new Team();
                 SystemController.current_team.set_team_ID(team_ID);
                 SystemController.current_team.set_leader_username(rs.getString("USERNAME"));
             }
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             team_info_retrieved = false;
         }
             
@@ -199,14 +197,14 @@ public class SystemController {
             System.out.println("ERROR: Current team leader is not from this team: '" 
                                + SystemController.current_team.team_ID() 
                                + "'. Attempt to navigate to the team leader's page is illegal.");
-            return false;
+            return true;
         }
         if (current_user.role() == AppUser.UserType.BASE_USER) {
             System.out.println("ERROR: Current user is a base user. Attempt to navigate to the team leader's page is illegal.");
-            return false;
+            return true;
         }
         
-        return true;
+        return false;
     }
     
     

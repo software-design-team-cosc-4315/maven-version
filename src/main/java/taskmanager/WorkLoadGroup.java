@@ -34,17 +34,23 @@ public class WorkLoadGroup {
     public void set_member_count(int count) { this.member_count = count; }
     
     public void set_record(float task_weights, int task_count, @NotNull String status) {
-        if (status.equals("Completed")) {
-            this.workload_records[0].task_weights = task_weights;
-            this.workload_records[0].task_count = task_count;
-        } else if (status.equals("In Progress")) {
-            this.workload_records[1].task_weights = task_weights;
-            this.workload_records[1].task_count = task_count;
-        } else if (status.equals("Not Started")) {
-            this.workload_records[2].task_weights = task_weights;
-            this.workload_records[2].task_count = task_count;
-        } else 
-            System.out.println("ERROR: Record status must be one of the three: Completed, In Progress, Not Started.");
+        switch (status) {
+            case "Completed":
+                this.workload_records[0].task_weights = task_weights;
+                this.workload_records[0].task_count = task_count;
+                break;
+            case "In Progress":
+                this.workload_records[1].task_weights = task_weights;
+                this.workload_records[1].task_count = task_count;
+                break;
+            case "Not Started":
+                this.workload_records[2].task_weights = task_weights;
+                this.workload_records[2].task_count = task_count;
+                break;
+            default:
+                System.out.println("ERROR: Record status must be one of the three: Completed, In Progress, Not Started.");
+                break;
+        }
     }
     
     public int get_member_count() {

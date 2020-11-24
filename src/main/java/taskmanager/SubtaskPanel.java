@@ -57,7 +57,7 @@ public class SubtaskPanel extends TaskPrototypePanel {
     */
     public void edit_subtask_button_action() {
         // Validate user data: only the team leader and managers can go to the team leader's page:
-        if (!SystemController.validate_user_for_team_leaders_page()) return;
+        if (SystemController.validate_user_for_team_leaders_page()) return;
         SystemController.to_team_leaders_page(TeamLeadersPage.Focus.SUBTASK, this._data_source.name()); // transition to team leader's page
     }
     

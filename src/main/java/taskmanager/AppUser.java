@@ -91,10 +91,4 @@ public class AppUser {
         if (type == UserType.MANAGER)   return __MANAGER__;
         return null;
     }
-    
-    @Nullable
-    public static String valid_user_role(@NotNull String role) {
-        if (role.equals(__BASE_USER__) || role.equals(__TEAM_LEAD__) || role.equals(__MANAGER__))   return role;
-        return null;
-    }
 }

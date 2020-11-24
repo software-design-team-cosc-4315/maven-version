@@ -1493,9 +1493,9 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         short new_priority = (short) (this.task_edit_priority_options.getSelectedIndex() + 1);
         String new_description = this.task_edit_description_text.getText();
         String new_due_date = this.task_edit_due_date_text.getText();
-        int new_recur_interval = Task.to_recur_interval(this.task_edit_recurrence_options.getSelectedItem().toString());
-        String new_status = this.task_edit_status_options.getSelectedItem().toString();
-        String category_action = this.task_edit_task_categories_action_options.getSelectedItem().toString();
+        int new_recur_interval = Task.to_recur_interval(Objects.requireNonNull(this.task_edit_recurrence_options.getSelectedItem()).toString());
+        String new_status = Objects.requireNonNull(this.task_edit_status_options.getSelectedItem()).toString();
+        String category_action = Objects.requireNonNull(this.task_edit_task_categories_action_options.getSelectedItem()).toString();
         String selected_category = null;
         
         // Validate data:
@@ -1510,7 +1510,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         java.util.Date parsed_due_date;
         try { parsed_due_date = new SimpleDateFormat("MM/dd/yyyy").parse(new_due_date); } 
         catch(java.text.ParseException e) { 
-            System.out.println(e);
+            e.printStackTrace();
             this.task_edit_actions_message.setText("Incorrect due date format.");
             return;
         }
@@ -1523,7 +1523,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             return;
         }
         if (category_action.equals("Add to") || category_action.equals("Remove from")) {
-            selected_category = this.task_edit_task_categories_options.getSelectedItem().toString();
+            selected_category = Objects.requireNonNull(this.task_edit_task_categories_options.getSelectedItem()).toString();
             if (selected_category.equals("[select category]")) {
                 this.task_edit_actions_message.setText("No task category selected.");
                 return;
@@ -1587,7 +1587,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         if (update_fields.length() != 0) {  // task data should be updated
             int field_counter = 1;
             ps = DBConnection.prepared_statement(update_declaration + update_fields + update_conditions);
-            updated = (ps != null && name_changed)? DBConnection.set_statement_value(ps, field_counter++, new_name) : updated;
+            updated = ps == null || !name_changed || DBConnection.set_statement_value(ps, field_counter++, new_name);
             updated = (updated && priority_changed)? DBConnection.set_statement_value(ps, field_counter++, new_priority) : updated;
             updated = (updated && description_changed)? DBConnection.set_statement_value(ps, field_counter++, new_description) : updated;
             updated = (updated && due_date_changed)? DBConnection.set_statement_value(ps, field_counter++, new java.sql.Date(parsed_due_date.getTime())) : updated;
@@ -1640,10 +1640,10 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         String new_name = this.subtask_edit_name_text.getText();
         short new_priority = (short) (this.subtask_edit_priority_options.getSelectedIndex() + 1);
         String new_description = this.subtask_edit_description_text.getText();
-        String new_assignment = this.subtask_edit_assignment_options.getSelectedItem().toString();
+        String new_assignment = Objects.requireNonNull(this.subtask_edit_assignment_options.getSelectedItem()).toString();
         String new_due_date = this.subtask_edit_due_date_text.getText();
-        String new_status = this.subtask_edit_status_options.getSelectedItem().toString();
-        String new_parent = this.subtask_edit_parent_task_options.getSelectedItem().toString();
+        String new_status = Objects.requireNonNull(this.subtask_edit_status_options.getSelectedItem()).toString();
+        String new_parent = Objects.requireNonNull(this.subtask_edit_parent_task_options.getSelectedItem()).toString();
         int new_parent_ID = -1;
         
         // Validate data:
@@ -1658,7 +1658,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         java.util.Date parsed_due_date;
         try { parsed_due_date = new SimpleDateFormat("MM/dd/yyyy").parse(new_due_date); } 
         catch(java.text.ParseException e) { 
-            System.out.println(e);
+            e.printStackTrace();
             this.subtask_edit_actions_message.setText("Incorrect due date format.");
             return;
         }
@@ -1732,10 +1732,10 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         // Update subtask data:
         DBConnection.connect();
         
-        boolean updated = true;
+        boolean updated;
         int field_counter = 1;
         PreparedStatement ps = DBConnection.prepared_statement(update_declaration + update_fields + update_conditions);
-        updated = (ps != null && name_changed)? DBConnection.set_statement_value(ps, field_counter++, new_name) : updated;
+        updated = ps == null || !name_changed || DBConnection.set_statement_value(ps, field_counter++, new_name);
         updated = (updated && priority_changed)? DBConnection.set_statement_value(ps, field_counter++, new_priority) : updated;
         updated = (updated && description_changed)? DBConnection.set_statement_value(ps, field_counter++, new_description) : updated;
         updated = (updated && assignment_changed)? DBConnection.set_statement_value(ps, field_counter++, new_assignment) : updated;
@@ -1817,7 +1817,9 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         ResultSet rs = DBConnection.execute_query(ps);
         
         try {
-            while(rs.next()) {
+            while(true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 TaskCategory category = new TaskCategory();
                 category.set_ID(rs.getInt("TASK_CATEGORY_ID"));
                 category.set_name(rs.getString("NAME"));
@@ -1831,7 +1833,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                     this._focused_task_category = category;
             }
         } catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             loaded = false;
         }
         if (!loaded) {
@@ -1847,7 +1849,9 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         rs = DBConnection.execute_query(ps);
         
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 Task task = new Task();
                 task.set_ID(rs.getInt("TASK_ID"));
                 task.set_name(rs.getString("NAME"));
@@ -1866,7 +1870,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                     this._focused_task = task;
             }
         } catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             loaded = false;
         }
         if (!loaded) {
@@ -1882,7 +1886,9 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             rs = DBConnection.execute_query(ps);
             
             try {
-                while(rs.next()) {
+                while(true) {
+                    assert rs != null;
+                    if (!rs.next()) break;
                     Subtask subtask = new Subtask(task);
                     subtask.set_ID(rs.getInt("SUBTASK_ID"));
                     subtask.set_name(rs.getString("NAME"));
@@ -1899,7 +1905,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                         this._focused_subtask = subtask;
                 }
             } catch(Exception e) {
-                System.out.println(e);
+                e.printStackTrace();
                 loaded = false;
             }
             if (!loaded) {
@@ -1915,13 +1921,15 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         rs = DBConnection.execute_query(ps);
         
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 TaskCategory category = this._task_category_map.get(rs.getString("NAME"));
                 Task task = task_map.get(rs.getInt("TASK_ID"));
                 category.add_task(task);    // couple local tasks and task categories
             }
         } catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             loaded = false;
         }
         if (!loaded) {
@@ -1935,14 +1943,16 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         rs = DBConnection.execute_query(ps);
         
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 AppUser user = new AppUser();
                 user.set_username(rs.getString("USERNAME"));
                 user.set_role(AppUser.to_user_type(rs.getString("MEMBER_ROLE")));
                 this._user_list.add(user);
             }
         } catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             loaded = false;
         }
         if (!loaded) {
@@ -1963,6 +1973,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             // load member workload statistics
             String last_user = "";
             String user = "";
+            assert cs != null;
             rs = (ResultSet) cs.getObject(2);
             while (rs.next()) {
                 user = rs.getString("USERNAME");
@@ -1985,7 +1996,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 this._team_workload_stat.set_record(rs.getFloat("TASK_WEIGHTS"), rs.getInt("TASK_COUNT"), rs.getString("STATUS"));
             
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             loaded = false;
         }
         
@@ -2637,7 +2648,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selected_item = self.task_edit_task_categories_action_options.getSelectedItem().toString();
+                String selected_item = Objects.requireNonNull(self.task_edit_task_categories_action_options.getSelectedItem()).toString();
                 self.task_edit_task_categories_options.removeAllItems();
                 self.task_edit_task_categories_options.addItem("[select category]");
                 

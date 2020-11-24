@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package taskmanager;
 
 
@@ -22,7 +17,7 @@ public class GeneralUIFunctions {
     @NotNull
     public static List<Component> getAllComponents(@NotNull final Container c) {
         Component[] comps = c.getComponents();
-        List<Component> compList = new ArrayList<Component>();
+        List<Component> compList = new ArrayList<>();
         for (Component comp : comps) {
             compList.add(comp);
             if (comp instanceof Container)
