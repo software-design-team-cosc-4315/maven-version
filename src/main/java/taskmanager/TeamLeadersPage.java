@@ -1947,8 +1947,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 assert rs != null;
                 if (!rs.next()) break;
                 AppUser user = new AppUser();
-                user.set_username(rs.getString("USERNAME"));
-                user.set_role(AppUser.to_user_type(rs.getString("MEMBER_ROLE")));
+                user.setUsername(rs.getString("USERNAME"));
+                user.setRole(AppUser.toUserType(rs.getString("MEMBER_ROLE")));
                 this._user_list.add(user);
             }
         } catch(Exception e) {
@@ -2229,7 +2229,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             for (String subtask_name: subtask_set)
                 subtask_model.addElement(subtask_name);
             for (AppUser user: this._user_list)
-                user_model.addElement(AppUser.user_type_to_string(user.role()) + " - " + user.username());
+                user_model.addElement(AppUser.userTypeToString(user.role()) + " - " + user.username());
             
             // Reset visibility:
             for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))

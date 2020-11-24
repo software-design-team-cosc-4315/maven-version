@@ -72,9 +72,9 @@ public class SystemController {
                 SystemController.current_state = State.RECENTLY_AUTHENTICATED;
                 SystemController.current_user = new AppUser();
                 SystemController.current_user.set_ID(rs.getInt("MEMBER_ID"));
-                SystemController.current_user.set_username(username);
-                SystemController.current_user.set_role( AppUser.to_user_type(rs.getString("MEMBER_ROLE")) );
-                SystemController.current_user.set_team_ID(rs.getString("TEAM_ID"));
+                SystemController.current_user.setUsername(username);
+                SystemController.current_user.setRole( AppUser.toUserType(rs.getString("MEMBER_ROLE")) );
+                SystemController.current_user.setTeamID(rs.getString("TEAM_ID"));
             }
         } catch (Exception e) {
             e.printStackTrace();

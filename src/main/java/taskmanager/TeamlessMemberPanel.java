@@ -69,7 +69,7 @@ public class TeamlessMemberPanel extends JPanel {
         this._leader_separator.setOrientation(SwingConstants.VERTICAL);
 
         // 4. role
-        this._role_label.setText(AppUser.user_type_to_string(this._data_source.role()));
+        this._role_label.setText(AppUser.userTypeToString(this._data_source.role()));
         
         // 5. add components to the panel
         GroupLayout panel_layout = new GroupLayout(this);

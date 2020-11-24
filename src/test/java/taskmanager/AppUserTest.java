@@ -28,14 +28,14 @@ public class AppUserTest {
     @Test
     @Order(1)
     public void testSetBaseUser() {
-        test_user.set_role(AppUser.UserType.BASE_USER);
+        test_user.setRole(AppUser.UserType.BASE_USER);
         assertEquals(test_user.role(), AppUser.UserType.BASE_USER);
     }
     
     @Test
     @Order(2)
     public void testSetManager() {
-        manager.set_role(AppUser.UserType.MANAGER);
+        manager.setRole(AppUser.UserType.MANAGER);
         assertEquals(manager.role(), AppUser.UserType.MANAGER);
         
     }

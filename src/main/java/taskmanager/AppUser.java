@@ -67,16 +67,16 @@ public class AppUser {
         else this._ID = ID;
     }
     
-    public void set_username(String username) { this._username = username; } 
-    public void set_role(UserType role) { this._role = role; }
-    public void set_team_ID(String ID) { this._team_ID = ID; }
+    public void setUsername(String username) { this._username = username; }
+    public void setRole(UserType role) { this._role = role; }
+    public void setTeamID(String ID) { this._team_ID = ID; }
     
     
     
     
     
     @org.jetbrains.annotations.Nullable
-    public static UserType to_user_type(@NotNull String type) {
+    public static UserType toUserType(@NotNull String type) {
         if (type.equals(__BASE_USER__))   return UserType.BASE_USER;
         if (type.equals(__TEAM_LEAD__))   return UserType.TEAM_LEAD;
         if (type.equals(__MANAGER__))     return UserType.MANAGER;
@@ -85,7 +85,7 @@ public class AppUser {
     
     @Nullable
     @Contract(pure = true)
-    public static String user_type_to_string(UserType type) {
+    public static String userTypeToString(UserType type) {
         if (type == UserType.BASE_USER) return __BASE_USER__;
         if (type == UserType.TEAM_LEAD) return __TEAM_LEAD__;
         if (type == UserType.MANAGER)   return __MANAGER__;

@@ -1896,8 +1896,8 @@ public class ManagersPage extends javax.swing.JFrame {
                 // Process data from the query.
                 // 1. for each query record, create an AppUser instance, and then store the username and user_role
                 AppUser user = new AppUser();
-                user.set_username(rs.getString("USERNAME"));
-                user.set_role( AppUser.to_user_type(rs.getString("MEMBER_ROLE")) );
+                user.setUsername(rs.getString("USERNAME"));
+                user.setRole( AppUser.toUserType(rs.getString("MEMBER_ROLE")) );
                 
                 // 2. create a TeamlessMemberPanel instance, use the AppUser instance as parameter to its constructor:
                 TeamlessMemberPanel panel = new TeamlessMemberPanel(user);
@@ -2002,7 +2002,7 @@ public class ManagersPage extends javax.swing.JFrame {
         }
 
         ps = DBConnection.prepared_statement("UPDATE MEMBERS SET MEMBER_ROLE = ?, TEAM_ID = ? WHERE USERNAME = ? AND DELETED != 'Y'");
-        team_created = (team_created && ps != null) && DBConnection.set_statement_value(ps, 1, AppUser.user_type_to_string(AppUser.UserType.TEAM_LEAD));
+        team_created = (team_created && ps != null) && DBConnection.set_statement_value(ps, 1, AppUser.userTypeToString(AppUser.UserType.TEAM_LEAD));
         team_created = team_created && DBConnection.set_statement_value(ps, 2, team_name);
         team_created = team_created && DBConnection.set_statement_value(ps, 3, leader_username);
         team_created = team_created && DBConnection.execute_update(ps, true);
@@ -2559,7 +2559,7 @@ public class ManagersPage extends javax.swing.JFrame {
         } else {    // intends to delete user
             
             // Get user data from UI:
-            AppUser.UserType user_role = AppUser.to_user_type( Objects.requireNonNull(this.managers_page_modify_user_options.getSelectedItem()).toString() );
+            AppUser.UserType user_role = AppUser.toUserType( Objects.requireNonNull(this.managers_page_modify_user_options.getSelectedItem()).toString() );
             String username = Objects.requireNonNull(this.managers_page_modify_user_search_username_options.getSelectedItem()).toString();
             javax.swing.DefaultListModel unresolved_model = (javax.swing.DefaultListModel) this.managers_page_modify_user_unresolved_tasks_list.getModel();
             
@@ -2809,7 +2809,7 @@ public class ManagersPage extends javax.swing.JFrame {
         } else {    // intends to delete user
             
             // Get the user type. If the user is team leader, reject the deletion.
-            if (AppUser.to_user_type(Objects.requireNonNull(this.managers_page_modify_user_options.getSelectedItem()).toString()) == AppUser.UserType.TEAM_LEAD) {
+            if (AppUser.toUserType(Objects.requireNonNull(this.managers_page_modify_user_options.getSelectedItem()).toString()) == AppUser.UserType.TEAM_LEAD) {
                 this.managers_page_modify_user_message_label.setText("Team leaders cannot be deleted.");
                 return;
             }
