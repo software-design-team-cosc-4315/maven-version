@@ -188,14 +188,14 @@ public class TaskCategoryLifeCycleTest {
         
         // clean the task history:
         PreparedStatement ps = DBConnection.prepared_statement("DELETE FROM TASK_HISTORY WHERE TASK_ID = ?");
-        boolean cleaned = (ps != null)? DBConnection.set_statement_value(ps, 1, category_task_ID) : false;        
-        cleaned = cleaned? DBConnection.execute_update(ps, true) : false;
+        boolean cleaned = (ps != null) && DBConnection.set_statement_value(ps, 1, category_task_ID);
+        cleaned = cleaned && DBConnection.execute_update(ps, true);
         
         // clean the task:
         ps = DBConnection.prepared_statement("DELETE FROM TASKS WHERE TASK_ID = ?");
         cleaned = cleaned && (ps != null);
-        cleaned = cleaned? DBConnection.set_statement_value(ps, 1, category_task_ID) : false;
-        cleaned = cleaned? DBConnection.execute_update(ps, true) : false;
+        cleaned = cleaned && DBConnection.set_statement_value(ps, 1, category_task_ID);
+        cleaned = cleaned && DBConnection.execute_update(ps, true);
         
         if (!cleaned) {
             System.out.println("ERROR: Task category life-cycle test clean-up failed! Please remove the test records from the database manually.");

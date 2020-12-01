@@ -58,7 +58,12 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.1</version>
-      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations-java5</artifactId>
+      <version>19.0.0</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 

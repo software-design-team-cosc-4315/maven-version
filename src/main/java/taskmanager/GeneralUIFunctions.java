@@ -1,15 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package taskmanager;
 
 
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
 import java.util.ArrayList;
-import java.awt.Component;
-import java.awt.Container;
+import java.util.List;
 
 /**
  *
@@ -18,9 +14,10 @@ import java.awt.Container;
  */
 public class GeneralUIFunctions {
     
-    public static List<Component> getAllComponents(final Container c) {
+    @NotNull
+    public static List<Component> getAllComponents(@NotNull final Container c) {
         Component[] comps = c.getComponents();
-        List<Component> compList = new ArrayList<Component>();
+        List<Component> compList = new ArrayList<>();
         for (Component comp : comps) {
             compList.add(comp);
             if (comp instanceof Container)

@@ -20,10 +20,4 @@ public class WorkLoadRecord {
         this.task_count = 0;
         this.status = null;
     }
-    
-    public WorkLoadRecord(float weights, int count, String status_type) {
-        this.task_weights = weights;
-        this.task_count = count;
-        this.status = status_type;
-    }
 }

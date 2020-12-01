@@ -5,11 +5,12 @@
  */
 package taskmanager;
 
-import javax.swing.Box;
-import java.util.*;
-import java.sql.*;
-import java.text.SimpleDateFormat;
+import org.jetbrains.annotations.NotNull;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 /**
@@ -438,7 +439,7 @@ public class ManagersPage extends javax.swing.JFrame {
         managers_page_create_team_create_button.setText("Create Team");
         managers_page_create_team_create_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                managers_page_create_team_create_buttonActionPerformed(evt);
+                managers_page_create_team_create_buttonActionPerformed();
             }
         });
 
@@ -571,14 +572,14 @@ public class ManagersPage extends javax.swing.JFrame {
         manage_teams_to_task_page_button.setText("to task page");
         manage_teams_to_task_page_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                manage_teams_to_task_page_buttonActionPerformed(evt);
+                manage_teams_to_task_page_buttonActionPerformed();
             }
         });
 
         manage_teams_to_team_leaders_page_button.setText("to team leader's page");
         manage_teams_to_team_leaders_page_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                manage_teams_to_team_leaders_page_buttonActionPerformed(evt);
+                manage_teams_to_team_leaders_page_buttonActionPerformed();
             }
         });
 
@@ -607,7 +608,7 @@ public class ManagersPage extends javax.swing.JFrame {
         managers_page_remove_team_member_label.setText("Remove Member:");
         managers_page_remove_team_member_label.setPreferredSize(new java.awt.Dimension(124, 16));
 
-        managers_page_remove_team_member_options.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "[select username]" }));
+        managers_page_remove_team_member_options.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "[select getUsername]" }));
 
         managers_page_remove_team_member_source_label.setText("from the selected team");
 
@@ -632,7 +633,7 @@ public class ManagersPage extends javax.swing.JFrame {
 
         managers_page_reassign_team_leader_label.setText("Reassign Leader:");
 
-        managers_page_reassign_team_leader_options.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "[select username]" }));
+        managers_page_reassign_team_leader_options.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "[select getUsername]" }));
 
         managers_page_reassign_team_leader_source_label.setText("from base users within the team or from users without a team");
 
@@ -657,7 +658,7 @@ public class ManagersPage extends javax.swing.JFrame {
 
         managers_page_manage_teams_add_member_label.setText("Add Member:");
 
-        managers_page_add_team_member_options.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "[select username]" }));
+        managers_page_add_team_member_options.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "[select getUsername]" }));
 
         managers_page_add_team_member_source_label.setText("from the teamless list");
 
@@ -780,7 +781,7 @@ public class ManagersPage extends javax.swing.JFrame {
         managers_page_add_team_member_add_button.setText("Add Member");
         managers_page_add_team_member_add_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                managers_page_add_team_member_add_buttonActionPerformed(evt);
+                managers_page_add_team_member_add_buttonActionPerformed();
             }
         });
 
@@ -1132,7 +1133,7 @@ public class ManagersPage extends javax.swing.JFrame {
         managers_page_create_task_create_button.setText("Create");
         managers_page_create_task_create_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                managers_page_create_task_create_buttonActionPerformed(evt);
+                managers_page_create_task_create_buttonActionPerformed();
             }
         });
 
@@ -1342,7 +1343,7 @@ public class ManagersPage extends javax.swing.JFrame {
         managers_page_create_task_category_create_button.setText("Create Task Category");
         managers_page_create_task_category_create_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                managers_page_create_task_category_create_buttonActionPerformed(evt);
+                managers_page_create_task_category_create_buttonActionPerformed();
             }
         });
 
@@ -1841,16 +1842,31 @@ public class ManagersPage extends javax.swing.JFrame {
         
         javax.swing.event.ChangeListener change_listener = new javax.swing.event.ChangeListener() {
             @Override
-            public void stateChanged(javax.swing.event.ChangeEvent changeEvent) {
+            public void stateChanged(@NotNull javax.swing.event.ChangeEvent changeEvent) {
                 javax.swing.JTabbedPane tab_pane = (javax.swing.JTabbedPane) changeEvent.getSource();
                 String tab_name = tab_pane.getTitleAt(tab_pane.getSelectedIndex());
-                
-                if (tab_name.equals("Create Team")) self.list_teamless_members();
-                else if (tab_name.equals("Manage Teams")) self.manage_teams_load_teams();
-                else if (tab_name.equals("Create Task")) self.create_task_reset_task_options();
-                else if (tab_name.equals("Create Task Category")) self.create_category_reload_team_options();
-                else if (tab_name.equals("Manage Users")) self.modifcation_section_load_users(true);
-                else System.out.println("ERROR: No tab is called '" + tab_name + " in manager's page!");
+
+                switch (tab_name) {
+                    case "Create Team":
+                        self.list_teamless_members();
+                        break;
+                    case "Manage Teams":
+                        self.manage_teams_load_teams();
+                        break;
+                    case "Create Task":
+                        self.create_task_reset_task_options();
+                        break;
+                    case "Create Task Category":
+                        self.create_category_reload_team_options();
+                        break;
+                    case "Manage Users":
+                        self.modifcation_section_load_users(true);
+                        break;
+                    default:
+                        System.out.println("ERROR: No tab is called '"
+                            + tab_name + " in manager's page!");
+                        break;
+                }
                 
             }
         };
@@ -1872,26 +1888,29 @@ public class ManagersPage extends javax.swing.JFrame {
         this._teamless_member_button_group = new javax.swing.ButtonGroup();
         this.managers_page_create_team_action_message_label.setText("");
         
-        // Query username and user_role of Members from the database (condition: USER_ROLE != "Manager" and TEAM_ID = null).
         boolean user_data_retrieved = true;
         DBConnection.connect();
         ResultSet rs = DBConnection.query("SELECT USERNAME, MEMBER_ROLE FROM MEMBERS WHERE TEAM_ID IS NULL AND MEMBER_ROLE != 'Manager' AND DELETED != 'Y'");
         try {
             while (rs.next()) {
                 // Process data from the query.
-                // 1. for each query record, create an AppUser instance, and then store the username and user_role
+                // 1. for each query record:
+                // create an AppUser instance,
+                // store the username and user_role
                 AppUser user = new AppUser();
-                user.set_username(rs.getString("USERNAME"));
-                user.set_role( AppUser.to_user_type(rs.getString("MEMBER_ROLE")) );
+                user.setUsername(rs.getString("USERNAME"));
+                user.setRole( AppUser.toUserType(rs.getString("MEMBER_ROLE")) );
                 
-                // 2. create a TeamlessMemberPanel instance, use the AppUser instance as parameter to its constructor:
+                // 2. create a TeamlessMemberPanel instance,
+                // use the AppUser instance as parameter to its constructor:
                 TeamlessMemberPanel panel = new TeamlessMemberPanel(user);
-                // 3. put the TeamlessMemberPanel instance into the tree this._teamless_member_map, using username as the key:
-                this._teamless_member_map.put(user.username(), panel);
+                // 3. put the TeamlessMemberPanel instance into the tree
+                // this._teamless_member_map, using getUsername as the key:
+                this._teamless_member_map.put(user.getUsername(), panel);
                 
             }
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             user_data_retrieved = false;
         }
         DBConnection.disconnect();
@@ -1925,10 +1944,11 @@ public class ManagersPage extends javax.swing.JFrame {
     /*
         Function to create a team when the create-team button is clicked (and released):
     */
-    private void managers_page_create_team_create_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managers_page_create_team_create_buttonActionPerformed
+    private void managers_page_create_team_create_buttonActionPerformed() {
+        //GEN-FIRST:event_managers_page_create_team_create_buttonActionPerformed
         // Collect data from the UI:
         String leader_username = null;
-        List<String> other_member_usernames = new ArrayList<String>();
+        List<String> other_member_usernames = new ArrayList<>();
 
         // 1. get team name:
         String team_name = this.managers_page_create_team_team_name_text.getText();
@@ -1944,15 +1964,16 @@ public class ManagersPage extends javax.swing.JFrame {
         if (leader_username == null) { this.managers_page_create_team_action_message_label.setText("You must appoint a leader to the new team!"); return; }
         
         // Insert team data into database:
-        int leadID = -1;
+        int leadID;
         DBConnection.connect();
         DBConnection.transaction(DBConnection.Transaction.BEGIN);
 
-        // 1. query the member_ID of the leader by his username:
+        // 1. query the member_ID of the leader by his getUsername:
         PreparedStatement ps = DBConnection.prepared_statement("SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y'");
         DBConnection.set_statement_value(ps, 1, leader_username);
         ResultSet rs = DBConnection.execute_query(ps);
         try {
+            assert rs != null;
             rs.next();
             leadID = rs.getInt("MEMBER_ID");
         } catch (Exception e) {
@@ -1963,11 +1984,12 @@ public class ManagersPage extends javax.swing.JFrame {
         }
 
         // 2. insert a new Team record into the database with team ID and leader ID:
-        boolean team_created = true;
+        boolean team_created;
         ps = DBConnection.prepared_statement("INSERT INTO TEAMS (TEAM_ID, TEAM_LEADER_ID) VALUES (?,?)");
-        team_created = (ps != null)? DBConnection.set_statement_value(ps, 1, team_name) : false;
-        team_created = team_created? DBConnection.set_statement_value(ps, 2, leadID) : false;
-        team_created = team_created? DBConnection.execute_update(ps) : false;
+        team_created = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, team_name)
+            && DBConnection.set_statement_value(ps, 2, leadID)
+            && DBConnection.execute_update(ps);
         if (!team_created) { 
             this.managers_page_create_team_action_message_label.setText("Team creation failed."); 
             DBConnection.transaction(DBConnection.Transaction.ROLLBACK);
@@ -1979,19 +2001,26 @@ public class ManagersPage extends javax.swing.JFrame {
         ps = DBConnection.prepared_statement("UPDATE MEMBERS SET TEAM_ID = ? WHERE USERNAME = ? AND DELETED != 'Y'");
         team_created = (ps != null);
         for(String username: other_member_usernames) {
-            team_created = team_created? DBConnection.set_statement_value(ps, 1, team_name) : false;
-            team_created = team_created? DBConnection.set_statement_value(ps, 2, username) : false;
-            team_created = team_created? DBConnection.execute_update(ps, true) : false;
+            team_created = team_created
+                && DBConnection.set_statement_value(ps, 1, team_name)
+                && DBConnection.set_statement_value(ps, 2, username)
+                && DBConnection.execute_update(ps, true);
         }
 
-        ps = DBConnection.prepared_statement("UPDATE MEMBERS SET MEMBER_ROLE = ?, TEAM_ID = ? WHERE USERNAME = ? AND DELETED != 'Y'");
-        team_created = (team_created && ps != null)? DBConnection.set_statement_value(ps, 1, AppUser.user_type_to_string(AppUser.UserType.TEAM_LEAD)) : false;
-        team_created = team_created? DBConnection.set_statement_value(ps, 2, team_name) : false;
-        team_created = team_created? DBConnection.set_statement_value(ps, 3, leader_username) : false;
-        team_created = team_created? DBConnection.execute_update(ps, true) : false;
+        ps = DBConnection.prepared_statement(
+            "UPDATE MEMBERS " +
+                "SET MEMBER_ROLE = ?, TEAM_ID = ? " +
+                "WHERE USERNAME = ? AND DELETED != 'Y'");
+        team_created = (team_created && ps != null)
+            && DBConnection.set_statement_value(ps, 1,
+            AppUser.userTypeToString(AppUser.UserType.TEAM_LEAD))
+            && DBConnection.set_statement_value(ps, 2, team_name)
+            && DBConnection.set_statement_value(ps, 3, leader_username)
+            && DBConnection.execute_update(ps, true);
             
         if (!team_created) {
-            this.managers_page_create_team_action_message_label.setText("Failed to update team members.");
+            this.managers_page_create_team_action_message_label.setText(
+                "Failed to update team members.");
             DBConnection.transaction(DBConnection.Transaction.ROLLBACK);    
         }
         
@@ -2026,7 +2055,7 @@ public class ManagersPage extends javax.swing.JFrame {
         try {
             while (rs.next()) this.managers_page_create_task_category_assignment_options.addItem(rs.getString("TEAM_ID"));
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             this.managers_page_create_task_category_message_label.setText("Team information was not loaded properly. Please reload.");
         }
         DBConnection.disconnect();
@@ -2040,11 +2069,14 @@ public class ManagersPage extends javax.swing.JFrame {
     /*
         Function to create a new task category when the create-category button is clicked (and released)
     */
-    private void managers_page_create_task_category_create_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managers_page_create_task_category_create_buttonActionPerformed
+    private void managers_page_create_task_category_create_buttonActionPerformed() {//GEN-FIRST:event_managers_page_create_task_category_create_buttonActionPerformed
         // Get Data from UI:
         String task_name = this.managers_page_create_task_category_name_text.getText();
         String description = this.managers_page_create_task_category_description_text.getText();
-        String team_ID = this.managers_page_create_task_category_assignment_options.getSelectedItem().toString();
+        String team_ID = Objects.requireNonNull(
+            this.managers_page_create_task_category_assignment_options
+                .getSelectedItem())
+            .toString();
 
         // Validate data: Log a message to the user if there is a problem:
         if (task_name.length() == 0) {
@@ -2062,15 +2094,17 @@ public class ManagersPage extends javax.swing.JFrame {
         
        
         // Insert a task category record into the database:
-        boolean category_created = false;
+        boolean category_created;
         DBConnection.connect();
         PreparedStatement prepSt = DBConnection.prepared_statement("INSERT INTO TASKCATEGORIES (name, category_description, created_by_member_id, created_on, task_category_id, team_id)" +
                     " VALUES (?, ?, ?, DEFAULT, DEFAULT, ?)");
-        category_created = (prepSt != null)? DBConnection.set_statement_value(prepSt, 1, task_name) : false;
-        category_created = category_created? DBConnection.set_statement_value(prepSt, 2, description) : false;
-        category_created = category_created? DBConnection.set_statement_value(prepSt, 3, SystemController.current_user.ID()) : false;
-        category_created = category_created? DBConnection.set_statement_value(prepSt, 4, team_ID) : false;
-        category_created = category_created? DBConnection.execute_update(prepSt) : false;
+        category_created = (prepSt != null)
+            && DBConnection.set_statement_value(prepSt, 1, task_name)
+            && DBConnection.set_statement_value(prepSt, 2, description)
+            && DBConnection.set_statement_value(
+                prepSt, 3, SystemController.current_user.ID())
+            && DBConnection.set_statement_value(prepSt, 4, team_ID)
+            && DBConnection.execute_update(prepSt);
         DBConnection.disconnect();
             
         if (category_created) {
@@ -2109,9 +2143,13 @@ public class ManagersPage extends javax.swing.JFrame {
             
             ResultSet rs = DBConnection.execute_query(ps);
             try {
-                while (rs.next()) category_model.addElement(rs.getString("NAME"));
+                while (true) {
+                    assert rs != null;
+                    if (!rs.next()) break;
+                    category_model.addElement(rs.getString("NAME"));
+                }
             } catch (Exception exception) {
-                System.out.println(exception);
+                exception.printStackTrace();
                 categories_retrieved = false;
             }
 
@@ -2140,9 +2178,14 @@ public class ManagersPage extends javax.swing.JFrame {
             ResultSet rs = DBConnection.execute_query(ps);
             try {
                 // after the query, add the task name into the parent task selection box
-                while (rs.next()) managers_page_create_task_choose_parent_task_options.addItem(rs.getString("NAME"));
+                while (true) {
+                    assert rs != null;
+                    if (!rs.next()) break;
+                    managers_page_create_task_choose_parent_task_options
+                        .addItem(rs.getString("NAME"));
+                }
             } catch (Exception exception) {
-                System.out.println(exception);
+                exception.printStackTrace();
                 tasks_retrieved = false;
             }
 
@@ -2214,10 +2257,12 @@ public class ManagersPage extends javax.swing.JFrame {
 
         ResultSet rs = DBConnection.query("SELECT T.TEAM_ID, M.USERNAME FROM TEAMS T, MEMBERS M WHERE T.TEAM_LEADER_ID = M.MEMBER_ID AND T.DELETED != 'Y' AND M.DELETED != 'Y'");
         try {
-            // after the query, store each team name and leader username into the assignment selection options
+            // after the query,
+            // store each team name and leader username into
+            // assignment selection options
             while (rs.next()) this.managers_page_create_task_assignment_options.addItem(rs.getString("TEAM_ID") + "/" + rs.getString("USERNAME"));
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             team_info_retrieved = false;
         }
         
@@ -2234,23 +2279,38 @@ public class ManagersPage extends javax.swing.JFrame {
     /*
         Function to create a task or subtask when the create-task/subtask button is clicked (and released).
     */
-    private void managers_page_create_task_create_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managers_page_create_task_create_buttonActionPerformed
+    private void managers_page_create_task_create_buttonActionPerformed() {
+        //GEN-FIRST:event_managers_page_create_task_create_buttonActionPerformed
         
         // Collect information from the UI:
-        String task_type = this.managers_page_create_task_options.getSelectedItem().toString();
+        String task_type = Objects.requireNonNull(
+            this.managers_page_create_task_options
+                .getSelectedItem()).toString();
         String name = this.managers_page_create_task_name_text.getText();
         short priority = (short) (this.managers_page_create_task_priority_options.getSelectedIndex() + 1);
         String description = this.managers_page_create_task_description_text.getText();
         String due_date = this.managers_page_create_task_due_date_text.getText();
-        String[] team_info = this.managers_page_create_task_assignment_options.getSelectedItem().toString().split("/", 2); // team_info[0] = team_ID; team_info[1] = leader_username;
+        String[] team_info = Objects.requireNonNull(
+            this.managers_page_create_task_assignment_options.getSelectedItem())
+            .toString().split("/", 2);
         
-        // Validate the data: make sure (sub-)task name, priority, description, due date, team ID, and leader username are okay.
-        if (name.length() == 0) { this.managers_page_create_task_message_label.setText("Empty task name."); return; }
-        if (description.length() == 0) { this.managers_page_create_task_message_label.setText("Empty description"); return; }
+        // Validate the data:
+        // make sure (sub-)task name, priority, description, due date, team ID,
+        // and leader username are okay.
+        if (name.length() == 0) {
+            this.managers_page_create_task_message_label.setText("Empty task name.");
+            return;
+        }
+        if (description.length() == 0) {
+            this.managers_page_create_task_message_label.setText("Empty description");
+            return;
+        }
         java.util.Date parsed_due_date;
-        try { parsed_due_date = new SimpleDateFormat("MM/dd/yyyy").parse(due_date); } 
+        try {
+            parsed_due_date = new SimpleDateFormat("MM/dd/yyyy").parse(due_date);
+        }
         catch(java.text.ParseException e) { 
-            System.out.println(e);
+            e.printStackTrace();
             this.managers_page_create_task_message_label.setText("Incorrect due date format.");
             return;
         } 
@@ -2261,7 +2321,8 @@ public class ManagersPage extends javax.swing.JFrame {
         if (task_type.equals("Task")) {
             List<String> categories = this.managers_page_create_task_choose_categories_list.getSelectedValuesList();
             
-            int recur_interval = Task.to_recur_interval(this.create_task_recurrence_options.getSelectedItem().toString());
+            int recur_interval = Task.to_recur_interval(Objects.requireNonNull(
+                this.create_task_recurrence_options.getSelectedItem()).toString());
             
             // Validate the data: make sure the category selection, recurrence interval are okay.
             // If there is a problem, log a message to the user.
@@ -2270,22 +2331,24 @@ public class ManagersPage extends javax.swing.JFrame {
             int[] category_IDs = new int[categories.size()];    // data structure to store the category ID's
             
             
-            // Insert a new task into the database, ASSIGNED_TO_MEMBER_ID should be the ID of the leader with username team_info[1]:
+            // Insert a new task into the database,ASSIGNED_TO_MEMBER_ID should be
+            // the ID of the leader with getUsername team_info[1]:
             // 1. query the selected team leader's ID:
             int leader_ID = -1;
-            boolean task_inserted = true;
+            boolean task_inserted;
             DBConnection.connect();
             DBConnection.transaction(DBConnection.Transaction.BEGIN);
             
             PreparedStatement ps = DBConnection.prepared_statement("SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y'");
-            task_inserted = (ps != null);
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 1, team_info[1]) : false; 
+            task_inserted = (ps != null)
+                && DBConnection.set_statement_value(ps, 1, team_info[1]);
             ResultSet rs = DBConnection.execute_query(ps);
-            try { 
-                rs.next(); 
+            try {
+                assert rs != null;
+                rs.next();
                 leader_ID = rs.getInt("MEMBER_ID"); 
             } catch (Exception e) { 
-                System.out.println(e);
+                e.printStackTrace();
                 task_inserted = false;
             }
             if (!task_inserted) {
@@ -2304,16 +2367,23 @@ public class ManagersPage extends javax.swing.JFrame {
             task_inserted = (ps != null);
             int cat_index = 1;
             for (String category_name: categories) { 
-                task_inserted = task_inserted? DBConnection.set_statement_value(ps, cat_index, category_name) : false; 
+                task_inserted = task_inserted
+                    && DBConnection.set_statement_value(ps, cat_index, category_name);
                 ++cat_index; 
             }
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, cat_index, team_info[0]) : false;
+            task_inserted = task_inserted
+                && DBConnection.set_statement_value(ps, cat_index, team_info[0]);
             rs = DBConnection.execute_query(ps);
             try {
                 cat_index = 0;
-                while (rs.next()) { category_IDs[cat_index] = rs.getInt("TASK_CATEGORY_ID"); ++cat_index; }
+                while (true) {
+                    assert rs != null;
+                    if (!rs.next()) break;
+                    category_IDs[cat_index] = rs.getInt("TASK_CATEGORY_ID");
+                    ++cat_index;
+                }
             } catch (Exception e) {
-                System.out.println(e);
+                e.printStackTrace();
                 task_inserted = false;
             }
             if (!task_inserted) {
@@ -2325,16 +2395,16 @@ public class ManagersPage extends javax.swing.JFrame {
             
             // 3. insert the task:
             ps = DBConnection.prepared_statement("INSERT INTO TASKS(NAME, TASK_DESCRIPTION, DUE_DATE, CREATED_BY_MEMBER_ID, TASK_PRIORITY, ASSIGNED_TO_MEMBER_ID, TEAM_ID, RECUR_INTERVAL) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
-            task_inserted = (ps != null);
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 1, name) : false;
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 2, description) : false;
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 3, new java.sql.Date(parsed_due_date.getTime())) : false;
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 4, SystemController.current_user.ID()) : false;
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 5, priority) : false;
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 6, leader_ID) : false;
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 7, team_info[0]) : false;
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 8, recur_interval) : false;
-            task_inserted = task_inserted? DBConnection.execute_update(ps) : false;
+            task_inserted = (ps != null)
+                && DBConnection.set_statement_value(ps, 1, name)
+                && DBConnection.set_statement_value(ps, 2, description)
+                && DBConnection.set_statement_value(ps, 3, new java.sql.Date(parsed_due_date.getTime()))
+                && DBConnection.set_statement_value(ps, 4, SystemController.current_user.ID())
+                && DBConnection.set_statement_value(ps, 5, priority)
+                && DBConnection.set_statement_value(ps, 6, leader_ID)
+                && DBConnection.set_statement_value(ps, 7, team_info[0])
+                && DBConnection.set_statement_value(ps, 8, recur_interval)
+                && DBConnection.execute_update(ps);
             if (!task_inserted) {
                 this.managers_page_create_task_message_label.setText("Task creation failed.");
                 DBConnection.transaction(DBConnection.Transaction.ROLLBACK);
@@ -2345,14 +2415,16 @@ public class ManagersPage extends javax.swing.JFrame {
             // 4. get task ID
             int task_ID = -1;
             ps = DBConnection.prepared_statement("SELECT TASK_ID FROM TASKS WHERE NAME = ? AND TEAM_ID = ? AND DELETED != 'Y'");
-            task_inserted = (ps != null)? DBConnection.set_statement_value(ps, 1, name) : false;
-            task_inserted = task_inserted? DBConnection.set_statement_value(ps, 2, team_info[0]) : false;
+            task_inserted = (ps != null)
+                && DBConnection.set_statement_value(ps, 1, name)
+                && DBConnection.set_statement_value(ps, 2, team_info[0]);
             rs = DBConnection.execute_query(ps);
             try {
+                assert rs != null;
                 rs.next();
                 task_ID = rs.getInt("TASK_ID"); 
             } catch (Exception e) {
-                System.out.println(e);
+                e.printStackTrace();
                 task_inserted = false;
             }
             if (!task_inserted) {
@@ -2366,9 +2438,10 @@ public class ManagersPage extends javax.swing.JFrame {
             ps = DBConnection.prepared_statement("INSERT INTO TASKINCATEGORIES(TASK_ID, TASK_CATEGORY_ID) VALUES(?, ?)");
             task_inserted = (ps != null);
             for (int category_ID: category_IDs) {
-                task_inserted = task_inserted? DBConnection.set_statement_value(ps, 1, task_ID) : false;
-                task_inserted = task_inserted? DBConnection.set_statement_value(ps, 2, category_ID) : false;
-                task_inserted = task_inserted? DBConnection.execute_update(ps) : false;
+                task_inserted = task_inserted
+                    && DBConnection.set_statement_value(ps, 1, task_ID)
+                    && DBConnection.set_statement_value(ps, 2, category_ID)
+                    && DBConnection.execute_update(ps);
             }
             if (!task_inserted) {
                 this.managers_page_create_task_message_label.setText("Task categorisation failed.");
@@ -2391,25 +2464,31 @@ public class ManagersPage extends javax.swing.JFrame {
             // Validate the data: make sure the parent task selection is okay.
             // If there is a problem, log a message to the user.
             if (this.managers_page_create_task_choose_parent_task_options.getItemCount() == 0) { this.managers_page_create_task_message_label.setText("No parent task selected."); return; }
-            String parent_task_name = this.managers_page_create_task_choose_parent_task_options.getSelectedItem().toString();
+            String parent_task_name =
+                Objects.requireNonNull(
+                    this.managers_page_create_task_choose_parent_task_options
+                        .getSelectedItem()).toString();
                 
             
-            // Insert a new subtask into the database, ASSIGNED_TO_MEMBER_ID should be the ID of the leader with username team_info[1]:
+            // Insert a new subtask into the database,
+            // ASSIGNED_TO_MEMBER_ID should be
+            // the ID of the leader with username team_info[1]:
             // Use the following function to get the creator's ID:
             // 1. query the selected team leader's ID
             int leader_ID = -1;
-            boolean subtask_inserted = true;
+            boolean subtask_inserted;
             DBConnection.connect();
             
             PreparedStatement ps = DBConnection.prepared_statement("SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y'");
-            subtask_inserted = (ps != null);
-            subtask_inserted = subtask_inserted? DBConnection.set_statement_value(ps, 1, team_info[1]) : false; 
+            subtask_inserted = (ps != null)
+                && DBConnection.set_statement_value(ps, 1, team_info[1]);
             ResultSet rs = DBConnection.execute_query(ps);
-            try { 
-                rs.next(); 
+            try {
+                assert rs != null;
+                rs.next();
                 leader_ID = rs.getInt("MEMBER_ID"); 
             } catch (Exception e) { 
-                System.out.println(e);
+                e.printStackTrace();
                 subtask_inserted = false;
             }
             if (!subtask_inserted) {
@@ -2420,14 +2499,16 @@ public class ManagersPage extends javax.swing.JFrame {
             // 2. query the selected parent task category ID:
             int parent_ID = -1;
             ps = DBConnection.prepared_statement("SELECT TASK_ID FROM TASKS WHERE NAME = ? AND TEAM_ID = ? AND DELETED != 'Y'");
-            subtask_inserted = (ps != null)? DBConnection.set_statement_value(ps, 1, parent_task_name) : false;
-            subtask_inserted = subtask_inserted? DBConnection.set_statement_value(ps, 2, team_info[0]) : false;
+            subtask_inserted = (ps != null)
+                && DBConnection.set_statement_value(ps, 1, parent_task_name)
+                && DBConnection.set_statement_value(ps, 2, team_info[0]);
             rs = DBConnection.execute_query(ps);
             try {
+                assert rs != null;
                 rs.next();
                 parent_ID = rs.getInt("TASK_ID");
             } catch (Exception e) {
-                System.out.println(e);
+                e.printStackTrace();
                 subtask_inserted = false;
             }
             if (!subtask_inserted) {
@@ -2437,15 +2518,16 @@ public class ManagersPage extends javax.swing.JFrame {
             
             // 3. insert the subtask into the database:
             ps = DBConnection.prepared_statement("INSERT INTO SUBTASK(NAME, DESCRIPTION, DUE_DATE, CREATED_BY_MEMBER_ID, PRIORITY, ASSIGNED_TO_MEMBER_ID, SUBTASK_TO) VALUES(?, ?, ?, ?, ?, ?, ?)");
-            subtask_inserted = (ps != null);
-            subtask_inserted = subtask_inserted? DBConnection.set_statement_value(ps, 1, name) : false;
-            subtask_inserted = subtask_inserted? DBConnection.set_statement_value(ps, 2, description) : false;
-            subtask_inserted = subtask_inserted? DBConnection.set_statement_value(ps, 3, new java.sql.Date(parsed_due_date.getTime())) : false;
-            subtask_inserted = subtask_inserted? DBConnection.set_statement_value(ps, 4, SystemController.current_user.ID()) : false;
-            subtask_inserted = subtask_inserted? DBConnection.set_statement_value(ps, 5, priority) : false;
-            subtask_inserted = subtask_inserted? DBConnection.set_statement_value(ps, 6, leader_ID) : false;
-            subtask_inserted = subtask_inserted? DBConnection.set_statement_value(ps, 7, parent_ID) : false;
-            subtask_inserted = subtask_inserted? DBConnection.execute_update(ps) : false;
+            subtask_inserted = (ps != null)
+                && DBConnection.set_statement_value(ps, 1, name)
+                && DBConnection.set_statement_value(ps, 2, description)
+                && DBConnection.set_statement_value(
+                    ps, 3, new java.sql.Date(parsed_due_date.getTime()))
+                && DBConnection.set_statement_value(ps, 4, SystemController.current_user.ID())
+                && DBConnection.set_statement_value(ps, 5, priority)
+                && DBConnection.set_statement_value(ps, 6, leader_ID)
+                && DBConnection.set_statement_value(ps, 7, parent_ID)
+                && DBConnection.execute_update(ps);
             
             
             // After the insertion, log a message to inform the user of the insert status:
@@ -2465,11 +2547,12 @@ public class ManagersPage extends javax.swing.JFrame {
     */
     private void managers_page_create_user_create_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managers_page_create_user_create_buttonActionPerformed
         // Collect new user information from the UI:
-        String user_role = this.managers_page_create_user_options.getSelectedItem().toString();
+        String user_role = Objects.requireNonNull(this.managers_page_create_user_options.getSelectedItem()).toString();
         String username = this.managers_page_create_username_text.getText();
         char[] password = this.managers_page_create_user_password_text.getPassword();
 
-        // Validate input (make sure username is acceptable, password is acceptable):
+        // Validate input
+        // (make sure getUsername is acceptable, password is acceptable):
         if (username.length() < 6) {
             this.managers_page_create_user_message_label.setText("User ID field cannot contain fewer than 6 characters.");
             return;
@@ -2483,21 +2566,22 @@ public class ManagersPage extends javax.swing.JFrame {
         // After validation, insert the data into the database -> insert into Members:
         boolean created_user;
         DBConnection.connect();
-        PreparedStatement ps = DBConnection.prepared_statement("INSERT INTO MEMBERS (member_id, username, member_password, member_role, team_id)" +
+        PreparedStatement ps = DBConnection.prepared_statement(
+            "INSERT INTO MEMBERS " +
+                "(member_id, getUsername, member_password, member_role, team_id)" +
                     " VALUES (DEFAULT, ?, ?, ?, NULL)");
 
-        created_user = (ps != null)? DBConnection.set_statement_value(ps, 1, username) : false;
-        created_user = created_user? DBConnection.set_statement_value(ps, 2, new String(password)) : false;
-        created_user = created_user? DBConnection.set_statement_value(ps, 3, user_role) : false;
-        created_user = created_user? DBConnection.execute_update(ps) : false;
+        created_user = (ps != null)
+            && DBConnection.set_statement_value(ps, 1, username)
+            && DBConnection.set_statement_value(ps, 2, new String(password))
+            && DBConnection.set_statement_value(ps, 3, user_role)
+            && DBConnection.execute_update(ps);
 
         DBConnection.disconnect();
         
         // Check database insert result:
         if (created_user) {
             // Clear the data: Make sure that no variables are storing sensitive information. Also, clean the UI.
-            username = null;
-            password = null;
             this.managers_page_create_username_text.setText("");
             this.managers_page_create_user_password_text.setText("");
             this.managers_page_create_user_options.setSelectedIndex(0);
@@ -2506,7 +2590,9 @@ public class ManagersPage extends javax.swing.JFrame {
             // Reload the user management section/panel:
             this.modifcation_section_load_users(false);
         } else
-            this.managers_page_create_user_message_label.setText("User creation failed! This username may have been used by another account.");
+            this.managers_page_create_user_message_label.setText(
+                "User creation failed! " +
+                    "This username may have been used by another account.");
         
         
     }//GEN-LAST:event_managers_page_create_user_create_buttonActionPerformed
@@ -2520,7 +2606,10 @@ public class ManagersPage extends javax.swing.JFrame {
         if (this.managers_page_modify_user_search_username_options.getItemCount() == 0 || this.managers_page_modify_user_search_username_options.getSelectedIndex() == 0) return; // no user selected
         
         
-        if (this.managers_page_modify_user_action_options.getSelectedItem().toString().equals("Edit")) {  // intends to edit user data
+        if (Objects.requireNonNull(
+            this.managers_page_modify_user_action_options
+                .getSelectedItem()).toString().equals("Edit")
+        ) { // intends to edit user data
             
             for (java.awt.Component component : this.managers_page_modify_user_edit_pane.getComponents()) component.setEnabled(true);      // enable user editing
             for (java.awt.Component component : this.managers_page_modify_user_unresolved_pane.getComponents()) { component.setEnabled(false); this.managers_page_modify_user_unresolved_tasks_list.setEnabled(false); }    // disable user deletion info
@@ -2528,28 +2617,37 @@ public class ManagersPage extends javax.swing.JFrame {
         } else {    // intends to delete user
             
             // Get user data from UI:
-            AppUser.UserType user_role = AppUser.to_user_type( this.managers_page_modify_user_options.getSelectedItem().toString() ); 
-            String username = this.managers_page_modify_user_search_username_options.getSelectedItem().toString();
+            AppUser.UserType user_role =
+                AppUser.toUserType( Objects.requireNonNull(
+                    this.managers_page_modify_user_options
+                        .getSelectedItem()).toString() );
+            String username =
+                Objects.requireNonNull(
+                    this.managers_page_modify_user_search_username_options
+                        .getSelectedItem()).toString();
             javax.swing.DefaultListModel unresolved_model = (javax.swing.DefaultListModel) this.managers_page_modify_user_unresolved_tasks_list.getModel();
             
             
             // If user_role is a team leader, query all the tasks he is assigned to.
             if (user_role == AppUser.UserType.TEAM_LEAD) {
                 
-                boolean tasks_retrieved = true;
+                boolean tasks_retrieved;
                 String team_ID = "";
 
                 DBConnection.connect();
                 
-                // 1. query the team ID of the team the selected user leads. Make use of @username
+                // 1. query the team ID of the team the selected user leads.
+                // Make use of @getUsername
                 PreparedStatement ps = DBConnection.prepared_statement("SELECT T.TEAM_ID FROM TEAMS T, MEMBERS U WHERE U.USERNAME = ? AND T.TEAM_LEADER_ID = U.MEMBER_ID AND T.DELETED != 'Y' AND U.DELETED != 'Y'");
-                tasks_retrieved = (ps != null)? DBConnection.set_statement_value(ps, 1, username) : false;
+                tasks_retrieved = (ps != null)
+                    && DBConnection.set_statement_value(ps, 1, username);
                 ResultSet rs = DBConnection.execute_query(ps);
                 try {
+                    assert rs != null;
                     rs.next();
                     team_ID = rs.getString("TEAM_ID");
                 } catch (Exception e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                     tasks_retrieved = false;
                 }
                 if (!tasks_retrieved) {
@@ -2559,14 +2657,17 @@ public class ManagersPage extends javax.swing.JFrame {
 
                 // 2. query all task names in the queried team:
                 ps = DBConnection.prepared_statement("SELECT NAME FROM TASKS WHERE TEAM_ID = ? AND DELETED != 'Y'");
-                tasks_retrieved = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
+                tasks_retrieved = (ps != null) && DBConnection.set_statement_value(ps, 1, team_ID);
                 rs = DBConnection.execute_query(ps);
                 try {
                     // 3. add the queried task names into the unresolved list:
-                    while (rs.next()) 
+                    while (true) {
+                        assert rs != null;
+                        if (!rs.next()) break;
                         unresolved_model.addElement("Task - " + rs.getString("NAME"));
+                    }
                 } catch (Exception e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                     tasks_retrieved = false;
                 }
                 if (!tasks_retrieved) {
@@ -2584,17 +2685,21 @@ public class ManagersPage extends javax.swing.JFrame {
             DBConnection.connect();
 
             // Query all subtask names that are assigned to the selected user:
-            // 1. get subtask names from the database. Make use of @username
-            boolean subtasks_retrieved = true;
+            // 1. get subtask names from the database. Make use of @getUsername
+            boolean subtasks_retrieved;
             PreparedStatement ps = DBConnection.prepared_statement("SELECT NAME FROM SUBTASK WHERE ASSIGNED_TO_MEMBER_ID = (SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y') AND DELETED != 'Y'");
-            subtasks_retrieved = (ps != null)? DBConnection.set_statement_value(ps, 1, username) : false;
+            subtasks_retrieved = (ps != null)
+                && DBConnection.set_statement_value(ps, 1, username);
             ResultSet rs = DBConnection.execute_query(ps);
             try {
                 // 2. add the queried subtask names into the unresolvd list:
-                while(rs.next())
+                while(true) {
+                    assert rs != null;
+                    if (!rs.next()) break;
                     unresolved_model.addElement("SubTask - " + rs.getString("NAME"));
+                }
             } catch (Exception e) {
-                System.out.println(e);
+                e.printStackTrace();
                 subtasks_retrieved = false;
             }
             if (!subtasks_retrieved)
@@ -2617,30 +2722,38 @@ public class ManagersPage extends javax.swing.JFrame {
     public void modifcation_section_load_users(boolean complete_reload) {
         
         if (complete_reload) {
-            this.managers_page_modify_user_action_options.setSelectedIndex(0);  // default to edit mode
-            this.managers_page_modify_user_options.setSelectedIndex(0);         // default to base user
+            this.managers_page_modify_user_action_options.setSelectedIndex(0);
+            // default to edit mode
+            this.managers_page_modify_user_options.setSelectedIndex(0);
+            // default to base user
         }
-        this.managers_page_modify_user_search_username_options.removeAllItems();       // clear old local username data
-        this.managers_page_modify_user_search_username_options.addItem("[usernames]"); // reset default option placeholder
+        this.managers_page_modify_user_search_username_options.removeAllItems();
+        // clear old local getUsername data
+        this.managers_page_modify_user_search_username_options.addItem("[usernames]");
+        // reset default option placeholder
         this.managers_page_edit_username_text.setText("");
         this.managers_page_edit_password_text.setText("");
-        ( (javax.swing.DefaultListModel) this.managers_page_modify_user_unresolved_tasks_list.getModel() ).clear();     // clear unresolved items
+        ( (javax.swing.DefaultListModel) this.managers_page_modify_user_unresolved_tasks_list.getModel() ).clear();
+        // clear unresolved items
         this.managers_page_modify_user_unresolved_team_label.setText("not a team leader");  // default is base user
         
         // Get data from the UI:
-        String user_type = this.managers_page_modify_user_options.getSelectedItem().toString();
+        String user_type = Objects.requireNonNull(this.managers_page_modify_user_options.getSelectedItem()).toString();
         
         
         DBConnection.connect();
         
         // Query usernames whose role is equal to @user_type:
-        boolean users_retrieved = true;
+        boolean users_retrieved;
         PreparedStatement ps = DBConnection.prepared_statement("SELECT USERNAME FROM MEMBERS WHERE MEMBER_ROLE = ? AND DELETED != 'Y'");
-        users_retrieved = (ps != null)? DBConnection.set_statement_value(ps, 1, user_type) : false;
+        users_retrieved = (ps != null) && DBConnection.set_statement_value(ps, 1, user_type);
         ResultSet rs = DBConnection.execute_query(ps);
         try {
-            while(rs.next())
+            while(true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 this.managers_page_modify_user_search_username_options.addItem(rs.getString("USERNAME"));
+            }
         } catch (Exception e) {
             // If the query fails, log a message to the user:
             this.managers_page_modify_user_message_label.setText("Failed to retrieve.");
@@ -2684,7 +2797,7 @@ public class ManagersPage extends javax.swing.JFrame {
             }
         });
         
-        // Upon changing selection of the username:
+        // Upon changing selection of the getUsername:
         this.managers_page_modify_user_search_username_options.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -2701,17 +2814,17 @@ public class ManagersPage extends javax.swing.JFrame {
     private void managers_page_modify_user_submit_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managers_page_modify_user_submit_buttonActionPerformed
         
         if (this.managers_page_modify_user_search_username_options.getSelectedIndex() == 0) { this.managers_page_modify_user_message_label.setText("No user selected."); return; }
-        String username = this.managers_page_modify_user_search_username_options.getSelectedItem().toString();
+        String username = Objects.requireNonNull(this.managers_page_modify_user_search_username_options.getSelectedItem()).toString();
         
         
-        if (this.managers_page_modify_user_action_options.getSelectedItem().toString().equals("Edit")) {    // intends to edit user data
+        if (Objects.requireNonNull(this.managers_page_modify_user_action_options.getSelectedItem()).toString().equals("Edit")) {    // intends to edit user data
             
             // Get modified user data from the UI.
             String new_username = this.managers_page_edit_username_text.getText();
             char [] new_password = this.managers_page_edit_password_text.getPassword();
             boolean username_entered = true;
             boolean password_entered = true;
-            // Validate the new username and password. The user is allow to only update either one of the fields.
+            // Validate the new getUsername and password. The user is allow to only update either one of the fields.
             if (new_username.length() < 6)
             {
                 if (new_username.length() == 0)
@@ -2738,7 +2851,7 @@ public class ManagersPage extends javax.swing.JFrame {
 
             
             // Update the user data in the database. If only one field is to be updated, do not update the other one.
-            boolean updated = true;
+            boolean updated;
             DBConnection.connect();
             
             String update_declaration = "UPDATE MEMBERS SET ";
@@ -2751,10 +2864,10 @@ public class ManagersPage extends javax.swing.JFrame {
             }
             PreparedStatement ps = DBConnection.prepared_statement(update_declaration + update_fields + update_condition);
             int field_counter = 1;
-            updated = (ps != null && username_entered)? DBConnection.set_statement_value(ps, field_counter++, new_username) : updated;
+            updated = ps == null || !username_entered || DBConnection.set_statement_value(ps, field_counter++, new_username);
             updated = (updated && password_entered)? DBConnection.set_statement_value(ps, field_counter++, new String(new_password)) : updated;
-            updated = updated? DBConnection.set_statement_value(ps, field_counter++, username) : false;
-            updated = updated? DBConnection.execute_update(ps, true) : false;
+            updated = updated && DBConnection.set_statement_value(ps, field_counter++, username);
+            updated = updated && DBConnection.execute_update(ps, true);
             
             DBConnection.disconnect();
             
@@ -2768,7 +2881,7 @@ public class ManagersPage extends javax.swing.JFrame {
         } else {    // intends to delete user
             
             // Get the user type. If the user is team leader, reject the deletion.
-            if (AppUser.to_user_type(this.managers_page_modify_user_options.getSelectedItem().toString()) == AppUser.UserType.TEAM_LEAD) {
+            if (AppUser.toUserType(Objects.requireNonNull(this.managers_page_modify_user_options.getSelectedItem()).toString()) == AppUser.UserType.TEAM_LEAD) {
                 this.managers_page_modify_user_message_label.setText("Team leaders cannot be deleted.");
                 return;
             }
@@ -2779,12 +2892,12 @@ public class ManagersPage extends javax.swing.JFrame {
             }
             
             // Delete the user data from the database.
-            boolean deletedUser = true;
+            boolean deletedUser;
             DBConnection.connect();
 
             PreparedStatement ps = DBConnection.prepared_statement("UPDATE MEMBERS SET DELETED = 'Y' WHERE USERNAME = ? AND DELETED != 'Y'");
-            deletedUser = deletedUser ? DBConnection.set_statement_value(ps, 1, username) : false;
-            deletedUser = deletedUser ? DBConnection.execute_update(ps, true) : false;
+            deletedUser = DBConnection.set_statement_value(ps, 1, username)
+                && DBConnection.execute_update(ps, true);
                 
             DBConnection.disconnect();
 
@@ -2825,34 +2938,35 @@ public class ManagersPage extends javax.swing.JFrame {
                 self.manage_teams_to_task_page_button.setEnabled(true);         // enable navigation to the team
                 self.manage_teams_to_team_leaders_page_button.setEnabled(true);
                 self.managers_page_remove_team_member_options.removeAllItems();
-                self.managers_page_remove_team_member_options.addItem("[select username]");
+                self.managers_page_remove_team_member_options.addItem("[select getUsername]");
                 self.managers_page_add_team_member_options.removeAllItems();
-                self.managers_page_add_team_member_options.addItem("[select username]");
+                self.managers_page_add_team_member_options.addItem("[select getUsername]");
                 self.managers_page_reassign_team_leader_options.removeAllItems();
-                self.managers_page_reassign_team_leader_options.addItem("[select username]");
+                self.managers_page_reassign_team_leader_options.addItem("[select getUsername]");
                 
-                String[] team_info = self.managers_page_manage_teams_search_options.getSelectedItem().toString().split("/", 2);
+                String[] team_info = Objects.requireNonNull(self.managers_page_manage_teams_search_options.getSelectedItem()).toString().split("/", 2);
                 
                 // Download member usernames and roles, who are in the selected team or without a team (limit the query to base users only):
-                boolean users_retrieved = true;
                 String username;
 
                 DBConnection.connect();
 
                 // 1. query the member usernames using the selected team ID team_info[0]:
                 PreparedStatement ps = DBConnection.prepared_statement("SELECT USERNAME FROM MEMBERS WHERE TEAM_ID = ? AND MEMBER_ROLE = 'Base User' AND DELETED != 'Y'");
-                users_retrieved = (ps != null)? DBConnection.set_statement_value(ps, 1, team_info[0]) : false;
+                DBConnection.set_statement_value(ps, 1, team_info[0]);
                 ResultSet rs = DBConnection.execute_query(ps);
                 try {
-                    // 2. save each username that belongs to the selected team (TEAM_ID = team_info[0]) into the list of members that can be removed
-                    // 4. add each queried username into the list of members that can be assigned as the new team leader of the selected team
-                    while(rs.next()) {
+                    // 2. save each getUsername that belongs to the selected team (TEAM_ID = team_info[0]) into the list of members that can be removed
+                    // 4. add each queried getUsername into the list of members that can be assigned as the new team leader of the selected team
+                    while(true) {
+                        assert rs != null;
+                        if (!rs.next()) break;
                         username = rs.getString("USERNAME");
                         self.managers_page_remove_team_member_options.addItem(username);
                         self.managers_page_reassign_team_leader_options.addItem(username);
                     }
                 } catch (Exception exception) {
-                    System.out.println(exception);
+                    exception.printStackTrace();
                     self.managers_page_remove_team_member_actions_message.setText("ERROR: Team members query failed.");
                     DBConnection.disconnect(); return;
                 }
@@ -2860,8 +2974,8 @@ public class ManagersPage extends javax.swing.JFrame {
                 
                 rs = DBConnection.query("SELECT USERNAME FROM MEMBERS WHERE TEAM_ID IS NULL AND MEMBER_ROLE = 'Base User' AND DELETED != 'Y'");
                 try {
-                    // 3. save each username that does not belong to any team (TEAM_ID = null) into the list of members that can be added:
-                    // 4. add each queried username into the list of members that can be assigned as the new team leader of the selected team
+                    // 3. save each getUsername that does not belong to any team (TEAM_ID = null) into the list of members that can be added:
+                    // 4. add each queried getUsername into the list of members that can be assigned as the new team leader of the selected team
                     while(rs.next()) {
                         username = rs.getString("USERNAME");
                         self.managers_page_add_team_member_options.addItem(username);
@@ -2869,7 +2983,7 @@ public class ManagersPage extends javax.swing.JFrame {
                     }
 
                 } catch (Exception f) {
-                    System.out.println(f);
+                    f.printStackTrace();
                     self.managers_page_add_team_member_actions_message.setText("ERROR: Non-team members query failed.");
                     DBConnection.disconnect(); return;
                 }
@@ -2899,11 +3013,11 @@ public class ManagersPage extends javax.swing.JFrame {
         this.managers_page_manage_teams_search_options.removeAllItems();
         this.managers_page_manage_teams_search_options.addItem("[team/leader]");        // clear old local team records
         this.managers_page_remove_team_member_options.removeAllItems();
-        this.managers_page_remove_team_member_options.addItem("[select username]");     // clear old local team member records
+        this.managers_page_remove_team_member_options.addItem("[select getUsername]");     // clear old local team member records
         this.managers_page_add_team_member_options.removeAllItems();
-        this.managers_page_add_team_member_options.addItem("[select username]");        // clear old local teamless member records
+        this.managers_page_add_team_member_options.addItem("[select getUsername]");        // clear old local teamless member records
         this.managers_page_reassign_team_leader_options.removeAllItems();
-        this.managers_page_reassign_team_leader_options.addItem("[select username]");   // clear old local leader candidate records
+        this.managers_page_reassign_team_leader_options.addItem("[select getUsername]");   // clear old local leader candidate records
         this.managers_page_update_team_name_text.setText("");   // clear old input for team name update
         this.managers_page_remove_team_member_actions_message.setText("");  // clear old message for team member removal
         this.managers_page_add_team_member_actions_message.setText("");     // clear old message for team member adding
@@ -2920,11 +3034,11 @@ public class ManagersPage extends javax.swing.JFrame {
 
         ResultSet rs = DBConnection.query("SELECT USERNAME, TEAM_ID FROM MEMBERS WHERE MEMBER_ROLE = 'Team Leader' AND DELETED != 'Y'");
         try {
-            // 2. load each team ID and leader username into the team selection dropdown:
+            // 2. load each team ID and leader getUsername into the team selection dropdown:
             while(rs.next())
                 this.managers_page_manage_teams_search_options.addItem(rs.getString("TEAM_ID") + "/" + rs.getString("USERNAME"));
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             team_info_retrieved = false;
         }
 
@@ -2951,25 +3065,26 @@ public class ManagersPage extends javax.swing.JFrame {
             return;
         }
         if (this.managers_page_remove_team_member_options.getSelectedIndex() == 0) {
-            this.managers_page_remove_team_member_actions_message.setText("No username selected.");
+            this.managers_page_remove_team_member_actions_message.setText("No getUsername selected.");
             return;
         }
-        String[] team_info = this.managers_page_manage_teams_search_options.getSelectedItem().toString().split("/", 2);
-        String username_to_remove = this.managers_page_remove_team_member_options.getSelectedItem().toString();
+        String[] team_info = Objects.requireNonNull(this.managers_page_manage_teams_search_options.getSelectedItem()).toString().split("/", 2);
+        String username_to_remove = Objects.requireNonNull(this.managers_page_remove_team_member_options.getSelectedItem()).toString();
         
 
         DBConnection.connect();
 
-        // Query the names of the subtasks that are assigned to the user with @username.
-        boolean user_removed = true;
+        // Query the names of the subtasks that are assigned to the user with @getUsername.
+        boolean user_removed;
         PreparedStatement ps = DBConnection.prepared_statement("SELECT NAME FROM SUBTASK WHERE ASSIGNED_TO_MEMBER_ID = (SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y') AND DELETED != 'Y'");
-        user_removed = (ps != null)? DBConnection.set_statement_value(ps, 1, username_to_remove) : false;
+        user_removed = (ps != null) && DBConnection.set_statement_value(ps, 1, username_to_remove);
         boolean has_pending_subtasks = true;
         ResultSet rs = DBConnection.execute_query(ps);
         try {
+            assert rs != null;
             has_pending_subtasks = rs.next();
         } catch (Exception f) {
-            System.out.println(f);
+            f.printStackTrace();
             user_removed = false;
         }
         // 1. If the result is not empty, log a message to the user and reject the user's removal from the selected team:
@@ -2982,10 +3097,10 @@ public class ManagersPage extends javax.swing.JFrame {
             DBConnection.disconnect(); return;
         }
         
-        // Change the team_ID of the user with @username to null in the database.
+        // Change the team_ID of the user with @getUsername to null in the database.
         ps = DBConnection.prepared_statement("UPDATE MEMBERS SET TEAM_ID = NULL WHERE USERNAME = ? AND DELETED != 'Y'");
-        user_removed = (ps != null)? DBConnection.set_statement_value(ps, 1, username_to_remove) : false;
-        user_removed = user_removed? DBConnection.execute_update(ps) : false;
+        user_removed = (ps != null) && DBConnection.set_statement_value(ps, 1, username_to_remove);
+        user_removed = user_removed && DBConnection.execute_update(ps);
 
         DBConnection.disconnect();
 
@@ -2995,7 +3110,7 @@ public class ManagersPage extends javax.swing.JFrame {
             this.manage_teams_load_teams();
             this.managers_page_remove_team_member_actions_message.setText("Member has been removed from the team");
         } else
-            this.managers_page_create_user_message_label.setText("Updating username failed");
+            this.managers_page_create_user_message_label.setText("Updating getUsername failed");
 
 
     }//GEN-LAST:event_managers_page_remove_team_member_remove_buttonActionPerformed
@@ -3004,7 +3119,7 @@ public class ManagersPage extends javax.swing.JFrame {
     /*
         Function to add a team member from the list of members without a team when the add-member button in the manage-members tab is clicked (and released).
     */
-    private void managers_page_add_team_member_add_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managers_page_add_team_member_add_buttonActionPerformed
+    private void managers_page_add_team_member_add_buttonActionPerformed() {//GEN-FIRST:event_managers_page_add_team_member_add_buttonActionPerformed
         
         // Get information from the UI:
         if (this.managers_page_manage_teams_search_options.getSelectedIndex() == 0) {
@@ -3012,22 +3127,22 @@ public class ManagersPage extends javax.swing.JFrame {
             return;
         }
         if (this.managers_page_add_team_member_options.getSelectedIndex() == 0) {
-            this.managers_page_add_team_member_actions_message.setText("No username selected.");
+            this.managers_page_add_team_member_actions_message.setText("No getUsername selected.");
             return;
         }
-        String[] team_info = this.managers_page_manage_teams_search_options.getSelectedItem().toString().split("/", 2);
-        String username_to_add = this.managers_page_add_team_member_options.getSelectedItem().toString();
+        String[] team_info = Objects.requireNonNull(this.managers_page_manage_teams_search_options.getSelectedItem()).toString().split("/", 2);
+        String username_to_add = Objects.requireNonNull(this.managers_page_add_team_member_options.getSelectedItem()).toString();
         
         
-        // Update the team ID of the user with @username to the selected team (i.e. team_info[0]).
-        boolean successfulAdd = true;
+        // Update the team ID of the user with @getUsername to the selected team (i.e. team_info[0]).
+        boolean successfulAdd;
 
         DBConnection.connect();
 
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE MEMBERS SET TEAM_ID = ? WHERE USERNAME = ? AND DELETED != 'Y'");
-        successfulAdd = (ps != null)? DBConnection.set_statement_value(ps, 1, team_info[0]) : false;
-        successfulAdd = successfulAdd? DBConnection.set_statement_value(ps, 2, username_to_add) : false;
-        successfulAdd = successfulAdd? DBConnection.execute_update(ps) : false;
+        successfulAdd = (ps != null) && DBConnection.set_statement_value(ps, 1, team_info[0]);
+        successfulAdd = successfulAdd && DBConnection.set_statement_value(ps, 2, username_to_add);
+        successfulAdd = successfulAdd && DBConnection.execute_update(ps);
 
         DBConnection.disconnect();
         
@@ -3052,21 +3167,21 @@ public class ManagersPage extends javax.swing.JFrame {
             return;
         }
         if (this.managers_page_reassign_team_leader_options.getSelectedIndex() == 0) {
-            this.managers_page_reassign_team_leader_actions_message.setText("No username selected.");
+            this.managers_page_reassign_team_leader_actions_message.setText("No getUsername selected.");
             return;
         }
-        String[] team_info = this.managers_page_manage_teams_search_options.getSelectedItem().toString().split("/", 2);
-        String new_leader_username = this.managers_page_reassign_team_leader_options.getSelectedItem().toString();
+        String[] team_info = Objects.requireNonNull(this.managers_page_manage_teams_search_options.getSelectedItem()).toString().split("/", 2);
+        String new_leader_username = Objects.requireNonNull(this.managers_page_reassign_team_leader_options.getSelectedItem()).toString();
         
 
-        // Update the team leader ID of the selected team (team_info[0]) to the member ID of the selected user with username @new_leader_username.
+        // Update the team leader ID of the selected team (team_info[0]) to the member ID of the selected user with getUsername @new_leader_username.
         boolean successfulUpdate;
         DBConnection.connect();
 
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TEAMS SET TEAM_LEADER_ID = (SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y') WHERE TEAM_ID = ? AND DELETED != 'Y'");
-        successfulUpdate = (ps != null)? DBConnection.set_statement_value(ps, 1, new_leader_username) : false;
-        successfulUpdate = successfulUpdate? DBConnection.set_statement_value(ps, 2, team_info[0]) : false;
-        successfulUpdate = successfulUpdate? DBConnection.execute_update(ps) : false;
+        successfulUpdate = (ps != null) && DBConnection.set_statement_value(ps, 1, new_leader_username);
+        successfulUpdate = successfulUpdate && DBConnection.set_statement_value(ps, 2, team_info[0]);
+        successfulUpdate = successfulUpdate && DBConnection.execute_update(ps);
         DBConnection.disconnect();
         
         // After the update, reload the tab and log a message to the user to indicate the result.
@@ -3084,7 +3199,7 @@ public class ManagersPage extends javax.swing.JFrame {
     */
     private void managers_page_update_team_name_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_managers_page_update_team_name_buttonActionPerformed
         // Get team data from the UI:
-        String[] team_info = this.managers_page_manage_teams_search_options.getSelectedItem().toString().split("/", 2);  // team_info[0] = team_ID; team_info[1] = leader_username;
+        String[] team_info = Objects.requireNonNull(this.managers_page_manage_teams_search_options.getSelectedItem()).toString().split("/", 2);  // team_info[0] = team_ID; team_info[1] = leader_username;
         String new_team_name = this.managers_page_update_team_name_text.getText();
 
         // Validate data, make sure the selected team info is not "[team/leader]", and the new team name is okay.
@@ -3101,9 +3216,9 @@ public class ManagersPage extends javax.swing.JFrame {
         DBConnection.connect();
 
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TEAMS SET TEAM_ID = ? WHERE TEAM_ID = ? AND DELETED != 'Y'");
-        successfulUpdate = (ps != null)? DBConnection.set_statement_value(ps, 1, new_team_name) : false;
-        successfulUpdate = successfulUpdate? DBConnection.set_statement_value(ps, 2, team_info[0]) : false;
-        successfulUpdate = successfulUpdate? DBConnection.execute_update(ps) : false;
+        successfulUpdate = (ps != null) && DBConnection.set_statement_value(ps, 1, new_team_name);
+        successfulUpdate = successfulUpdate && DBConnection.set_statement_value(ps, 2, team_info[0]);
+        successfulUpdate = successfulUpdate && DBConnection.execute_update(ps);
         
         DBConnection.disconnect();
         
@@ -3125,15 +3240,15 @@ public class ManagersPage extends javax.swing.JFrame {
         
         // Get team data from the UI:
         if (this.managers_page_manage_teams_search_options.getSelectedIndex() == 0) { this.managers_page_delete_team_message.setText("No team selected."); return; }
-        String[] team_info = this.managers_page_manage_teams_search_options.getSelectedItem().toString().split("/", 2);    // team_info[0] = team_ID; team_info[1] = leader_username;
+        String[] team_info = Objects.requireNonNull(this.managers_page_manage_teams_search_options.getSelectedItem()).toString().split("/", 2);    // team_info[0] = team_ID; team_info[1] = leader_username;
         
         // Delete the team from the database.
-        boolean deletedTeam = true;
+        boolean deletedTeam;
         DBConnection.connect();
 
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TEAMS SET DELETED = 'Y' WHERE TEAM_ID = ? AND DELETED != 'Y'");
-        deletedTeam = (ps != null)? DBConnection.set_statement_value(ps, 1, team_info[0]) : false;
-        deletedTeam = deletedTeam? DBConnection.execute_update(ps) : false;
+        deletedTeam = (ps != null) && DBConnection.set_statement_value(ps, 1, team_info[0]);
+        deletedTeam = deletedTeam && DBConnection.execute_update(ps);
 
         DBConnection.disconnect();
         
@@ -3158,8 +3273,8 @@ public class ManagersPage extends javax.swing.JFrame {
     /*
         Function to navigate to the task page of the selected team when the to-task-page button on the manage-teams tab is clicked (and released):
     */
-    private void manage_teams_to_task_page_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manage_teams_to_task_page_buttonActionPerformed
-        String[] team_info = this.managers_page_manage_teams_search_options.getSelectedItem().toString().split("/", 2);
+    private void manage_teams_to_task_page_buttonActionPerformed() {//GEN-FIRST:event_manage_teams_to_task_page_buttonActionPerformed
+        String[] team_info = Objects.requireNonNull(this.managers_page_manage_teams_search_options.getSelectedItem()).toString().split("/", 2);
         SystemController.load_current_team(team_info[0]);
         SystemController.to_task_page();
     }//GEN-LAST:event_manage_teams_to_task_page_buttonActionPerformed
@@ -3167,8 +3282,8 @@ public class ManagersPage extends javax.swing.JFrame {
     /*
         Function to navigate to the team leader's page of the selected team when the to-team-leaders-page button on the manage-teams tab is clicked (and released):
     */
-    private void manage_teams_to_team_leaders_page_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manage_teams_to_team_leaders_page_buttonActionPerformed
-        String[] team_info = this.managers_page_manage_teams_search_options.getSelectedItem().toString().split("/", 2);
+    private void manage_teams_to_team_leaders_page_buttonActionPerformed() {//GEN-FIRST:event_manage_teams_to_team_leaders_page_buttonActionPerformed
+        String[] team_info = Objects.requireNonNull(this.managers_page_manage_teams_search_options.getSelectedItem()).toString().split("/", 2);
         SystemController.load_current_team(team_info[0]);
         SystemController.to_team_leaders_page(null, null);
     }//GEN-LAST:event_manage_teams_to_team_leaders_page_buttonActionPerformed
@@ -3373,7 +3488,7 @@ public class ManagersPage extends javax.swing.JFrame {
     private javax.swing.JTextField managers_page_update_team_name_text;
     private javax.swing.JPanel task_page_header_buttons_pane;
     // End of variables declaration//GEN-END:variables
-    private TreeMap<String, TeamlessMemberPanel> _teamless_member_map = new TreeMap<String, TeamlessMemberPanel>();
+    private final TreeMap<String, TeamlessMemberPanel> _teamless_member_map = new TreeMap<String, TeamlessMemberPanel>();
     
     // Auxiliary variables:
     private javax.swing.ButtonGroup _teamless_member_button_group = new javax.swing.ButtonGroup();

@@ -18,7 +18,7 @@ public class TaskPrototypeTest {
     @BeforeAll
     public static void init() {
         SystemController.current_user = new AppUser();
-        //SystemController.current_user.set_role(AppUser.UserType.MANAGER);
+        //SystemController.current_user.setRole(AppUser.UserType.MANAGER);
         test_task_proto = new TaskPrototype();
     }
     
@@ -46,14 +46,14 @@ public class TaskPrototypeTest {
     
     @Test
     public void testManagerGetCreatorID() {
-        SystemController.current_user.set_role(AppUser.UserType.MANAGER);
+        SystemController.current_user.setRole(AppUser.UserType.MANAGER);
         test_task_proto.set_creator_ID(33);
         assertEquals(test_task_proto.creator_ID(), 33);
     }
     
     @Test
     public void testBaseUserGetCreatorID() {
-        SystemController.current_user.set_role(AppUser.UserType.BASE_USER);
+        SystemController.current_user.setRole(AppUser.UserType.BASE_USER);
         assertEquals(test_task_proto.creator_ID(), -1);
     }
     

@@ -5,18 +5,18 @@
  */
 package taskmanager;
 
-
-import java.util.*;
-import java.util.stream.Collectors;
-import java.awt.event.*;
-import java.awt.Dimension;
-import java.sql.*;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Types;
 import java.text.SimpleDateFormat;
-import javax.swing.DefaultListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.ListModel;
-import javax.swing.event.*;
-import oracle.jdbc.OracleTypes;
+import java.util.*;
 
 
 
@@ -46,10 +46,10 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     private Focus _focus = null;
     
     // Data structures: 
-    private TreeMap<String, TaskCategory> _task_category_map = new TreeMap<>();
-    private TreeMap<String, WorkLoadGroup> _member_workload_stat_map = new TreeMap<>();
+    private final TreeMap<String, TaskCategory> _task_category_map = new TreeMap<>();
+    private final TreeMap<String, WorkLoadGroup> _member_workload_stat_map = new TreeMap<>();
     private WorkLoadGroup _team_workload_stat;
-    private java.util.List<AppUser> _user_list = new ArrayList<>();
+    private final java.util.List<AppUser> _user_list = new ArrayList<>();
     
     
     
@@ -1304,7 +1304,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             .addComponent(member_productivity_workload_value, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
-        member_productivity_username_label.setText("Member username:");
+        member_productivity_username_label.setText("Member getUsername:");
 
         member_productivity_username_value.setText("testing");
 
@@ -1486,9 +1486,9 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         short new_priority = (short) (this.task_edit_priority_options.getSelectedIndex() + 1);
         String new_description = this.task_edit_description_text.getText();
         String new_due_date = this.task_edit_due_date_text.getText();
-        int new_recur_interval = Task.to_recur_interval(this.task_edit_recurrence_options.getSelectedItem().toString());
-        String new_status = this.task_edit_status_options.getSelectedItem().toString();
-        String category_action = this.task_edit_task_categories_action_options.getSelectedItem().toString();
+        int new_recur_interval = Task.to_recur_interval(Objects.requireNonNull(this.task_edit_recurrence_options.getSelectedItem()).toString());
+        String new_status = Objects.requireNonNull(this.task_edit_status_options.getSelectedItem()).toString();
+        String category_action = Objects.requireNonNull(this.task_edit_task_categories_action_options.getSelectedItem()).toString();
         String selected_category = null;
         
         // Validate data:
@@ -1503,7 +1503,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         java.util.Date parsed_due_date;
         try { parsed_due_date = new SimpleDateFormat("MM/dd/yyyy").parse(new_due_date); } 
         catch(java.text.ParseException e) { 
-            System.out.println(e);
+            e.printStackTrace();
             this.task_edit_actions_message.setText("Incorrect due date format.");
             return;
         }
@@ -1516,7 +1516,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             return;
         }
         if (category_action.equals("Add to") || category_action.equals("Remove from")) {
-            selected_category = this.task_edit_task_categories_options.getSelectedItem().toString();
+            selected_category = Objects.requireNonNull(this.task_edit_task_categories_options.getSelectedItem()).toString();
             if (selected_category.equals("[select category]")) {
                 this.task_edit_actions_message.setText("No task category selected.");
                 return;
@@ -1580,15 +1580,14 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         if (update_fields.length() != 0) {  // task data should be updated
             int field_counter = 1;
             ps = DBConnection.prepared_statement(update_declaration + update_fields + update_conditions);
-            updated = (ps != null && name_changed)? DBConnection.set_statement_value(ps, field_counter++, new_name) : updated;
+            updated = ps == null || !name_changed || DBConnection.set_statement_value(ps, field_counter++, new_name);
             updated = (updated && priority_changed)? DBConnection.set_statement_value(ps, field_counter++, new_priority) : updated;
             updated = (updated && description_changed)? DBConnection.set_statement_value(ps, field_counter++, new_description) : updated;
             updated = (updated && due_date_changed)? DBConnection.set_statement_value(ps, field_counter++, new java.sql.Date(parsed_due_date.getTime())) : updated;
             updated = (updated && recurrence_changed)? DBConnection.set_statement_value(ps, field_counter++, new_recur_interval) : updated;
             updated = (updated && status_changed)? DBConnection.set_statement_value(ps, field_counter++, new_status) : updated;
-            updated = updated? DBConnection.set_statement_value(ps, field_counter, this._focused_task.ID()) : false;
-            updated = updated? DBConnection.execute_update(ps, true) : false;
-            updated = updated? DBConnection.close_statement(ps) : false;
+            updated = updated && DBConnection.set_statement_value(ps, field_counter, this._focused_task.ID());
+            updated = updated && DBConnection.execute_update(ps, true);
 
             if (!updated) {
                 this.task_edit_actions_message.setText("Error updating the task. Task name might have been used.");
@@ -1605,10 +1604,9 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             ps = DBConnection.prepared_statement("DELETE FROM TASKINCATEGORIES WHERE TASK_ID = ? AND TASK_CATEGORY_ID = ?");
         
         if (selected_category != null) {
-            updated = (ps != null)? DBConnection.set_statement_value(ps, 1, this._focused_task.ID()) : false;
-            updated = updated? DBConnection.set_statement_value(ps, 2, this._task_category_map.get(selected_category).ID()) : false; // set category ID
-            updated = updated? DBConnection.execute_update(ps) : false;
-            updated = updated? DBConnection.close_statement(ps) : false;
+            updated = (ps != null) && DBConnection.set_statement_value(ps, 1, this._focused_task.ID());
+            updated = updated && DBConnection.set_statement_value(ps, 2, this._task_category_map.get(selected_category).ID()); // set category ID
+            updated = updated && DBConnection.execute_update(ps);
             if (!updated) {
                 this.task_edit_actions_message.setText("Error updating the task. Failed to update the selected task category.");
                 DBConnection.transaction(DBConnection.Transaction.ROLLBACK);
@@ -1635,10 +1633,10 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         String new_name = this.subtask_edit_name_text.getText();
         short new_priority = (short) (this.subtask_edit_priority_options.getSelectedIndex() + 1);
         String new_description = this.subtask_edit_description_text.getText();
-        String new_assignment = this.subtask_edit_assignment_options.getSelectedItem().toString();
+        String new_assignment = Objects.requireNonNull(this.subtask_edit_assignment_options.getSelectedItem()).toString();
         String new_due_date = this.subtask_edit_due_date_text.getText();
-        String new_status = this.subtask_edit_status_options.getSelectedItem().toString();
-        String new_parent = this.subtask_edit_parent_task_options.getSelectedItem().toString();
+        String new_status = Objects.requireNonNull(this.subtask_edit_status_options.getSelectedItem()).toString();
+        String new_parent = Objects.requireNonNull(this.subtask_edit_parent_task_options.getSelectedItem()).toString();
         int new_parent_ID = -1;
         
         // Validate data:
@@ -1653,7 +1651,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         java.util.Date parsed_due_date;
         try { parsed_due_date = new SimpleDateFormat("MM/dd/yyyy").parse(new_due_date); } 
         catch(java.text.ParseException e) { 
-            System.out.println(e);
+            e.printStackTrace();
             this.subtask_edit_actions_message.setText("Incorrect due date format.");
             return;
         }
@@ -1727,19 +1725,18 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         // Update subtask data:
         DBConnection.connect();
         
-        boolean updated = true;
+        boolean updated;
         int field_counter = 1;
         PreparedStatement ps = DBConnection.prepared_statement(update_declaration + update_fields + update_conditions);
-        updated = (ps != null && name_changed)? DBConnection.set_statement_value(ps, field_counter++, new_name) : updated;
+        updated = ps == null || !name_changed || DBConnection.set_statement_value(ps, field_counter++, new_name);
         updated = (updated && priority_changed)? DBConnection.set_statement_value(ps, field_counter++, new_priority) : updated;
         updated = (updated && description_changed)? DBConnection.set_statement_value(ps, field_counter++, new_description) : updated;
         updated = (updated && assignment_changed)? DBConnection.set_statement_value(ps, field_counter++, new_assignment) : updated;
         updated = (updated && due_date_changed)? DBConnection.set_statement_value(ps, field_counter++, new java.sql.Date(parsed_due_date.getTime())) : updated;
         updated = (updated && status_changed)? DBConnection.set_statement_value(ps, field_counter++, new_status) : updated;
         updated = (updated && parent_changed)? DBConnection.set_statement_value(ps, field_counter++, new_parent_ID) : updated;
-        updated = updated ? DBConnection.set_statement_value(ps, field_counter, this._focused_subtask.ID()) : false;
-        updated = updated ? DBConnection.execute_update(ps) : false;
-        updated = updated? DBConnection.close_statement(ps) : false;
+        updated = updated && DBConnection.set_statement_value(ps, field_counter, this._focused_subtask.ID());
+        updated = updated && DBConnection.execute_update(ps);
 
         DBConnection.disconnect();
         
@@ -1869,7 +1866,9 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         // Get task categories:
         ResultSet rs = DBConnection.get_cursor_result(cs, ":tsk_cat_cur");
         try {
-            while (rs.next()) {
+            while(true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 TaskCategory category = new TaskCategory();
                 category.set_ID(rs.getInt("TASK_CATEGORY_ID"));
                 category.set_name(rs.getString("NAME"));
@@ -1883,16 +1882,22 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                     this._focused_task_category = category;
             }
         } catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
+            loaded = false;
+        }
+        if (!loaded) {
+            this.header_team_label.setText("Task Categories Not Properly Loaded!");
             DBConnection.close_statement(cs);
-            return false;
+            DBConnection.disconnect(); return;
         }
         
         // Get tasks:
         TreeMap<Integer, Task> task_map = new TreeMap<>();
         rs = DBConnection.get_cursor_result(cs, ":tsk_cur");
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 Task task = new Task();
                 task.set_ID(rs.getInt("TASK_ID"));
                 task.set_name(rs.getString("NAME"));
@@ -1911,16 +1916,17 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                     this._focused_task = task;
             }
         } catch(Exception e) {
-            System.out.println(e);
-            DBConnection.close_statement(cs);
-            return false;
+            e.printStackTrace();
+            loaded = false;
         }
         
         // Get subtasks:
         rs = DBConnection.get_cursor_result(cs, ":sbtsk_cur");
         try {
             Task task;
-            while(rs.next()) {
+            while(true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 task = task_map.get(rs.getInt("PARENT_ID"));
                 Subtask subtask = new Subtask(task);
                 subtask.set_ID(rs.getInt("SUBTASK_ID"));
@@ -1938,21 +1944,23 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                     this._focused_subtask = subtask;
                 }
         } catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             DBConnection.close_statement(cs);
-            return false;
+            loaded = false;
         }
             
         // Get category-task groupings:
         rs = DBConnection.get_cursor_result(cs, ":tsk_group_cur");
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 TaskCategory category = this._task_category_map.get(rs.getString("CATEGORY_NAME"));
                 Task task = task_map.get(rs.getInt("TASK_ID"));
                 category.add_task(task);    // couple local tasks and task categories
             }
         } catch(Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             loaded = false;
         }
         
@@ -1970,15 +1978,17 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         ResultSet rs = DBConnection.execute_query(ps);
         
         try {
-            while (rs.next()) {
+            while (true) {
+                assert rs != null;
+                if (!rs.next()) break;
                 AppUser user = new AppUser();
-                user.set_username(rs.getString("USERNAME"));
-                user.set_role(AppUser.to_user_type(rs.getString("MEMBER_ROLE")));
+                user.setUsername(rs.getString("USERNAME"));
+                user.setRole(AppUser.toUserType(rs.getString("MEMBER_ROLE")));
                 this._user_list.add(user);
             }
         } catch(Exception e) {
             System.out.println("ERROR: Users' data loading failed!");
-            System.out.println(e);
+            e.printStackTrace();
             loaded = false;
         }
         
@@ -2032,7 +2042,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 this._team_workload_stat.set_record(rs.getFloat("TASK_WEIGHTS"), rs.getInt("TASK_COUNT"), rs.getString("STATUS"));
         } catch (Exception e) {
             System.out.println("ERROR: Failed to load team workload statistics!");
-            System.out.println(e);
+            e.printStackTrace();
             loaded = false;
         }
         
@@ -2055,10 +2065,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     
     private void fill_task_category_edit_panel() {
         // Fill in task category information in the edit section:
-        if (SystemController.current_user.role() == AppUser.UserType.MANAGER) // control access
-            this.task_category_edit_name_text.setEnabled(true);
-        else 
-            this.task_category_edit_name_text.setEnabled(false);
+        // control access
+        this.task_category_edit_name_text.setEnabled(SystemController.current_user.role() == AppUser.UserType.MANAGER);
         
         this.task_category_edit_name_text.setText(this._focused_task_category.name());
         this.task_category_edit_description_text.setText(this._focused_task_category.description());
@@ -2119,10 +2127,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     
     private void fill_subtask_edit_panel() {
         // Fill in subtask information in the edit section:
-        if (SystemController.current_user.role() == AppUser.UserType.MANAGER)
-            this.subtask_edit_name_text.setEnabled(true);
-        else 
-            this.subtask_edit_name_text.setEnabled(false);
+        this.subtask_edit_name_text.setEnabled(SystemController.current_user.role() == AppUser.UserType.MANAGER);
         
         this.subtask_edit_name_text.setText(this._focused_subtask.name());
         this.subtask_edit_priority_options.setSelectedIndex(this._focused_subtask.priority() - 1);
@@ -2131,8 +2136,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this.subtask_edit_creation_date_label.setText("on: " + this._focused_subtask.str_created_on());
         this.subtask_edit_assignment_options.removeAllItems();
         for (AppUser user: this._user_list) {
-            this.subtask_edit_assignment_options.addItem(user.username());
-            if (user.username().equals(this._focused_subtask.assigned_to_member_username()))
+            this.subtask_edit_assignment_options.addItem(user.getUsername());
+            if (user.getUsername().equals(this._focused_subtask.assigned_to_member_username()))
                 this.subtask_edit_assignment_options.setSelectedIndex(this.subtask_edit_assignment_options.getItemCount() - 1);
         }
         this.subtask_edit_due_date_text.setText(new SimpleDateFormat("MM/dd/yyyy").format(this._focused_subtask.due_date()));
@@ -2163,8 +2168,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     private void fill_productivity_panel() {
         
         if (-1 < team_member_list.getSelectedIndex() ) {
-            String[] user_info = team_member_list.getSelectedValue().toString().split(" - ", 2);
-            WorkLoadGroup workload_group = this._member_workload_stat_map.get(user_info[1]); // user_info[1] is the selected username
+            String[] user_info = team_member_list.getSelectedValue().split(" - ", 2);
+            WorkLoadGroup workload_group = this._member_workload_stat_map.get(user_info[1]); // user_info[1] is the selected getUsername
             this.member_productivity_username_value.setText(user_info[1]); 
             
             float completed_portion = 0.0f;
@@ -2242,6 +2247,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         if (this._focus == null) {  // if the user enters the page through the page navigation button
             this.__refresh_null_focus__(lst_models);
         } else {                    // if the user enters the page through an edit buttion in the Task Page
+
             for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
                 component.setEnabled(false);
             this.__refresh_non_null_focus__(lst_models);
@@ -2651,6 +2657,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 self.__task_category_pairing_modification_list__();
+
             }
         });
         
