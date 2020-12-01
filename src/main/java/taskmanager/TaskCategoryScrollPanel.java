@@ -6,10 +6,12 @@
 package taskmanager;
 
 
-
 import javax.swing.*;
-import java.util.*;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -23,8 +25,8 @@ public class TaskCategoryScrollPanel extends JScrollPane {
     
     
     // Reference to other classes:
-    private TaskCategory _data_source;
-    private TaskPage _parent_page;
+    private final TaskCategory _data_source;
+    private final TaskPage _parent_page;
     
     
     // UI components:
@@ -209,7 +211,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
     */
     public void edit_category_button_action() {
         // Validate user data: only the team leader and managers can go to the team leader's page:
-        if (!SystemController.validate_user_for_team_leaders_page()) return;
+        if (SystemController.validate_user_for_team_leaders_page()) return;
         SystemController.to_team_leaders_page(TeamLeadersPage.Focus.TASK_CATEGORY, this._data_source.name()); // transition to team leader's page
     }
     
@@ -219,7 +221,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
         
         DBConnection.connect();
         
-        List<Task> task_list = new ArrayList<Task>();
+        List<Task> task_list = new ArrayList<>();
         // Leaders and Managers see all tasks in the current team:
         if (SystemController.current_user.role() == AppUser.UserType.TEAM_LEAD || SystemController.current_user.role() == AppUser.UserType.MANAGER) {
             
@@ -237,9 +239,12 @@ public class TaskCategoryScrollPanel extends JScrollPane {
             
             ResultSet rs = DBConnection.execute_query(ps);
             try {
-                while (rs.next()) { task_IDs.add(rs.getInt("TASK_ID")); }
+                while (true) {
+                    assert rs != null;
+                    if (!rs.next()) break;
+                    task_IDs.add(rs.getInt("TASK_ID")); }
             } catch (SQLException e) {
-                System.out.println(e);
+                e.printStackTrace();
                 DBConnection.disconnect(); return;      // do not proceed if there is an error
             }
             
@@ -260,6 +265,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                 }     // do not proceed if there is an error
                 rs = DBConnection.execute_query(ps);
                 try {
+                    assert rs != null;
                     rs.next();
                     // Add task to task list:
                     Task task = new Task();
@@ -276,7 +282,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                     task_list.add(task);
                     
                 } catch (SQLException e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                     DBConnection.disconnect(); return;      // do not proceed if there is an error
                 }
                 
@@ -299,7 +305,9 @@ public class TaskCategoryScrollPanel extends JScrollPane {
 
                 rs = DBConnection.execute_query(ps);
                 try {
-                    while (rs.next()) {
+                    while (true) {
+                        assert rs != null;
+                        if (!rs.next()) break;
                         // Add subtask as child to its parent task:
                         Subtask subtask = new Subtask(task);
                         subtask.set_ID(rs.getInt("SUBTASK_ID"));
@@ -315,7 +323,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                         task.add_subtask(subtask);
                     }
                 } catch (SQLException e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                     DBConnection.disconnect(); return;      // do not proceed if there is an error
                 }
             }
@@ -336,14 +344,16 @@ public class TaskCategoryScrollPanel extends JScrollPane {
             
             ResultSet rs = DBConnection.execute_query(ps);
             try {
-                while (rs.next()) {
+                while (true) {
+                    assert rs != null;
+                    if (!rs.next()) break;
                     // Add task to the task list:
                     Task task = new Task();
                     task.set_ID(rs.getInt("TASK_ID"));
                     task.set_priority(rs.getShort("TASK_PRIORITY"));
                     task.set_name(rs.getString("NAME"));
                     task.set_description(rs.getString("TASK_DESCRIPTION"));
-                    task.set_assigned_to_member_username(SystemController.current_user.username());
+                    task.set_assigned_to_member_username(SystemController.current_user.getUsername());
                     task.set_due_date(rs.getDate("DUE_DATE"));
                     task.set_creator_username(rs.getString("CREATOR_USERNAME"));
                     task.set_created_on(rs.getDate("CREATED_ON"));
@@ -352,7 +362,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                     task_list.add(task);
                 }
             } catch (SQLException e) {
-                System.out.println(e);
+                e.printStackTrace();
                 DBConnection.disconnect(); return;      // do not proceed if there is an error
             }
             
@@ -367,20 +377,22 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                         + " AND S.DELETED != 'Y'"
                 );
                 boolean healthy_statement = (ps != null);
-                healthy_statement = healthy_statement? DBConnection.set_statement_value(ps, 1, task.ID()) : false;
-                healthy_statement = healthy_statement? DBConnection.set_statement_value(ps, 2, SystemController.current_user.ID()) : false;
+                healthy_statement = healthy_statement && DBConnection.set_statement_value(ps, 1, task.ID());
+                healthy_statement = healthy_statement && DBConnection.set_statement_value(ps, 2, SystemController.current_user.ID());
                 if (!healthy_statement) { DBConnection.disconnect(); return; }     // do not proceed if there is an error
                 
                 rs = DBConnection.execute_query(ps);
                 try {
-                    while (rs.next()) {
+                    while (true) {
+                        assert rs != null;
+                        if (!rs.next()) break;
                         // Add subtask as child to its parent task:
                         Subtask subtask = new Subtask(task);
                         subtask.set_ID(rs.getInt("SUBTASK_ID"));
                         subtask.set_priority(rs.getShort("PRIORITY"));
                         subtask.set_name(rs.getString("NAME"));
                         subtask.set_description(rs.getString("DESCRIPTION"));
-                        subtask.set_assigned_to_member_username(SystemController.current_user.username());
+                        subtask.set_assigned_to_member_username(SystemController.current_user.getUsername());
                         subtask.set_due_date(rs.getDate("DUE_DATE"));
                         subtask.set_creator_username(rs.getString("CREATOR_USERNAME"));
                         subtask.set_created_on(rs.getDate("CREATED_ON"));
@@ -389,7 +401,7 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                         task.add_subtask(subtask);
                     }
                 } catch (SQLException e) {
-                    System.out.println(e);
+                    e.printStackTrace();
                     DBConnection.disconnect(); return;      // do not proceed if there is an error
                 }
             }
@@ -444,6 +456,6 @@ public class TaskCategoryScrollPanel extends JScrollPane {
     
     
     
-    public TaskCategory data_source() { return this._data_source; };
-    
+    public TaskCategory data_source() { return this._data_source; }
+
 }

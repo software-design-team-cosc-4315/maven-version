@@ -6,9 +6,12 @@
 package taskmanager;
 
 
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Objects;
 
 
 /**
@@ -34,9 +37,8 @@ public class SystemController {
     public static JFrame current_page = null;
     public static AppUser current_user = null;
     public static Team current_team = null;
-    public static Connection db_connection = null;
-    
-    
+
+
     public static void create_pages() {
         SystemController.login_page = new LoginPage();
         SystemController.task_page = new TaskPage();
@@ -52,30 +54,30 @@ public class SystemController {
     
     
     
+    @Nullable
     public static String authenticate(String username, char[] password) {
         
         // Use DBConnection to call statement in order to retrieve user information.
-        boolean authenticated = true;
+        boolean authenticated;
         DBConnection.connect();
         
         PreparedStatement ps = DBConnection.prepared_statement("SELECT MEMBER_ID, MEMBER_ROLE, TEAM_ID FROM MEMBERS WHERE USERNAME = ? AND MEMBER_PASSWORD = ? AND DELETED != 'Y'");
-        authenticated = (ps != null)? DBConnection.set_statement_value(ps, 1, username) : false;
-        authenticated = authenticated? DBConnection.set_statement_value(ps, 2, new String(password)) : false;
+        authenticated = (ps != null) && DBConnection.set_statement_value(ps, 1, username);
+        authenticated = authenticated && DBConnection.set_statement_value(ps, 2, new String(password));
         ResultSet rs = DBConnection.execute_query(ps);
-        password = null;
         try {
-            authenticated = authenticated? rs.next() : false;
+            authenticated = authenticated && Objects.requireNonNull(rs).next();
             // store user information in SystemController.current_user
             if (authenticated) {  // ***NOTE: state change to recently authenticated
                 SystemController.current_state = State.RECENTLY_AUTHENTICATED;
                 SystemController.current_user = new AppUser();
-                SystemController.current_user.set_ID(rs.getInt("MEMBER_ID"));
-                SystemController.current_user.set_username(username);
-                SystemController.current_user.set_role( AppUser.to_user_type(rs.getString("MEMBER_ROLE")) );
-                SystemController.current_user.set_team_ID(rs.getString("TEAM_ID"));
+                SystemController.current_user.setId(rs.getInt("MEMBER_ID"));
+                SystemController.current_user.setUsername(username);
+                SystemController.current_user.setRole( AppUser.toUserType(rs.getString("MEMBER_ROLE")) );
+                SystemController.current_user.setTeamID(rs.getString("TEAM_ID"));
             }
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             authenticated = false;
         }
         
@@ -167,17 +169,17 @@ public class SystemController {
         DBConnection.connect();
             
         PreparedStatement ps = DBConnection.prepared_statement("SELECT L.USERNAME FROM TEAMS T, MEMBERS L WHERE T.TEAM_ID = ? AND L.MEMBER_ID = T.TEAM_LEADER_ID AND T.DELETED != 'Y' AND L.DELETED != 'Y'");
-        team_info_retrieved = (ps != null)? DBConnection.set_statement_value(ps, 1, team_ID) : false;
+        team_info_retrieved = (ps != null) && DBConnection.set_statement_value(ps, 1, team_ID);
         ResultSet rs = team_info_retrieved? DBConnection.execute_query(ps) : null;
         try {
-            team_info_retrieved = team_info_retrieved? rs.next() : false;
+            team_info_retrieved = team_info_retrieved && Objects.requireNonNull(rs).next();
             if (team_info_retrieved) {
                 SystemController.current_team = new Team();
                 SystemController.current_team.set_team_ID(team_ID);
                 SystemController.current_team.set_leader_username(rs.getString("USERNAME"));
             }
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
             team_info_retrieved = false;
         }
             
@@ -195,14 +197,14 @@ public class SystemController {
             System.out.println("ERROR: Current team leader is not from this team: '" 
                                + SystemController.current_team.team_ID() 
                                + "'. Attempt to navigate to the team leader's page is illegal.");
-            return false;
+            return true;
         }
         if (current_user.role() == AppUser.UserType.BASE_USER) {
             System.out.println("ERROR: Current user is a base user. Attempt to navigate to the team leader's page is illegal.");
-            return false;
+            return true;
         }
         
-        return true;
+        return false;
     }
     
     

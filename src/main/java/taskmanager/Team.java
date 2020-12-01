@@ -25,7 +25,8 @@ public class Team {
     public String team_ID() { return this._team_ID; }
     public int leader_ID() {
         if (SystemController.current_user.role() != AppUser.UserType.MANAGER && 
-            !(SystemController.current_user.role() == AppUser.UserType.TEAM_LEAD && SystemController.current_user.team_ID() == this._team_ID))
+            !(SystemController.current_user.role() == AppUser.UserType.TEAM_LEAD
+                && SystemController.current_user.team_ID().equals(this._team_ID)))
         {
             System.out.println("INVALID LEADER ID: Only managers have the priviledge to access ID's.");
             return -1;
@@ -39,7 +40,8 @@ public class Team {
     public void set_team_ID(String name) { this._team_ID = name; }
     public void set_leader_ID(int ID) {
         if (SystemController.current_user.role() != AppUser.UserType.MANAGER && 
-            !(SystemController.current_user.role() == AppUser.UserType.TEAM_LEAD && SystemController.current_user.team_ID() == this._team_ID)) 
+            !(SystemController.current_user.role() == AppUser.UserType.TEAM_LEAD
+                && SystemController.current_user.team_ID().equals(this._team_ID)))
         {    System.out.println("INVALID LEADER ID: Only managers have the priviledge to access ID's.");   }
         else this._leader_ID = ID;
     }

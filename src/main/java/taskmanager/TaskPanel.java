@@ -16,8 +16,8 @@ import javax.swing.*;
 public class TaskPanel extends TaskPrototypePanel {
     
     // Data source:
-    private Task _data_source;
-    private TaskPage _parent_page;
+    private final Task _data_source;
+    private final TaskPage _parent_page;
     
     // UI Components:
     protected JLabel _recurrence_label;
@@ -111,7 +111,7 @@ public class TaskPanel extends TaskPrototypePanel {
     */
     public void edit_task_button_action() {
         // Validate user data: only the team leader and managers can go to the team leader's page:
-        if (!SystemController.validate_user_for_team_leaders_page()) return;
+        if (SystemController.validate_user_for_team_leaders_page()) return;
         SystemController.to_team_leaders_page(TeamLeadersPage.Focus.TASK, this._data_source.name()); // transition to team leader's page
     }
     
@@ -173,7 +173,7 @@ public class TaskPanel extends TaskPrototypePanel {
         for (Subtask subtask: subtasks) this._subtasks_container.add(new SubtaskPanel(subtask, this._parent_page));
         
         int preferred_height = this._subtasks_container.getPreferredSize().height;
-        this._subtasks_panel.setMaximumSize(new java.awt.Dimension(Short.MAX_VALUE, preferred_height < 20? 20 : preferred_height));
+        this._subtasks_panel.setMaximumSize(new java.awt.Dimension(Short.MAX_VALUE, Math.max(preferred_height, 20)));
         
         this.revalidate();
         this.repaint();

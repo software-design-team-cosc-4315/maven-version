@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AppTest
 {
-    private static StringBuilder output = new StringBuilder("");
+    private static final StringBuilder output = new StringBuilder();
 
     @Test
     @Order(1)

@@ -6,11 +6,11 @@
 package taskmanager;
 
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.text.SimpleDateFormat;
 import java.sql.*;
-import java.util.List;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 
 /**
  *
@@ -20,7 +20,6 @@ public class DBConnection {
     
     
     public enum Transaction { BEGIN, ROLLBACK, END }
-    public enum Action { QUERY, UPDATE }
     
     
     
@@ -48,7 +47,7 @@ public class DBConnection {
             return true;
         } catch (Exception e) {
             System.out.println("--- ERROR CONNECTING ---");
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -62,26 +61,28 @@ public class DBConnection {
         }
         catch (Exception e) {
             System.out.println("--- ERROR DISCONNECTING ---");
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
     
     
+    @Nullable
     public static PreparedStatement prepared_statement(String statement) {
         try { return DBConnection.connection.prepareStatement(statement); }
         catch (Exception e) { 
             System.out.println("--- STATEMENT PREPARATION ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
         }
         return null;
     }
     
+    @Nullable
     public static CallableStatement callable_statement(String statement) {
         try { return DBConnection.connection.prepareCall("{call " + statement + "}"); }
         catch(Exception e) {
             System.out.println("--- CALLABLE STATEMENT ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
         }
         return null;
     }
@@ -94,7 +95,7 @@ public class DBConnection {
         }
         catch (Exception e) { 
             System.out.println("--- STATEMENT VALUE ERROR ---"); 
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -106,7 +107,7 @@ public class DBConnection {
         }
         catch (Exception e) {
             System.out.println("--- STATEMENT VALUE ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -118,7 +119,7 @@ public class DBConnection {
         }
         catch (Exception e) { 
             System.out.println("--- STATEMENT VALUE ERROR ---"); 
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -130,7 +131,7 @@ public class DBConnection {
         }
         catch (Exception e) {
             System.out.println("--- STATEMENT VALUE ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -142,7 +143,7 @@ public class DBConnection {
         }
         catch (Exception e) { 
             System.out.println("--- STATEMENT VALUE ERROR ---"); 
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -154,7 +155,7 @@ public class DBConnection {
         }
         catch (Exception e) {
             System.out.println("--- STATEMENT VALUE ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -165,7 +166,7 @@ public class DBConnection {
             return true;
         } catch(Exception e) {
             System.out.println("--- OUT PARAMETER REGISTRATION ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -176,16 +177,17 @@ public class DBConnection {
             return true;
         } catch (Exception e) {
             System.out.println("--- STATEMENT EXECUTION ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
     
+    @Nullable
     public static ResultSet execute_query(PreparedStatement ps) {
         try { return ps.executeQuery(); } 
         catch (Exception e) {
             System.out.println("--- QUERY ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
         }
         return null;
     }
@@ -206,7 +208,7 @@ public class DBConnection {
         }
         catch (Exception e) {
             System.out.println("--- UPDATE ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -219,7 +221,7 @@ public class DBConnection {
             rs = stmt.executeQuery(statement);
         } catch (Exception e) {
             System.out.println("--- QUERY ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
             rs = null;
         }
         return rs;
@@ -241,7 +243,7 @@ public class DBConnection {
             return true;
         } catch (Exception e) {
             System.out.println("--- UPDATE ERROR ---");
-            System.out.println(e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -249,8 +251,7 @@ public class DBConnection {
     
     
     // Transaction command:
-    public static void transaction(Transaction command) {
-        
+    public static void transaction(@NotNull final Transaction command) {
         switch (command) {
             case BEGIN:
                 DBConnection.__begin_transaction__();
@@ -281,7 +282,7 @@ public class DBConnection {
             DBConnection.__in_transaction__ = true;
         } catch(SQLException e) { 
             System.out.println("TRANSACTION ERROR: There was an error when starting the transaction. Transaction aborted!");
-            System.out.println(e);
+            e.printStackTrace();
             DBConnection.__save_point__ = null;
             DBConnection.__in_transaction__ = false;
         }
@@ -298,7 +299,7 @@ public class DBConnection {
             DBConnection.connection.commit();
         } catch (SQLException e) {
             System.out.println("TRANSACTION ERROR: There was an error when rolling back the transaction. Rollback aborted!");
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
     
@@ -314,7 +315,7 @@ public class DBConnection {
             DBConnection.__in_transaction__ = false;
         } catch (SQLException e) {
             System.out.println("TRANSACTION ERROR: There was an error when finishing up the transaction. Transaction not ended!");
-            System.out.println(e);
+            e.printStackTrace();
         }
 
         // Restore auto-commit:

@@ -8,12 +8,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TeamTest {
 
-    private Team testTeam = new Team();
+    private final Team testTeam = new Team();
 
     @BeforeEach
     void setUp() {
         SystemController.current_user = new AppUser();
-        SystemController.current_user.set_role(AppUser.UserType.MANAGER);
+        SystemController.current_user.setRole(AppUser.UserType.MANAGER);
         testTeam.set_team_ID("dab");
         testTeam.set_leader_ID(12);
         testTeam.set_leader_username("ultradab");
@@ -54,7 +54,7 @@ class TeamTest {
 
     @Test
     public void set_leader_username() {
-        //See leader username
+        //See leader getUsername
 
     }
 }
