@@ -39,7 +39,8 @@ public class AppUser {
 
     // Accessors and Mutators:
     public int ID() {
-        if (SystemController.current_user.role != UserType.MANAGER && SystemController.current_user.id != this.id) {
+        if (SystemController.current_user.role != UserType.MANAGER
+            && SystemController.current_user.id != this.id) {
             System.out.println("INVALID USER ID: Only managers have the priviledge to access ID's.");
             return -1;
         }
@@ -58,7 +59,14 @@ public class AppUser {
     
     
     public void setId(int id) {
-        if (SystemController.current_state != SystemController.State.RECENTLY_AUTHENTICATED && SystemController.current_user.role != UserType.MANAGER) System.out.println("INVALID USER ID: Only managers have the priviledge to access ID's.");
+        if (SystemController.current_state
+            != SystemController.State.RECENTLY_AUTHENTICATED
+            && SystemController.current_user.role
+            != UserType.MANAGER) {
+            System.out.println("INVALID USER ID: " +
+                "Only managers have the privilege to access ID's.");
+        }
+
         else this.id = id;
     }
     

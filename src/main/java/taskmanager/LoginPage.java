@@ -231,7 +231,8 @@ public class LoginPage extends javax.swing.JFrame {
     /*
         Function to start authenticating the user when the submit-login button is clicked (and released)
     */
-    private void login_page_button_submit_loginActionPerformed() {//GEN-FIRST:event_login_page_button_submit_loginActionPerformed
+    private void login_page_button_submit_loginActionPerformed() {
+        //GEN-FIRST:event_login_page_button_submit_loginActionPerformed
         
         String username = this.login_page_username_text_field.getText();
         if (username.length() < 6 || this.login_page_password_field.getPassword().length < 6) {
