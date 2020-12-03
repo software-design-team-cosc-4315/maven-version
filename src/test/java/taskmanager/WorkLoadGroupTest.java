@@ -59,7 +59,7 @@ class WorkLoadGroupTest {
     void get_workload() {
         Work_Load_Group.set_record(10, 5, "Completed");
 
-        assertEquals(10, Work_Load_Group.get_workload(Work_Load_Group.COMPLETED));
+        assertEquals(10, Work_Load_Group.get_workload(WorkLoadGroup.COMPLETED));
     }
 
     @org.junit.jupiter.api.Test
@@ -70,7 +70,7 @@ class WorkLoadGroupTest {
 
         Work_Load_Group.set_record(5, 6, "Not Started");
 
-        assertEquals(.5f, Work_Load_Group.get_workload_portion(Work_Load_Group.COMPLETED));
+        assertEquals(.5f, Work_Load_Group.get_workload_portion(WorkLoadGroup.COMPLETED));
     }
 
     @org.junit.jupiter.api.Test

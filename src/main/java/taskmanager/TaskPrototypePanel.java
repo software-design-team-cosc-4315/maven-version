@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package taskmanager;
 
 
@@ -18,8 +13,7 @@ public abstract class TaskPrototypePanel extends JPanel {
     
     // Member data:
     protected boolean __expanded__ = true;
-    protected short __gaps_size__ = 6;
-    
+
     // UI Components:
     protected JPanel _title_panel;
     protected JPanel _colour_panel;
@@ -43,7 +37,7 @@ public abstract class TaskPrototypePanel extends JPanel {
     protected JLabel _status_label;
     
     
-    protected java.awt.Component[] __UI_gaps__ = new java.awt.Component[6];
+    protected final java.awt.Component[] __UI_gaps__ = new java.awt.Component[6];
     
     
     

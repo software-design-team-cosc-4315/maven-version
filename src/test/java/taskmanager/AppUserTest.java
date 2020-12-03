@@ -28,14 +28,14 @@ public class AppUserTest {
     @Test
     @Order(1)
     public void testSetBaseUser() {
-        test_user.set_role(AppUser.UserType.BASE_USER);
+        test_user.setRole(AppUser.UserType.BASE_USER);
         assertEquals(test_user.role(), AppUser.UserType.BASE_USER);
     }
     
     @Test
     @Order(2)
     public void testSetManager() {
-        manager.set_role(AppUser.UserType.MANAGER);
+        manager.setRole(AppUser.UserType.MANAGER);
         assertEquals(manager.role(), AppUser.UserType.MANAGER);
         
     }
@@ -43,14 +43,14 @@ public class AppUserTest {
     @Test
     @Order(3)
     public void testManagerSetSelfID() {
-        manager.set_ID(99);
+        manager.setId(99);
         assertEquals(manager.ID(), 99);
     }
     
     @Test
     @Order(4)
     public void testManagerSetUserID() {
-        test_user.set_ID(78);
+        test_user.setId(78);
         assertEquals(test_user.ID(), 78);
     }
     
@@ -58,7 +58,7 @@ public class AppUserTest {
     @Order(5)
     public void testUnauthenticatedUserSetSelfID() {
         SystemController.current_user = test_user;
-        test_user.set_ID(25);
+        test_user.setId(25);
         assertEquals(test_user.ID(), 78);
     }
     
@@ -66,7 +66,7 @@ public class AppUserTest {
     @Order(6)
     public void testAuthenticatedUserSetSelfID() {
         SystemController.current_state = SystemController.State.RECENTLY_AUTHENTICATED;
-        test_user.set_ID(25);
+        test_user.setId(25);
         assertEquals(test_user.ID(), 25);
     }
     

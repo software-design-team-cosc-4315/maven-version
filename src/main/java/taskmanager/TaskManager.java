@@ -6,8 +6,6 @@
 package taskmanager;
 
 
-import java.sql.*;
-
 /**
  *
  * @author Ganondorfjallida

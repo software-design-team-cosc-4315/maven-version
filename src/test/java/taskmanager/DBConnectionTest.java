@@ -109,7 +109,6 @@ public class DBConnectionTest {
         assert(DBConnection.update("INSERT INTO TASKCATEGORIES(NAME, " +
                 "CATEGORY_DESCRIPTION, CREATED_BY_MEMBER_ID, TEAM_ID) " +
                 "VALUES('__test_task_category__', '__This is a test task category.__', 141, 'presentationteam')", true));
-
     }
 
     @AfterAll

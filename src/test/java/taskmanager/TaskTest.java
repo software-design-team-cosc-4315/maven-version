@@ -76,6 +76,6 @@ class TaskTest {
     @Test
     void to_recur_interval() {
         String recurrance = "weekly";
-        assertEquals(testTask.to_recur_interval(recurrance),7);
+        assertEquals(Task.to_recur_interval(recurrance),7);
     }
 }

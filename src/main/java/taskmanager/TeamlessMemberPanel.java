@@ -17,7 +17,7 @@ import javax.swing.*;
 public class TeamlessMemberPanel extends JPanel {
     
     // Data source:
-    private AppUser _data_source;
+    private final AppUser _data_source;
     
     
     // UI components:
@@ -55,8 +55,8 @@ public class TeamlessMemberPanel extends JPanel {
         this.setPreferredSize(new java.awt.Dimension(565, 24));
         this.setMaximumSize(this.getPreferredSize());
 
-        // 1. username 
-        this._username_label.setText(this._data_source.username());        
+        // 1. getUsername
+        this._username_label.setText(this._data_source.getUsername());
         this._username_separator.setOrientation(SwingConstants.VERTICAL);
         
         // 2. add-to-team feature
@@ -69,7 +69,7 @@ public class TeamlessMemberPanel extends JPanel {
         this._leader_separator.setOrientation(SwingConstants.VERTICAL);
 
         // 4. role
-        this._role_label.setText(AppUser.user_type_to_string(this._data_source.role()));
+        this._role_label.setText(AppUser.userTypeToString(this._data_source.role()));
         
         // 5. add components to the panel
         GroupLayout panel_layout = new GroupLayout(this);
