@@ -1987,9 +1987,9 @@ public class ManagersPage extends javax.swing.JFrame {
         boolean team_created;
         ps = DBConnection.prepared_statement("INSERT INTO TEAMS (TEAM_ID, TEAM_LEADER_ID) VALUES (?,?)");
         team_created = (ps != null)
-            && DBConnection.set_statement_value(ps, 1, team_name)
-            && DBConnection.set_statement_value(ps, 2, leadID)
-            && DBConnection.execute_update(ps);
+                    && DBConnection.set_statement_value(ps, 1, team_name)
+                    && DBConnection.set_statement_value(ps, 2, leadID)
+                    && DBConnection.execute_update(ps);
         if (!team_created) { 
             this.managers_page_create_team_action_message_label.setText("Team creation failed."); 
             DBConnection.transaction(DBConnection.Transaction.ROLLBACK);
@@ -2001,22 +2001,19 @@ public class ManagersPage extends javax.swing.JFrame {
         ps = DBConnection.prepared_statement("UPDATE MEMBERS SET TEAM_ID = ? WHERE USERNAME = ? AND DELETED != 'Y'");
         team_created = (ps != null);
         for(String username: other_member_usernames) {
-            team_created = team_created
-                && DBConnection.set_statement_value(ps, 1, team_name)
-                && DBConnection.set_statement_value(ps, 2, username)
-                && DBConnection.execute_update(ps, true);
+            if (!team_created) break;
+
+            team_created = DBConnection.set_statement_value(ps, 1, team_name)
+                        && DBConnection.set_statement_value(ps, 2, username)
+                        && DBConnection.execute_update(ps, true);
         }
 
-        ps = DBConnection.prepared_statement(
-            "UPDATE MEMBERS " +
-                "SET MEMBER_ROLE = ?, TEAM_ID = ? " +
-                "WHERE USERNAME = ? AND DELETED != 'Y'");
+        ps = DBConnection.prepared_statement("UPDATE MEMBERS SET MEMBER_ROLE = ?, TEAM_ID = ? WHERE USERNAME = ? AND DELETED != 'Y'");
         team_created = (team_created && ps != null)
-            && DBConnection.set_statement_value(ps, 1,
-            AppUser.userTypeToString(AppUser.UserType.TEAM_LEAD))
-            && DBConnection.set_statement_value(ps, 2, team_name)
-            && DBConnection.set_statement_value(ps, 3, leader_username)
-            && DBConnection.execute_update(ps, true);
+                    && DBConnection.set_statement_value(ps, 1, AppUser.userTypeToString(AppUser.UserType.TEAM_LEAD))
+                    && DBConnection.set_statement_value(ps, 2, team_name)
+                    && DBConnection.set_statement_value(ps, 3, leader_username)
+                    && DBConnection.execute_update(ps, true);
             
         if (!team_created) {
             this.managers_page_create_team_action_message_label.setText(
@@ -2099,12 +2096,11 @@ public class ManagersPage extends javax.swing.JFrame {
         PreparedStatement prepSt = DBConnection.prepared_statement("INSERT INTO TASKCATEGORIES (name, category_description, created_by_member_id, created_on, task_category_id, team_id)" +
                     " VALUES (?, ?, ?, DEFAULT, DEFAULT, ?)");
         category_created = (prepSt != null)
-            && DBConnection.set_statement_value(prepSt, 1, task_name)
-            && DBConnection.set_statement_value(prepSt, 2, description)
-            && DBConnection.set_statement_value(
-                prepSt, 3, SystemController.current_user.ID())
-            && DBConnection.set_statement_value(prepSt, 4, team_ID)
-            && DBConnection.execute_update(prepSt);
+                    && DBConnection.set_statement_value(prepSt, 1, task_name)
+                    && DBConnection.set_statement_value(prepSt, 2, description)
+                    && DBConnection.set_statement_value(prepSt, 3, SystemController.current_user.ID())
+                    && DBConnection.set_statement_value(prepSt, 4, team_ID)
+                    && DBConnection.execute_update(prepSt);
         DBConnection.disconnect();
             
         if (category_created) {
@@ -2341,7 +2337,7 @@ public class ManagersPage extends javax.swing.JFrame {
             
             PreparedStatement ps = DBConnection.prepared_statement("SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y'");
             task_inserted = (ps != null)
-                && DBConnection.set_statement_value(ps, 1, team_info[1]);
+                        && DBConnection.set_statement_value(ps, 1, team_info[1]);
             ResultSet rs = DBConnection.execute_query(ps);
             try {
                 assert rs != null;
@@ -2366,13 +2362,13 @@ public class ManagersPage extends javax.swing.JFrame {
             ps = DBConnection.prepared_statement(query_categories_statement);
             task_inserted = (ps != null);
             int cat_index = 1;
-            for (String category_name: categories) { 
-                task_inserted = task_inserted
-                    && DBConnection.set_statement_value(ps, cat_index, category_name);
+            for (String category_name: categories) {
+                if (!task_inserted) break;
+                task_inserted = DBConnection.set_statement_value(ps, cat_index, category_name);
                 ++cat_index; 
             }
-            task_inserted = task_inserted
-                && DBConnection.set_statement_value(ps, cat_index, team_info[0]);
+            if (task_inserted) task_inserted = DBConnection.set_statement_value(ps, cat_index, team_info[0]);
+
             rs = DBConnection.execute_query(ps);
             try {
                 cat_index = 0;
@@ -2396,15 +2392,15 @@ public class ManagersPage extends javax.swing.JFrame {
             // 3. insert the task:
             ps = DBConnection.prepared_statement("INSERT INTO TASKS(NAME, TASK_DESCRIPTION, DUE_DATE, CREATED_BY_MEMBER_ID, TASK_PRIORITY, ASSIGNED_TO_MEMBER_ID, TEAM_ID, RECUR_INTERVAL) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
             task_inserted = (ps != null)
-                && DBConnection.set_statement_value(ps, 1, name)
-                && DBConnection.set_statement_value(ps, 2, description)
-                && DBConnection.set_statement_value(ps, 3, new java.sql.Date(parsed_due_date.getTime()))
-                && DBConnection.set_statement_value(ps, 4, SystemController.current_user.ID())
-                && DBConnection.set_statement_value(ps, 5, priority)
-                && DBConnection.set_statement_value(ps, 6, leader_ID)
-                && DBConnection.set_statement_value(ps, 7, team_info[0])
-                && DBConnection.set_statement_value(ps, 8, recur_interval)
-                && DBConnection.execute_update(ps);
+                            && DBConnection.set_statement_value(ps, 1, name)
+                            && DBConnection.set_statement_value(ps, 2, description)
+                            && DBConnection.set_statement_value(ps, 3, new java.sql.Date(parsed_due_date.getTime()))
+                            && DBConnection.set_statement_value(ps, 4, SystemController.current_user.ID())
+                            && DBConnection.set_statement_value(ps, 5, priority)
+                            && DBConnection.set_statement_value(ps, 6, leader_ID)
+                            && DBConnection.set_statement_value(ps, 7, team_info[0])
+                            && DBConnection.set_statement_value(ps, 8, recur_interval)
+                            && DBConnection.execute_update(ps);
             if (!task_inserted) {
                 this.managers_page_create_task_message_label.setText("Task creation failed.");
                 DBConnection.transaction(DBConnection.Transaction.ROLLBACK);
@@ -2416,8 +2412,9 @@ public class ManagersPage extends javax.swing.JFrame {
             int task_ID = -1;
             ps = DBConnection.prepared_statement("SELECT TASK_ID FROM TASKS WHERE NAME = ? AND TEAM_ID = ? AND DELETED != 'Y'");
             task_inserted = (ps != null)
-                && DBConnection.set_statement_value(ps, 1, name)
-                && DBConnection.set_statement_value(ps, 2, team_info[0]);
+                        && DBConnection.set_statement_value(ps, 1, name)
+                        && DBConnection.set_statement_value(ps, 2, team_info[0]);
+
             rs = DBConnection.execute_query(ps);
             try {
                 assert rs != null;
@@ -2438,10 +2435,10 @@ public class ManagersPage extends javax.swing.JFrame {
             ps = DBConnection.prepared_statement("INSERT INTO TASKINCATEGORIES(TASK_ID, TASK_CATEGORY_ID) VALUES(?, ?)");
             task_inserted = (ps != null);
             for (int category_ID: category_IDs) {
-                task_inserted = task_inserted
-                    && DBConnection.set_statement_value(ps, 1, task_ID)
-                    && DBConnection.set_statement_value(ps, 2, category_ID)
-                    && DBConnection.execute_update(ps);
+                if (!task_inserted) break;
+                task_inserted = DBConnection.set_statement_value(ps, 1, task_ID)
+                                && DBConnection.set_statement_value(ps, 2, category_ID)
+                                && DBConnection.execute_update(ps);
             }
             if (!task_inserted) {
                 this.managers_page_create_task_message_label.setText("Task categorisation failed.");
@@ -2481,7 +2478,7 @@ public class ManagersPage extends javax.swing.JFrame {
             
             PreparedStatement ps = DBConnection.prepared_statement("SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y'");
             subtask_inserted = (ps != null)
-                && DBConnection.set_statement_value(ps, 1, team_info[1]);
+                            && DBConnection.set_statement_value(ps, 1, team_info[1]);
             ResultSet rs = DBConnection.execute_query(ps);
             try {
                 assert rs != null;
@@ -2500,8 +2497,9 @@ public class ManagersPage extends javax.swing.JFrame {
             int parent_ID = -1;
             ps = DBConnection.prepared_statement("SELECT TASK_ID FROM TASKS WHERE NAME = ? AND TEAM_ID = ? AND DELETED != 'Y'");
             subtask_inserted = (ps != null)
-                && DBConnection.set_statement_value(ps, 1, parent_task_name)
-                && DBConnection.set_statement_value(ps, 2, team_info[0]);
+                            && DBConnection.set_statement_value(ps, 1, parent_task_name)
+                            && DBConnection.set_statement_value(ps, 2, team_info[0]);
+
             rs = DBConnection.execute_query(ps);
             try {
                 assert rs != null;
@@ -2519,15 +2517,14 @@ public class ManagersPage extends javax.swing.JFrame {
             // 3. insert the subtask into the database:
             ps = DBConnection.prepared_statement("INSERT INTO SUBTASK(NAME, DESCRIPTION, DUE_DATE, CREATED_BY_MEMBER_ID, PRIORITY, ASSIGNED_TO_MEMBER_ID, SUBTASK_TO) VALUES(?, ?, ?, ?, ?, ?, ?)");
             subtask_inserted = (ps != null)
-                && DBConnection.set_statement_value(ps, 1, name)
-                && DBConnection.set_statement_value(ps, 2, description)
-                && DBConnection.set_statement_value(
-                    ps, 3, new java.sql.Date(parsed_due_date.getTime()))
-                && DBConnection.set_statement_value(ps, 4, SystemController.current_user.ID())
-                && DBConnection.set_statement_value(ps, 5, priority)
-                && DBConnection.set_statement_value(ps, 6, leader_ID)
-                && DBConnection.set_statement_value(ps, 7, parent_ID)
-                && DBConnection.execute_update(ps);
+                            && DBConnection.set_statement_value(ps, 1, name)
+                            && DBConnection.set_statement_value(ps, 2, description)
+                            && DBConnection.set_statement_value(ps, 3, new java.sql.Date(parsed_due_date.getTime()))
+                            && DBConnection.set_statement_value(ps, 4, SystemController.current_user.ID())
+                            && DBConnection.set_statement_value(ps, 5, priority)
+                            && DBConnection.set_statement_value(ps, 6, leader_ID)
+                            && DBConnection.set_statement_value(ps, 7, parent_ID)
+                            && DBConnection.execute_update(ps);
             
             
             // After the insertion, log a message to inform the user of the insert status:
@@ -2572,10 +2569,10 @@ public class ManagersPage extends javax.swing.JFrame {
                     " VALUES (DEFAULT, ?, ?, ?, NULL)");
 
         created_user = (ps != null)
-            && DBConnection.set_statement_value(ps, 1, username)
-            && DBConnection.set_statement_value(ps, 2, new String(password))
-            && DBConnection.set_statement_value(ps, 3, user_role)
-            && DBConnection.execute_update(ps);
+                        && DBConnection.set_statement_value(ps, 1, username)
+                        && DBConnection.set_statement_value(ps, 2, new String(password))
+                        && DBConnection.set_statement_value(ps, 3, user_role)
+                        && DBConnection.execute_update(ps);
 
         DBConnection.disconnect();
         
@@ -2640,7 +2637,7 @@ public class ManagersPage extends javax.swing.JFrame {
                 // Make use of @getUsername
                 PreparedStatement ps = DBConnection.prepared_statement("SELECT T.TEAM_ID FROM TEAMS T, MEMBERS U WHERE U.USERNAME = ? AND T.TEAM_LEADER_ID = U.MEMBER_ID AND T.DELETED != 'Y' AND U.DELETED != 'Y'");
                 tasks_retrieved = (ps != null)
-                    && DBConnection.set_statement_value(ps, 1, username);
+                            && DBConnection.set_statement_value(ps, 1, username);
                 ResultSet rs = DBConnection.execute_query(ps);
                 try {
                     assert rs != null;
@@ -2689,7 +2686,7 @@ public class ManagersPage extends javax.swing.JFrame {
             boolean subtasks_retrieved;
             PreparedStatement ps = DBConnection.prepared_statement("SELECT NAME FROM SUBTASK WHERE ASSIGNED_TO_MEMBER_ID = (SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y') AND DELETED != 'Y'");
             subtasks_retrieved = (ps != null)
-                && DBConnection.set_statement_value(ps, 1, username);
+                        && DBConnection.set_statement_value(ps, 1, username);
             ResultSet rs = DBConnection.execute_query(ps);
             try {
                 // 2. add the queried subtask names into the unresolvd list:
@@ -3078,6 +3075,7 @@ public class ManagersPage extends javax.swing.JFrame {
         boolean user_removed;
         PreparedStatement ps = DBConnection.prepared_statement("SELECT NAME FROM SUBTASK WHERE ASSIGNED_TO_MEMBER_ID = (SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y') AND DELETED != 'Y'");
         user_removed = (ps != null) && DBConnection.set_statement_value(ps, 1, username_to_remove);
+
         boolean has_pending_subtasks = true;
         ResultSet rs = DBConnection.execute_query(ps);
         try {
@@ -3099,8 +3097,9 @@ public class ManagersPage extends javax.swing.JFrame {
         
         // Change the team_ID of the user with @getUsername to null in the database.
         ps = DBConnection.prepared_statement("UPDATE MEMBERS SET TEAM_ID = NULL WHERE USERNAME = ? AND DELETED != 'Y'");
-        user_removed = (ps != null) && DBConnection.set_statement_value(ps, 1, username_to_remove);
-        user_removed = user_removed && DBConnection.execute_update(ps);
+        user_removed = (ps != null)
+                && DBConnection.set_statement_value(ps, 1, username_to_remove)
+                && DBConnection.execute_update(ps);
 
         DBConnection.disconnect();
 
@@ -3140,9 +3139,10 @@ public class ManagersPage extends javax.swing.JFrame {
         DBConnection.connect();
 
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE MEMBERS SET TEAM_ID = ? WHERE USERNAME = ? AND DELETED != 'Y'");
-        successfulAdd = (ps != null) && DBConnection.set_statement_value(ps, 1, team_info[0]);
-        successfulAdd = successfulAdd && DBConnection.set_statement_value(ps, 2, username_to_add);
-        successfulAdd = successfulAdd && DBConnection.execute_update(ps);
+        successfulAdd = (ps != null)
+                    && DBConnection.set_statement_value(ps, 1, team_info[0])
+                    && DBConnection.set_statement_value(ps, 2, username_to_add)
+                    && DBConnection.execute_update(ps);
 
         DBConnection.disconnect();
         
@@ -3179,9 +3179,10 @@ public class ManagersPage extends javax.swing.JFrame {
         DBConnection.connect();
 
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TEAMS SET TEAM_LEADER_ID = (SELECT MEMBER_ID FROM MEMBERS WHERE USERNAME = ? AND DELETED != 'Y') WHERE TEAM_ID = ? AND DELETED != 'Y'");
-        successfulUpdate = (ps != null) && DBConnection.set_statement_value(ps, 1, new_leader_username);
-        successfulUpdate = successfulUpdate && DBConnection.set_statement_value(ps, 2, team_info[0]);
-        successfulUpdate = successfulUpdate && DBConnection.execute_update(ps);
+        successfulUpdate = (ps != null)
+                    && DBConnection.set_statement_value(ps, 1, new_leader_username)
+                    && DBConnection.set_statement_value(ps, 2, team_info[0])
+                    && DBConnection.execute_update(ps);
         DBConnection.disconnect();
         
         // After the update, reload the tab and log a message to the user to indicate the result.
@@ -3216,9 +3217,10 @@ public class ManagersPage extends javax.swing.JFrame {
         DBConnection.connect();
 
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TEAMS SET TEAM_ID = ? WHERE TEAM_ID = ? AND DELETED != 'Y'");
-        successfulUpdate = (ps != null) && DBConnection.set_statement_value(ps, 1, new_team_name);
-        successfulUpdate = successfulUpdate && DBConnection.set_statement_value(ps, 2, team_info[0]);
-        successfulUpdate = successfulUpdate && DBConnection.execute_update(ps);
+        successfulUpdate = (ps != null)
+                    && DBConnection.set_statement_value(ps, 1, new_team_name)
+                    && DBConnection.set_statement_value(ps, 2, team_info[0])
+                    && DBConnection.execute_update(ps);
         
         DBConnection.disconnect();
         
@@ -3247,8 +3249,9 @@ public class ManagersPage extends javax.swing.JFrame {
         DBConnection.connect();
 
         PreparedStatement ps = DBConnection.prepared_statement("UPDATE TEAMS SET DELETED = 'Y' WHERE TEAM_ID = ? AND DELETED != 'Y'");
-        deletedTeam = (ps != null) && DBConnection.set_statement_value(ps, 1, team_info[0]);
-        deletedTeam = deletedTeam && DBConnection.execute_update(ps);
+        deletedTeam = (ps != null)
+                    && DBConnection.set_statement_value(ps, 1, team_info[0])
+                    && DBConnection.execute_update(ps);
 
         DBConnection.disconnect();
         
