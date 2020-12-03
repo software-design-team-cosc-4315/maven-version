@@ -2010,7 +2010,7 @@ public class ManagersPage extends javax.swing.JFrame {
 
         ps = DBConnection.prepared_statement("UPDATE MEMBERS SET MEMBER_ROLE = ?, TEAM_ID = ? WHERE USERNAME = ? AND DELETED != 'Y'");
         team_created = (team_created && ps != null)
-                    && DBConnection.set_statement_value(ps, 1, AppUser.user_type_to_string(AppUser.UserType.TEAM_LEAD))
+                    && DBConnection.set_statement_value(ps, 1, AppUser.userTypeToString(AppUser.UserType.TEAM_LEAD))
                     && DBConnection.set_statement_value(ps, 2, team_name)
                     && DBConnection.set_statement_value(ps, 3, leader_username)
                     && DBConnection.execute_update(ps, true);
@@ -2950,8 +2950,7 @@ public class ManagersPage extends javax.swing.JFrame {
 
                 // 1. query the member usernames using the selected team ID team_info[0]:
                 PreparedStatement ps = DBConnection.prepared_statement("SELECT USERNAME FROM MEMBERS WHERE TEAM_ID = ? AND MEMBER_ROLE = 'Base User' AND DELETED != 'Y'");
-                users_retrieved = (ps != null)
-                            && DBConnection.set_statement_value(ps, 1, team_info[0]);
+                DBConnection.set_statement_value(ps, 1, team_info[0]);
                 ResultSet rs = DBConnection.execute_query(ps);
                 try {
                     // 2. save each getUsername that belongs to the selected team (TEAM_ID = team_info[0]) into the list of members that can be removed
