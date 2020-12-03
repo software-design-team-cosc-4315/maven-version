@@ -5,8 +5,8 @@
  */
 package taskmanager;
 
-
 import oracle.jdbc.OracleTypes;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -20,7 +20,7 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
+import java.util.stream.Collectors;
 
 
 /**
@@ -1440,45 +1440,40 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         }
         
         // Preprocess task category data update:
-        boolean name_changed = false;
-        boolean description_changed = false;
-        String update_declaration = "UPDATE TASKCATEGORIES SET ";
-        String update_fields = "";
-        String update_conditions = "WHERE TASK_CATEGORY_ID = ?";
-        if (!this._focused_task_category.name().equals(new_name)) {
-            update_fields += "NAME = ? ";
-            name_changed = true;
-        }
-        if (!this._focused_task_category.description().equals(new_description)) {
-            if (update_fields.length() != 0) update_fields += ", ";
-            update_fields += "CATEGORY_DESCRIPTION = ? ";
-            description_changed = true;
-        }
-        if (update_fields.length() == 0) {
+        boolean edited = !(this._focused_task_category.name().equals(new_name)
+                        && this._focused_task_category.description().equals(new_description) );
+        if (!edited) {
             this.task_category_edit_message.setText("No fields were changed.");
             return;
         }
         
         // Update task category data:
         DBConnection.connect();
-        
-        boolean updated = true;
-        int field_counter = 1;
-        PreparedStatement ps = DBConnection.prepared_statement(update_declaration + update_fields + update_conditions);
-        updated = (ps != null && name_changed)? DBConnection.set_statement_value(ps, field_counter++, new_name) : updated;
-        updated = (updated && description_changed)? DBConnection.set_statement_value(ps, field_counter++, new_description) : updated;
-        updated = updated && DBConnection.set_statement_value(ps, field_counter, this._focused_task_category.ID());
-        updated = updated && DBConnection.execute_update(ps);
-        
+        PreparedStatement ps = DBConnection.prepared_statement("UPDATE TASKCATEGORIES SET NAME = ?, CATEGORY_DESCRIPTION = ? WHERE TASK_CATEGORY_ID = ?");
+        boolean updated = (ps != null)
+                        && DBConnection.set_statement_value(ps, 1, new_name)
+                        && DBConnection.set_statement_value(ps, 2, new_description)
+                        && DBConnection.set_statement_value(ps, 3, this._focused_task_category.ID())
+                        && DBConnection.execute_update(ps, true)
+                        && DBConnection.close_statement(ps);
         DBConnection.disconnect();
         if (!updated) {
             this.task_category_edit_message.setText("Error updating the task category. Category name might have been used.");
             return;
         }
         
-        // Reload the page:
-        if (this._focus == null) this.reload();
-        else this.reload(Focus.TASK_CATEGORY, new_name);
+        // Update local record:
+        String old_name = this._focused_task_category.name();
+        TaskCategory current_category = this._task_category_map.get(old_name);
+        current_category.set_name(new_name);
+        current_category.set_description(new_description);
+        if (!new_name.equals(old_name)) {
+            this._task_category_map.remove(old_name, current_category);
+            this._task_category_map.put(new_name, current_category);   
+        }
+        
+        // Refresh the page:
+        this.refresh();
         this.task_category_edit_message.setText("Task category updated.");
         
     }//GEN-LAST:event_task_category_update_buttonActionPerformed
@@ -1796,26 +1791,82 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this._member_workload_stat_map.clear();
         this._user_list.clear();
         
-        
-        String team_ID = SystemController.current_team.team_ID();
-        boolean loaded = true;
+        // Load data from the database:
         DBConnection.connect();
+        boolean loaded = this.__renew_team_tasks__()
+                        && this.__reload_task_structure__(search_name)
+                        && this.__reload_members__()
+                        && this.__reload_productivity__();
+        DBConnection.disconnect();
+        if (!loaded) {
+            this.header_team_label.setText("Page Loading Failed Due to Database Error!");
+            return;
+            /*
+            Possible issues:
+            1. Periodic Tasks not Updated
+            2. Task Structure Not Properly Loaded
+            3. Team Members Not Properly Loaded
+            4. Productivity Statistics Not Properly Loaded
+            */
+        }
         
+        // Refresh the page:
+        this.refresh();
+    }
+    
+    
+    /*
+        Function to have the database update periodic tasks.
+        Function call must be between a DBConnection.connect and .disconnect session.
+    */
+    private boolean __renew_team_tasks__() {
         // TODO: Set up a restriction for this update to fire only once-per hour
         // Update the database task recurrences:
-        CallableStatement cs = DBConnection.callable_statement("RENEW_TEAM_TASKS(?, ?)");
-        loaded = (cs != null) && DBConnection.set_statement_value(cs, 1, SystemController.current_team.team_ID());
-        loaded = loaded && DBConnection.register_out_parameter(cs, 2, Types.VARCHAR);
-        DBConnection.execute(cs);
+        CallableStatement cs = DBConnection.callable_statement("RENEW_TEAM_TASKS(:team_ID, :message)");
+        boolean loaded = (cs != null) 
+                        && DBConnection.set_statement_value(cs, ":team_ID", SystemController.current_team.team_ID())
+                        && DBConnection.register_out_parameter(cs, ":message", Types.VARCHAR)
+                        && DBConnection.execute(cs)
+                        && DBConnection.close_statement(cs);
+        if (!loaded)
+            System.out.println("ERROR: Periodic task update failed!");
+        return loaded;
+    }
+    
+    
+    /*
+        Function to load task categories, tasks, and subtasks of the current team from the database.
+        Function call must be between a DBConnection.connect and .disconnect session.
+    */
+    private boolean __reload_task_structure__(String search_name) {
         
+        String team_ID = SystemController.current_team.team_ID();
         
+        CallableStatement cs = DBConnection.full_callable_statement(
+            "DECLARE " +
+                "tsk_table TASK_STRUCTURE_PKG.TSK_TABLE; " +
+                "sbtsk_table TASK_STRUCTURE_PKG.SBTSK_TABLE; " +
+            "BEGIN " +
+                "SELECT_TASK_STRUCT(:leader_username, :tsk_cat_cur, :tsk_cur, :sbtsk_cur, :tsk_group_cur, tsk_table, sbtsk_table); " +
+            "END;"
+        );
         
+        boolean loaded = (cs != null) 
+                        && DBConnection.set_statement_value(cs, ":leader_username", SystemController.current_team.leader_username()) 
+                        && DBConnection.register_out_parameter(cs, ":tsk_cat_cur", OracleTypes.CURSOR)
+                        && DBConnection.register_out_parameter(cs, ":tsk_cur", OracleTypes.CURSOR)
+                        && DBConnection.register_out_parameter(cs, ":sbtsk_cur", OracleTypes.CURSOR)
+                        && DBConnection.register_out_parameter(cs, ":tsk_group_cur", OracleTypes.CURSOR)
+                        && DBConnection.execute(cs);
         
-        // Query all the task categories in the current team:
-        PreparedStatement ps = DBConnection.prepared_statement("SELECT TC.TASK_CATEGORY_ID, TC.NAME, TC.CATEGORY_DESCRIPTION, CREATOR.USERNAME AS CREATOR_USERNAME, TC.CREATED_ON FROM TASKCATEGORIES TC, MEMBERS CREATOR WHERE TC.TEAM_ID = ? AND TC.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID");
-        loaded = (ps != null) && DBConnection.set_statement_value(ps, 1, team_ID);
-        ResultSet rs = DBConnection.execute_query(ps);
+        if (!loaded) {
+            System.out.println("Task structure query failed for Team Leader's Page!");
+            DBConnection.close_statement(cs);
+            return false;
+        }
         
+        // Get task categories:
+        ResultSet rs = DBConnection.get_cursor_result(cs, ":tsk_cat_cur");
         try {
             while(true) {
                 assert rs != null;
@@ -1838,16 +1889,13 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         }
         if (!loaded) {
             this.header_team_label.setText("Task Categories Not Properly Loaded!");
-            DBConnection.disconnect(); return;
+            DBConnection.close_statement(cs);
+            DBConnection.disconnect();
         }
         
-        
-        // Query all the tasks in the current team:
+        // Get tasks:
         TreeMap<Integer, Task> task_map = new TreeMap<>();
-        ps = DBConnection.prepared_statement("SELECT T.TASK_ID, T.NAME, T.TASK_DESCRIPTION, T.DUE_DATE, T.RECUR_INTERVAL, T.CREATED_ON, CREATOR.USERNAME AS CREATOR_USERNAME, T.STATUS, T.TASK_PRIORITY, U.USERNAME AS ASSIGNED_USERNAME FROM TASKS T, MEMBERS CREATOR, MEMBERS U WHERE T.TEAM_ID = ? AND T.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND T.ASSIGNED_TO_MEMBER_ID = U.MEMBER_ID AND T.DELETED != 'Y' AND U.DELETED != 'Y'");
-        loaded = (ps != null) && DBConnection.set_statement_value(ps, 1, team_ID);
-        rs = DBConnection.execute_query(ps);
-        
+        rs = DBConnection.get_cursor_result(cs, ":tsk_cur");
         try {
             while (true) {
                 assert rs != null;
@@ -1855,13 +1903,13 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 Task task = new Task();
                 task.set_ID(rs.getInt("TASK_ID"));
                 task.set_name(rs.getString("NAME"));
-                task.set_description(rs.getString("TASK_DESCRIPTION"));
+                task.set_description(rs.getString("DESCRIPTION"));
                 task.set_due_date(rs.getDate("DUE_DATE"));
                 task.set_recur_interval(rs.getInt("RECUR_INTERVAL"));
                 task.set_created_on(rs.getDate("CREATED_ON"));
                 task.set_creator_username(rs.getString("CREATOR_USERNAME"));
                 task.set_status(rs.getString("STATUS"));
-                task.set_priority(rs.getShort("TASK_PRIORITY"));
+                task.set_priority(rs.getShort("PRIORITY"));
                 task.set_assigned_to_member_username(rs.getString("ASSIGNED_USERNAME"));
                 task.set_team_ID(team_ID);
                 
@@ -1873,58 +1921,43 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             e.printStackTrace();
             loaded = false;
         }
-        if (!loaded) {
-            this.header_team_label.setText("Tasks Not Properly Loaded!");
-            DBConnection.disconnect(); return;
-        }
         
-        
-        // Query all the subtasks in the current team:
-        ps = DBConnection.prepared_statement("SELECT S.SUBTASK_ID, S.NAME, S.DESCRIPTION, S.DUE_DATE, S.CREATED_ON, CREATOR.USERNAME AS CREATOR_USERNAME, S.STATUS, S.PRIORITY, U.USERNAME AS ASSIGNED_USERNAME FROM SUBTASK S, MEMBERS CREATOR, MEMBERS U WHERE SUBTASK_TO = ? AND S.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND S.ASSIGNED_TO_MEMBER_ID = U.MEMBER_ID AND S.DELETED != 'Y' AND U.DELETED != 'Y'");
-        for (Task task: task_map.values()) {
-            loaded = (ps != null) && DBConnection.set_statement_value(ps, 1, task.ID());
-            rs = DBConnection.execute_query(ps);
-            
-            try {
-                while(true) {
-                    assert rs != null;
-                    if (!rs.next()) break;
-                    Subtask subtask = new Subtask(task);
-                    subtask.set_ID(rs.getInt("SUBTASK_ID"));
-                    subtask.set_name(rs.getString("NAME"));
-                    subtask.set_description(rs.getString("DESCRIPTION"));
-                    subtask.set_due_date(rs.getDate("DUE_DATE"));
-                    subtask.set_created_on(rs.getDate("CREATED_ON"));
-                    subtask.set_creator_username(rs.getString("CREATOR_USERNAME"));
-                    subtask.set_status(rs.getString("STATUS"));
-                    subtask.set_priority(rs.getShort("PRIORITY"));
-                    subtask.set_assigned_to_member_username(rs.getString("ASSIGNED_USERNAME"));
+        // Get subtasks:
+        rs = DBConnection.get_cursor_result(cs, ":sbtsk_cur");
+        try {
+            Task task;
+            while(true) {
+                assert rs != null;
+                if (!rs.next()) break;
+                task = task_map.get(rs.getInt("PARENT_ID"));
+                Subtask subtask = new Subtask(task);
+                subtask.set_ID(rs.getInt("SUBTASK_ID"));
+                subtask.set_name(rs.getString("NAME"));
+                subtask.set_description(rs.getString("DESCRIPTION"));
+                subtask.set_due_date(rs.getDate("DUE_DATE"));
+                subtask.set_created_on(rs.getDate("CREATED_ON"));
+                subtask.set_creator_username(rs.getString("CREATOR_USERNAME"));
+                subtask.set_status(rs.getString("STATUS"));
+                subtask.set_priority(rs.getShort("PRIORITY"));
+                subtask.set_assigned_to_member_username(rs.getString("ASSIGNED_USERNAME"));
                     
-                    task.add_subtask(subtask);
-                    if (this._focus == Focus.SUBTASK && search_name.equals(subtask.name()))
-                        this._focused_subtask = subtask;
+                task.add_subtask(subtask);
+                if (this._focus == Focus.SUBTASK && search_name.equals(subtask.name()))
+                    this._focused_subtask = subtask;
                 }
-            } catch(Exception e) {
-                e.printStackTrace();
-                loaded = false;
-            }
-            if (!loaded) {
-                this.header_team_label.setText("Subtasks Not Properly Loaded!");
-                DBConnection.disconnect(); return;
-            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            DBConnection.close_statement(cs);
+            loaded = false;
         }
-        
-        
-        // Query tasks in categories to find task-category matches:
-        ps = DBConnection.prepared_statement("SELECT TIC.TASK_ID, TC.NAME FROM TASKINCATEGORIES TIC, TASKCATEGORIES TC WHERE TC.TEAM_ID = ? AND TIC.TASK_CATEGORY_ID = TC.TASK_CATEGORY_ID");
-        loaded = (ps != null) && DBConnection.set_statement_value(ps, 1, team_ID);
-        rs = DBConnection.execute_query(ps);
-        
+            
+        // Get category-task groupings:
+        rs = DBConnection.get_cursor_result(cs, ":tsk_group_cur");
         try {
             while (true) {
                 assert rs != null;
                 if (!rs.next()) break;
-                TaskCategory category = this._task_category_map.get(rs.getString("NAME"));
+                TaskCategory category = this._task_category_map.get(rs.getString("CATEGORY_NAME"));
                 Task task = task_map.get(rs.getInt("TASK_ID"));
                 category.add_task(task);    // couple local tasks and task categories
             }
@@ -1932,15 +1965,19 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             e.printStackTrace();
             loaded = false;
         }
-        if (!loaded) {
-            this.header_team_label.setText("Task-Category Relations Not Properly Loaded!");
-            DBConnection.disconnect(); return;
-        }
         
-        // Query all team members in the current team:
-        ps = DBConnection.prepared_statement("SELECT USERNAME, MEMBER_ROLE FROM MEMBERS WHERE TEAM_ID = ? AND DELETED != 'Y' ORDER BY USERNAME ASC");
-        loaded = (ps != null) && DBConnection.set_statement_value(ps, 1, team_ID);
-        rs = DBConnection.execute_query(ps);
+        DBConnection.close_statement(cs);
+        return loaded;
+    }
+    
+    /*
+        Function to load the member data of this team from the database.
+        Function call must be between a DBConnection.connect and .disconnect session.
+    */
+    private boolean __reload_members__() {
+        PreparedStatement ps = DBConnection.prepared_statement("SELECT USERNAME, MEMBER_ROLE FROM MEMBERS WHERE TEAM_ID = ? AND DELETED != 'Y' ORDER BY USERNAME ASC");
+        boolean loaded = (ps != null) && DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID());
+        ResultSet rs = DBConnection.execute_query(ps);
         
         try {
             while (true) {
@@ -1952,29 +1989,33 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 this._user_list.add(user);
             }
         } catch(Exception e) {
+            System.out.println("ERROR: Users' data loading failed!");
             e.printStackTrace();
             loaded = false;
         }
-        if (!loaded) {
-            this.header_team_label.setText("Team Members Not Properly Loaded!");
-            return;
-        }
         
-        
-        
+        loaded = DBConnection.close_statement(ps) && loaded;
+        return loaded;
+    }
+    
+    /*
+        Function to load the productivity measurements from the database.
+        Function call must be between a DBConnection.connect and .disconnect session.
+    */
+    private boolean __reload_productivity__() {
         // Query productivity statistics:
-        cs = DBConnection.callable_statement("COMPUTE_PRODUCTIVITY(?, ?, ?)");
-        loaded = (cs != null) && DBConnection.set_statement_value(cs, 1, SystemController.current_team.team_ID());
-        loaded = loaded && DBConnection.register_out_parameter(cs, 2, OracleTypes.CURSOR);
-        loaded = loaded && DBConnection.register_out_parameter(cs, 3, OracleTypes.CURSOR);
-        DBConnection.execute(cs);
+        CallableStatement cs = DBConnection.callable_statement("COMPUTE_PRODUCTIVITY(:team_ID, :member_workload, :team_workload)");
+        boolean loaded = (cs != null) 
+                        && DBConnection.set_statement_value(cs, ":team_ID", SystemController.current_team.team_ID())
+                        && DBConnection.register_out_parameter(cs, ":member_workload", OracleTypes.CURSOR)
+                        && DBConnection.register_out_parameter(cs, ":team_workload", OracleTypes.CURSOR)
+                        && DBConnection.execute(cs);
         
+        // Load member workload statistics:
+        String last_user = "";
+        String user = "";
+        ResultSet rs = DBConnection.get_cursor_result(cs, ":member_workload");
         try {
-            // load member workload statistics
-            String last_user = "";
-            String user = "";
-            assert cs != null;
-            rs = (ResultSet) cs.getObject(2);
             while (rs.next()) {
                 user = rs.getString("USERNAME");
                 // use this._team_workload_stat to temporarily store the user's workload statistics:
@@ -1987,34 +2028,31 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                     this._member_workload_stat_map.put(user, this._team_workload_stat);
                 }
             }
+        } catch (Exception e) {
+            System.out.println("ERROR: Failed to load member workload statistics!");
+            System.out.println(e);
+            DBConnection.close_statement(cs);
+            return false;
+        }
             
-            // load team workload statistics
-            this._team_workload_stat = new WorkLoadGroup();
-            this._team_workload_stat.set_member_count(this._user_list.size());
-            rs = (ResultSet) cs.getObject(3);
+        // Load team workload statistics
+        this._team_workload_stat = new WorkLoadGroup();
+        this._team_workload_stat.set_member_count(this._user_list.size());
+        rs = DBConnection.get_cursor_result(cs, ":team_workload");
+        try {
             while (rs.next()) 
                 this._team_workload_stat.set_record(rs.getFloat("TASK_WEIGHTS"), rs.getInt("TASK_COUNT"), rs.getString("STATUS"));
-            
         } catch (Exception e) {
+            System.out.println("ERROR: Failed to load team workload statistics!");
             e.printStackTrace();
             loaded = false;
         }
         
-        
-        DBConnection.disconnect();
-        if (!loaded) {
-            this.header_team_label.setText("Productivity Statistics Not Properly Loaded!");
-            return;
-        }
-        
-        
-        
-        
-        
-        
-        // Refresh the page:
-        this.refresh();
+        loaded = DBConnection.close_statement(cs) && loaded;
+        return loaded;
     }
+    
+    
     
     private void hide_edit_panels() {
         this.task_category_edit_separator.setVisible(false);
@@ -2197,112 +2235,24 @@ public class TeamLeadersPage extends javax.swing.JFrame {
     
     public void refresh() {
         
-        DefaultListModel category_model = (DefaultListModel) this.task_category_list.getModel();
-        DefaultListModel task_model = (DefaultListModel) this.task_list.getModel();
-        DefaultListModel subtask_model = (DefaultListModel) this.subtask_list.getModel();
-        DefaultListModel user_model = (DefaultListModel) this.team_member_list.getModel();
-        
-        TreeSet<String> task_set = new TreeSet<>();
-        TreeSet<String> subtask_set = new TreeSet<>();
-        TreeSet<String> user_set = new TreeSet<>();
+        DefaultListModel[] lst_models = {
+            (DefaultListModel) this.task_category_list.getModel(),
+            (DefaultListModel) this.task_list.getModel(),
+            (DefaultListModel) this.subtask_list.getModel(),
+            (DefaultListModel) this.team_member_list.getModel()
+        };
         
         this.header_team_label.setText(SystemController.current_team.team_ID() + " - Team Leader's Page");
-        category_model.removeAllElements();
-        task_model.removeAllElements();
-        subtask_model.removeAllElements();
-        user_model.removeAllElements();
+        for (DefaultListModel model : lst_models)
+            model.removeAllElements();
         
         if (this._focus == null) {  // if the user enters the page through the page navigation button
-            
-            // List all content
-            for (TaskCategory category: this._task_category_map.values()) {
-                category_model.addElement(category.name());
-                for (Task task: category.tasks_in_category()) {
-                    task_set.add(task.name());
-                    for (Subtask subtask: task.get_subtasks())
-                        subtask_set.add(subtask.name());
-                }
-            }
-            
-            for (String task_name: task_set)
-                task_model.addElement(task_name);
-            for (String subtask_name: subtask_set)
-                subtask_model.addElement(subtask_name);
-            for (AppUser user: this._user_list)
-                user_model.addElement(AppUser.userTypeToString(user.role()) + " - " + user.getUsername());
-            
-            // Reset visibility:
-            for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
-                component.setEnabled(true);
-            this.hide_edit_panels();
-            
-        } else { // if the user enters the page through an edit buttion in the Task Page
-            
+            this.__refresh_null_focus__(lst_models);
+        } else {                    // if the user enters the page through an edit buttion in the Task Page
+
             for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
                 component.setEnabled(false);
-            if (this._focus == Focus.TASK_CATEGORY) {
-                
-                // List content related to the focused task category:
-                category_model.addElement(this._focused_task_category.name());
-                Task[] tasks = this._focused_task_category.tasks_in_category();
-                for (Task task: tasks) {
-                    task_model.addElement(task.name());
-                    for (Subtask subtask: task.get_subtasks()) {
-                        subtask_set.add(subtask.name());
-                        user_set.add(subtask.assigned_to_member_username());
-                    }
-                }
-                if (tasks.length != 0) user_set.add(tasks[0].assigned_to_member_username());
-                    
-                for (String subtask_name: subtask_set)
-                    subtask_model.addElement(subtask_name);
-                for (String username: user_set)
-                    user_model.addElement(username);
-                
-                // Reset visibility:
-                this.fill_task_category_edit_panel();
-                
-            } else if (this._focus == Focus.TASK) {
-                
-                // List content related to the focused task:
-                for (TaskCategory category: this._task_category_map.values()) {
-                    if ( category.find_task(this._focused_task.name()) )
-                        category_model.addElement(category.name());   
-                }
-                
-                task_model.addElement(this._focused_task.name());
-                for (Subtask subtask: this._focused_task.get_subtasks()) {
-                    subtask_model.addElement(subtask.name());
-                    user_set.add(subtask.assigned_to_member_username());
-                }
-                user_set.add(this._focused_task.assigned_to_member_username());
-                    
-                for (String username: user_set)
-                    user_model.addElement(username);
-                
-                // Reset visibility:
-                this.fill_task_edit_panel();
-                
-            } else if (this._focus == Focus.SUBTASK) {
-                
-                // List content related to the focused subtask:
-                for (TaskCategory category: this._task_category_map.values()) {
-                    if ( category.find_task(this._focused_subtask.parent_task().name()) )
-                        category_model.addElement(category.name());   
-                    for (Task task: category.tasks_in_category())
-                        task_set.add(task.name());
-                }
-                
-                task_model.addElement(this._focused_subtask.parent_task().name());
-                subtask_model.addElement(this._focused_subtask.name());
-                user_model.addElement(this._focused_subtask.assigned_to_member_username());
-                
-                // Reset visibility:
-                this.fill_subtask_edit_panel();
-                
-            } else
-                System.out.println("ERROR: Leader's page focus parameter has been corrupted!");
-            
+            this.__refresh_non_null_focus__(lst_models);
         }     
         
         this.task_category_edit_message.setText("");
@@ -2310,6 +2260,112 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this.subtask_edit_actions_message.setText("");
         
     }
+    
+    
+    private void __refresh_null_focus__(DefaultListModel[] lst_models) {
+        // @lst_models = { category_model, task_model, subtask_model, user_model }
+        TreeSet<String> task_set = new TreeSet<>();
+        TreeSet<String> subtask_set = new TreeSet<>();
+        // List all content
+        for (TaskCategory category: this._task_category_map.values()) {
+            lst_models[0].addElement(category.name());
+            for (Task task: category.tasks_in_category()) {
+                if ( !task_set.add(task.name()) ) continue;
+                // look for subtasks only when task is seen for the first time
+                for (Subtask subtask: task.get_subtasks())
+                    subtask_set.add(subtask.name());
+            }
+        }
+        
+        for (String task_name: task_set)
+            lst_models[1].addElement(task_name);
+        for (String subtask_name: subtask_set)
+            lst_models[2].addElement(subtask_name);
+        for (AppUser user: this._user_list)
+            lst_models[3].addElement(AppUser.userTypeToString(user.role()) + " - " + user.getUsername());
+            
+        // Reset visibility:
+        for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
+            component.setEnabled(true);
+        this.hide_edit_panels();
+    }
+    
+    private void __refresh_non_null_focus__(DefaultListModel[] lst_model) {
+        // @lst_models = {category_model, task_model, subtask_model, user_model}
+        if (this._focus == Focus.TASK_CATEGORY) this.__refresh_category_focus__(lst_model);
+        else if (this._focus == Focus.TASK)     this.__refresh_task_focus__(lst_model);
+        else if (this._focus == Focus.SUBTASK)  this.__refresh_subtask_focus__(lst_model);
+        else    System.out.println("ERROR: Leader's page focus parameter has been corrupted!");
+    }
+    
+    private void __refresh_category_focus__(@NotNull DefaultListModel[] lst_model) {
+        // @lst_models = {category_model, task_model, subtask_model, user_model}
+        TreeSet<String> subtask_set = new TreeSet<>();
+        TreeSet<String> user_set = new TreeSet<>();
+        // List content related to the focused task category:
+        lst_model[0].addElement(this._focused_task_category.name());
+        Task[] tasks = this._focused_task_category.tasks_in_category();
+        for (Task task: tasks) {
+            lst_model[1].addElement(task.name());
+            for (Subtask subtask: task.get_subtasks()) {
+                subtask_set.add(subtask.name());
+                user_set.add(subtask.assigned_to_member_username());
+            }
+        }
+        if (tasks.length != 0) user_set.add(tasks[0].assigned_to_member_username());
+            
+        for (String subtask_name: subtask_set)
+            lst_model[2].addElement(subtask_name);
+        for (String username: user_set)
+            lst_model[3].addElement(username);
+                
+        // Reset visibility:
+        this.fill_task_category_edit_panel();
+    }
+    
+    private void __refresh_task_focus__(DefaultListModel[] lst_model) {
+        // @lst_models = {category_model, task_model, subtask_model, user_model}
+        TreeSet<String> user_set = new TreeSet<>();
+        // List content related to the focused task:
+        for (TaskCategory category: this._task_category_map.values()) {
+            if ( category.find_task(this._focused_task.name()) )
+                lst_model[0].addElement(category.name());   
+        }
+                
+        lst_model[1].addElement(this._focused_task.name());
+        for (Subtask subtask: this._focused_task.subtask_collection()) {
+            lst_model[2].addElement(subtask.name());
+            user_set.add(subtask.assigned_to_member_username());
+        }
+        user_set.add(this._focused_task.assigned_to_member_username());
+                    
+        for (String username: user_set)
+            lst_model[3].addElement(username);
+                
+        // Reset visibility:
+        this.fill_task_edit_panel();
+    }
+    
+    private void __refresh_subtask_focus__(DefaultListModel[] lst_model) {
+        // @lst_models = {category_model, task_model, subtask_model, user_model}
+        // List content related to the focused subtask:
+        for (TaskCategory category: this._task_category_map.values()) {
+            if ( category.find_task(this._focused_subtask.parent_task().name()) )
+                lst_model[0].addElement(category.name());   
+        }
+                
+        lst_model[1].addElement(this._focused_subtask.parent_task().name());
+        lst_model[2].addElement(this._focused_subtask.name());
+        lst_model[3].addElement(this._focused_subtask.assigned_to_member_username());
+                
+        // Reset visibility:
+        this.fill_subtask_edit_panel();
+    }
+    
+    
+    
+    
+    
     
     
     /*
@@ -2362,14 +2418,14 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             java.util.List<String> tasks = this.task_list.getSelectedValuesList();
             
             // Collect category names to which the selected task names belong:
-            for (TaskCategory category : this._task_category_map.values()) {
-                for (String task_name : tasks) {
-                    if (category.find_task(task_name)) {
-                        category_set.add(category.name());
-                        break;
-                    }
-                }
-            }
+            this._task_category_map.values().stream()
+            .filter(category -> {
+                boolean is_group = false;
+                for (String task_name : tasks) is_group = is_group || category.find_task(task_name);
+                return is_group;
+            })
+            .map(category -> category.name())
+            .forEach(name -> { category_set.add(name); });
 
         } else {
             // Restrict user selection ability to single selection:
@@ -2379,13 +2435,14 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             String task_name = this.task_list.getSelectedValue();
             this._focused_task_category = null;
             this._focused_subtask = null;
-            for (TaskCategory category : this._task_category_map.values()) {
+            this._task_category_map.values().stream()
+            .filter(category -> { 
                 Task task = category.get_task(task_name);
-                if (task != null) {
-                    this._focused_task = task;
-                    category_set.add(category.name());
-                }
-            }
+                boolean is_group = (task != null);
+                this._focused_task = is_group? task : this._focused_task;
+                return is_group;
+            })
+            .forEach(category -> { category_set.add(category.name()); });
             
             // Refactor related entity selections if the selection lists are active (page entered through the page navigation button):
             subtask_model.clearSelection();
@@ -2401,17 +2458,15 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
         category_model.clearSelection();
         ListModel category_list_model = this.task_category_list.getModel();
-        Iterator<String> category_iter = category_set.iterator();
-        String current_name = category_iter.next();
-        int j = 0;
+        // 1. map categories with their indices
+        TreeMap<String, Integer> cat_indices = new TreeMap<>();
+        for (int i=0; i < category_list_model.getSize(); ++i)
+            cat_indices.put(category_list_model.getElementAt(i).toString(), i);
+        // 2. put the selected indices in an array
         int[] selected_indices = new int[category_set.size()];
-        for (int i = 0; i < category_list_model.getSize(); ++i) {
-            if (category_list_model.getElementAt(i).toString().equals(current_name)) {
-                selected_indices[j++] = i;
-                if (category_iter.hasNext()) current_name = category_iter.next();
-                else break;
-            }
-        }
+        int i = 0;
+        for (String cat_name : category_set)
+            selected_indices[i++] = cat_indices.get(cat_name);
         this.task_category_list.setSelectedIndices(selected_indices);
         
         if (!code_selected) this.__code_selection_mode__ = false;
@@ -2427,66 +2482,36 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         ListSelectionModel task_model = this.task_list.getSelectionModel();
         ListSelectionModel subtask_model = this.subtask_list.getSelectionModel();
         ListSelectionModel user_model = this.team_member_list.getSelectionModel();
-        java.util.List<Task> task_list = new ArrayList<>();
+        //java.util.List<Task> selected_task_list = new ArrayList<>();
+        TreeSet<String> task_set = new TreeSet<>();
         
-        // Collect all tasks:
-        for (TaskCategory category: this._task_category_map.values()) 
-            task_list.addAll(category.task_collection());
-        Collections.sort(task_list, new Comparator<Task>() { // sort the tasks
-            @Override
-            public int compare(Task t1, Task t2) {
-                return t1.name().compareTo(t2.name());
+        Map<String, Subtask> parent_map = new TreeMap<>();
+        // Collect all subtasks:
+        for (TaskCategory category: this._task_category_map.values())
+            for (Task task : category.task_collection()) {
+                parent_map = task.subtask_collection().stream()
+                .collect(Collectors.toMap(TaskPrototype::name, subtask -> subtask));
             }
-        });
-        
         
         if (this.__code_selection_mode__) {
             // Allow programmatic changes to use multiple selection mode:
             subtask_model.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-
+            
             // Obtain selected task names:
             java.util.List<String> subtasks = this.subtask_list.getSelectedValuesList();
-            
-            // Filter out tasks that are not parent to the selected subtasks
-            String last_task_name = null;
-            Task current_task;
-            for (Iterator<Task> task_iter=task_list.iterator(); task_iter.hasNext(); ) {
-                current_task = task_iter.next();
-                if (current_task.name().equals(last_task_name)) {
-                    task_iter.remove(); continue;   // remove duplicate tasks
-                }
-                last_task_name = current_task.name();
-                boolean task_is_parent = false;
-                for (Iterator<String> subtask_iter=subtasks.iterator(); subtask_iter.hasNext(); ) {
-                    if (current_task.get_subtask(subtask_iter.next()) != null) {
-                        task_is_parent = true;
-                        subtask_iter.remove();  // parent task found, remove subtask reference
-                    }
-                }
-                if (!task_is_parent) task_iter.remove();  // remove task if not parent to selected subtasks
-            }
-            
+            for (String subtask_name : subtasks)
+                task_set.add(parent_map.get(subtask_name).parent_task().name());
         } else {
             // Restrict user selection ability to single selection:
             subtask_model.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
             // Find the task that is parent to the selected subtask:
             String subtask_name = this.subtask_list.getSelectedValue();
-            String last_task_name = null;
-            Task current_task;
             this._focused_task_category = null;
             this._focused_subtask = null;
             this._focused_task = null;
-            for (Iterator<Task> task_iter=task_list.iterator(); task_iter.hasNext(); ) {
-                current_task = task_iter.next();
-                if (current_task.name().equals(last_task_name) || this._focused_subtask != null) { 
-                    task_iter.remove(); continue; // remove duplicate or redundant tasks
-                }
-                last_task_name = current_task.name();
-                Subtask subtask = current_task.get_subtask(subtask_name);
-                if (subtask == null) task_iter.remove(); // remove task if not parent to selected subtask
-                else this._focused_subtask = subtask;
-            }
+            this._focused_subtask = parent_map.get(subtask_name);
+            task_set.add(this._focused_subtask.parent_task().name());
 
             // Refactor related entity selections if the selection lists are active (page entered through the page navigation button):
             user_model.clearSelection();
@@ -2500,17 +2525,15 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
         task_model.clearSelection();
         ListModel task_list_model = this.task_list.getModel();
-        Iterator<Task> task_iter = task_list.iterator();
-        String current_name = task_iter.next().name();
-        int j = 0;
-        int[] selected_indices = new int[task_list.size()];
-        for (int i = 0; i < task_list_model.getSize(); ++i) {
-            if (task_list_model.getElementAt(i).toString().equals(current_name)) {
-                selected_indices[j++] = i;
-                if (task_iter.hasNext()) current_name = task_iter.next().name();
-                else break;
-            }
-        }
+        // 1. map tasks with their indices
+        TreeMap<String, Integer> task_indices = new TreeMap<>();
+        for (int i=0; i < task_list_model.getSize(); ++i)
+            task_indices.put(task_list_model.getElementAt(i).toString(), i);
+        // 2. put the selected indices in an array
+        int[] selected_indices = new int[task_set.size()];
+        int i = 0;
+        for (String task_name : task_set)
+            selected_indices[i++] = task_indices.get(task_name);
         this.task_list.setSelectedIndices(selected_indices);
         
         if (!code_selected) this.__code_selection_mode__ = false;
@@ -2526,7 +2549,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         ListSelectionModel task_model = this.task_list.getSelectionModel();
         ListSelectionModel subtask_model = this.subtask_list.getSelectionModel();
         ListSelectionModel user_model = this.team_member_list.getSelectionModel();
-        java.util.List<Subtask> subtask_list = new ArrayList<>();
+        Map<String, String> assignment_map = new TreeMap<>();
         
         // Selection mode is user selection by default:
         subtask_model.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -2535,27 +2558,15 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         // Collect all subtasks:
         for (TaskCategory category: this._task_category_map.values()) {
             for (Task task: category.task_collection())
-                subtask_list.addAll(task.subtask_collection());
+                assignment_map.putAll( 
+                    task.subtask_collection().stream()
+                    .collect(Collectors.toMap(TaskPrototype::name, TaskPrototype::assigned_to_member_username))
+                );
         }
-        Collections.sort(subtask_list, new Comparator<Subtask>() { // sort the tasks
-            @Override
-            public int compare(Subtask s1, Subtask s2) {
-                return s1.name().compareTo(s2.name());
-            }
-        });
         
-        // Filter out subtasks that are not assigned to the selected user:
-        Subtask current_subtask;
-        String last_subtask_name = null;
-        for (Iterator<Subtask> subtask_iter=subtask_list.iterator(); subtask_iter.hasNext(); ) {
-            current_subtask = subtask_iter.next();
-            if (current_subtask.name().equals(last_subtask_name)) {
-                subtask_iter.remove(); continue;
-            }
-            last_subtask_name = current_subtask.name();
-            if (!current_subtask.assigned_to_member_username().equals(user_info[1]))
-                subtask_iter.remove();
-        }
+        assignment_map = assignment_map.entrySet().stream()
+        .filter(pair -> pair.getValue().equals(user_info[1]))
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         
         this._focused_task_category = null;
         this._focused_task = null;
@@ -2566,28 +2577,28 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         this.__code_selection_mode__ = true;
         
         subtask_model.clearSelection();
-        if (subtask_list.isEmpty()) {   // no subtask is assigned to the selected user
+        if (assignment_map.isEmpty()) {   // no subtask is assigned to the selected user
             task_model.clearSelection();
             category_model.clearSelection();
         } else {
             ListModel subtask_list_model = this.subtask_list.getModel();
-            Iterator<Subtask> subtask_iter = subtask_list.iterator();
-            String current_name = subtask_iter.next().name();
-            int j = 0;
-            int[] selected_indices = new int[subtask_list.size()];
-            for (int i = 0; i < subtask_list_model.getSize(); ++i) {
-                if (subtask_list_model.getElementAt(i).toString().equals(current_name)) {
-                    selected_indices[j++] = i;
-                    if (subtask_iter.hasNext()) current_name = subtask_iter.next().name();
-                    else break;
-                }
-            }
+            // 1. map subtasks with their indices
+            TreeMap<String, Integer> subtask_indices = new TreeMap<>();
+            for (int i=0; i < subtask_list_model.getSize(); ++i)
+                subtask_indices.put(subtask_list_model.getElementAt(i).toString(), i);
+            // 2. put the selected indices in an array
+            int[] selected_indices = new int[assignment_map.size()];
+            int i = 0;
+            for (String subtask_name : assignment_map.keySet())
+                selected_indices[i++] = subtask_indices.get(subtask_name);
             this.subtask_list.setSelectedIndices(selected_indices);
         }
         
         this.__code_selection_mode__ = false;
         
     }
+    
+    
     
     /*
         Function to define the database interaction and UI behaviours when the 
@@ -2645,26 +2656,11 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
         // Allow "adding to" or "removing from" category options to respond:
         this.task_edit_task_categories_action_options.addActionListener(new ActionListener() {
-            
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selected_item = Objects.requireNonNull(self.task_edit_task_categories_action_options.getSelectedItem()).toString();
-                self.task_edit_task_categories_options.removeAllItems();
-                self.task_edit_task_categories_options.addItem("[select category]");
-                
-                if (selected_item.equals("Add to")) {
-                    for (TaskCategory category: self._task_category_map.values()) {
-                        if (!category.find_task(self._focused_task.name()))
-                            self.task_edit_task_categories_options.addItem(category.name());
-                    }
-                } else if (selected_item.equals("Remove from")) {
-                    for (TaskCategory category: self._task_category_map.values()) {
-                        if (category.find_task(self._focused_task.name()))
-                            self.task_edit_task_categories_options.addItem(category.name());
-                    }
-                }
+                self.__task_category_pairing_modification_list__();
+
             }
-            
         });
         
         // Reflect colour of selected subtask priority when changed:
@@ -2678,6 +2674,21 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         
     }
     
+    
+    private void __task_category_pairing_modification_list__() {
+        String selected_item = this.task_edit_task_categories_action_options.getSelectedItem().toString();
+        this.task_edit_task_categories_options.removeAllItems();
+        this.task_edit_task_categories_options.addItem("[select category]");
+                
+        boolean to_add = selected_item.equals("Add to");
+        for (TaskCategory category: this._task_category_map.values()) {
+            // EITHER
+            // add to category AND the task is not already in category, OR
+            // remove from category AND the task is already in category
+            if (to_add ^ category.find_task(this._focused_task.name()))
+                this.task_edit_task_categories_options.addItem(category.name());
+        }
+    }
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

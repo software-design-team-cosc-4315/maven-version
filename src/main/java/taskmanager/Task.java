@@ -53,7 +53,7 @@ public class Task extends TaskPrototype {
         return array;
     }
     
-    public Collection subtask_collection() {
+    public Collection<Subtask> subtask_collection() {
         return this._subtasks.values();
     }
     
