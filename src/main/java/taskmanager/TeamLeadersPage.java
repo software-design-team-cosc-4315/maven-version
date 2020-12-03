@@ -5,6 +5,9 @@
  */
 package taskmanager;
 
+import oracle.jdbc.OracleTypes;
+import org.jetbrains.annotations.NotNull;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -17,8 +20,7 @@ import java.sql.ResultSet;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-
+import java.util.stream.Collectors;
 
 
 /**
@@ -1888,7 +1890,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         if (!loaded) {
             this.header_team_label.setText("Task Categories Not Properly Loaded!");
             DBConnection.close_statement(cs);
-            DBConnection.disconnect(); return;
+            DBConnection.disconnect();
         }
         
         // Get tasks:
@@ -2280,7 +2282,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         for (String subtask_name: subtask_set)
             lst_models[2].addElement(subtask_name);
         for (AppUser user: this._user_list)
-            lst_models[3].addElement(AppUser.user_type_to_string(user.role()) + " - " + user.username());
+            lst_models[3].addElement(AppUser.userTypeToString(user.role()) + " - " + user.getUsername());
             
         // Reset visibility:
         for (java.awt.Component component: GeneralUIFunctions.getAllComponents(this.content_lists_body_pane))
@@ -2296,7 +2298,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         else    System.out.println("ERROR: Leader's page focus parameter has been corrupted!");
     }
     
-    private void __refresh_category_focus__(DefaultListModel[] lst_model) {
+    private void __refresh_category_focus__(@NotNull DefaultListModel[] lst_model) {
         // @lst_models = {category_model, task_model, subtask_model, user_model}
         TreeSet<String> subtask_set = new TreeSet<>();
         TreeSet<String> user_set = new TreeSet<>();
@@ -2488,7 +2490,7 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         for (TaskCategory category: this._task_category_map.values())
             for (Task task : category.task_collection()) {
                 parent_map = task.subtask_collection().stream()
-                .collect(Collectors.toMap(subtask -> subtask.name(), subtask -> subtask));
+                .collect(Collectors.toMap(TaskPrototype::name, subtask -> subtask));
             }
         
         if (this.__code_selection_mode__) {
@@ -2558,13 +2560,13 @@ public class TeamLeadersPage extends javax.swing.JFrame {
             for (Task task: category.task_collection())
                 assignment_map.putAll( 
                     task.subtask_collection().stream()
-                    .collect(Collectors.toMap(subtask -> subtask.name(), subtask -> subtask.assigned_to_member_username()))
+                    .collect(Collectors.toMap(TaskPrototype::name, TaskPrototype::assigned_to_member_username))
                 );
         }
         
         assignment_map = assignment_map.entrySet().stream()
         .filter(pair -> pair.getValue().equals(user_info[1]))
-        .collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()));
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         
         this._focused_task_category = null;
         this._focused_task = null;

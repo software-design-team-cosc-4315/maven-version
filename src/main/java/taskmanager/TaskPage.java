@@ -1764,80 +1764,13 @@ private void delete_task(String task, boolean page_loaded){
                         + " FROM TASKS T, MEMBERS CREATOR, MEMBERS U"
                         + " WHERE T.TEAM_ID = ? AND T.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND T.ASSIGNED_TO_MEMBER_ID = U.MEMBER_ID AND T.DELETED != 'Y' AND U.DELETED != 'Y'"
         );
-        page_loaded = (ps != null)
-            && DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID());
+        page_loaded = (ps != null) && DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID());
 
         ResultSet rs = DBConnection.execute_query(ps);
         try {
             while (true) {
                 assert rs != null;
                 if (!rs.next()) break;
-                // Add task to task list:
-                Task task = new Task();
-                task.set_ID(rs.getInt("TASK_ID"));
-                task.set_priority(rs.getShort("TASK_PRIORITY"));
-                task.set_name(rs.getString("NAME"));
-                task.set_description(rs.getString("TASK_DESCRIPTION"));
-                task.set_assigned_to_member_username(rs.getString("ASSIGNED_USERNAME"));
-                task.set_due_date(rs.getDate("DUE_DATE"));
-                task.set_recur_interval(rs.getInt("RECUR_INTERVAL"));
-                task.set_creator_username(rs.getString("CREATOR_USERNAME"));
-                task.set_created_on(rs.getDate("CREATED_ON"));
-                task.set_status(rs.getString("STATUS"));
-
-                task_list.add(task);
-            }
-        } catch (SQLException e) {
-            System.out.println(e);
-            DBConnection.disconnect(); // do not proceed if there is an error
-        }
-    }
-
-    private void query_subtasks_current_team(boolean page_loaded, Task task){
-        PreparedStatement ps = DBConnection.prepared_statement(
-                "SELECT S.SUBTASK_ID, S.NAME, S.DESCRIPTION, S.DUE_DATE, S.CREATED_ON, CREATOR.USERNAME AS CREATOR_USERNAME, U.USERNAME AS ASSIGNED_USERNAME, S.STATUS, S.PRIORITY, S.SUBTASK_TO"
-                        + " FROM SUBTASK S, MEMBERS CREATOR, MEMBERS U"
-                        + " WHERE S.SUBTASK_TO = ? AND S.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND S.ASSIGNED_TO_MEMBER_ID = U.MEMBER_ID AND U.DELETED != 'Y' AND S.DELETED != 'Y'"
-        );
-        page_loaded = (ps != null)
-            && DBConnection.set_statement_value(ps, 1, task.ID());
-
-        ResultSet rs = DBConnection.execute_query(ps);
-        try {
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
-                // Add subtask as child to their parent task:
-                Subtask subtask = new Subtask(task);
-                subtask.set_ID(rs.getInt("SUBTASK_ID"));
-                subtask.set_priority(rs.getShort("PRIORITY"));
-                subtask.set_name(rs.getString("NAME"));
-                subtask.set_description(rs.getString("DESCRIPTION"));
-                subtask.set_assigned_to_member_username(rs.getString("ASSIGNED_USERNAME"));
-                subtask.set_due_date(rs.getDate("DUE_DATE"));
-                subtask.set_creator_username(rs.getString("CREATOR_USERNAME"));
-                subtask.set_created_on(rs.getDate("CREATED_ON"));
-                subtask.set_status(rs.getString("STATUS"));
-
-                task.add_subtask(subtask);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            DBConnection.disconnect(); // do not proceed if there is an error
-        }
-    }
-
-    private void query_tasks_current_team(boolean page_loaded, List task_list){
-        PreparedStatement ps = DBConnection.prepared_statement(
-                "SELECT T.TASK_ID, T.NAME, T.TASK_DESCRIPTION, T.DUE_DATE, T.RECUR_INTERVAL, T.CREATED_ON, CREATOR.USERNAME AS CREATOR_USERNAME, U.USERNAME AS ASSIGNED_USERNAME, T.STATUS, T.TASK_PRIORITY"
-                        + " FROM TASKS T, MEMBERS CREATOR, MEMBERS U"
-                        + " WHERE T.TEAM_ID = ? AND T.CREATED_BY_MEMBER_ID = CREATOR.MEMBER_ID AND T.ASSIGNED_TO_MEMBER_ID = U.MEMBER_ID AND T.DELETED != 'Y' AND U.DELETED != 'Y'"
-        );
-        page_loaded = (ps != null)? DBConnection.set_statement_value(ps, 1, SystemController.current_team.team_ID()) : false;
-
-        ResultSet rs = DBConnection.execute_query(ps);
-        try {
-            while (rs.next()) {
                 // Add task to task list:
                 Task task = new Task();
                 task.set_ID(rs.getInt("TASK_ID"));
