@@ -11,6 +11,7 @@ Made by Erick Flores, Kevin Do, Ganondorf Jallida, Timothy Chandler
     		<li> Design the programme structure and coded the graphics interface on the front end side (Java). </li>
     		<li> Assisted in the creation of the schema of the database </li>
     		<li> Assisted in the connection of the database and the frontend </li>
+    		<li> Cleaned and improved source code </li>
 	</ul>
 </details>
 
@@ -21,6 +22,7 @@ Made by Erick Flores, Kevin Do, Ganondorf Jallida, Timothy Chandler
     		<li> Assisted in the connection of the database and the frontend </li>
 		<li> Coded the data flow of each creation feature: achieved user, team, task category, and tasks/subtasks creation functions. </li>
 		<li> Coded classes needed to store data for tasks and subtasks. </li>
+		<li> Coded classes needed to store data for tasks and subtasks. </li><li> Cleaned and improved source code </li>
 	</ul>
 </details>
 
