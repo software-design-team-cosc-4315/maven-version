@@ -35,6 +35,8 @@ Made by Erick Flores, Kevin Do, Ganondorf Jallida, Timothy Chandler
     		<li> Created initial database </li>
     		<li> Created initial database tables </li>
     		<li> Assisted in the maintenance of the database </li>
+		<li> Modularized the functions in taskpage </li>
+		<li> Added some unit testing </li>
 	</ul>
 </details>
 
