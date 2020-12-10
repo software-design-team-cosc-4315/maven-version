@@ -2421,8 +2421,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
                 for (String task_name : tasks) is_group = is_group || category.find_task(task_name);
                 return is_group;
             })
-            .map(category -> category.name())
-            .forEach(name -> { category_set.add(name); });
+            .map(TaskCategory::name)
+            .forEach(category_set::add);
 
         } else {
             // Restrict user selection ability to single selection:
