@@ -2139,9 +2139,8 @@ public class ManagersPage extends javax.swing.JFrame {
             
             ResultSet rs = DBConnection.execute_query(ps);
             try {
-                while (true) {
-                    assert rs != null;
-                    if (!rs.next()) break;
+                assert rs != null;
+            while(rs.next()) {
                     category_model.addElement(rs.getString("NAME"));
                 }
             } catch (Exception exception) {
@@ -2174,9 +2173,8 @@ public class ManagersPage extends javax.swing.JFrame {
             ResultSet rs = DBConnection.execute_query(ps);
             try {
                 // after the query, add the task name into the parent task selection box
-                while (true) {
-                    assert rs != null;
-                    if (!rs.next()) break;
+                assert rs != null;
+            while(rs.next()) {
                     managers_page_create_task_choose_parent_task_options
                         .addItem(rs.getString("NAME"));
                 }
@@ -2372,9 +2370,8 @@ public class ManagersPage extends javax.swing.JFrame {
             rs = DBConnection.execute_query(ps);
             try {
                 cat_index = 0;
-                while (true) {
-                    assert rs != null;
-                    if (!rs.next()) break;
+                assert rs != null;
+            while(rs.next()) {
                     category_IDs[cat_index] = rs.getInt("TASK_CATEGORY_ID");
                     ++cat_index;
                 }
@@ -2658,9 +2655,8 @@ public class ManagersPage extends javax.swing.JFrame {
                 rs = DBConnection.execute_query(ps);
                 try {
                     // 3. add the queried task names into the unresolved list:
-                    while (true) {
-                        assert rs != null;
-                        if (!rs.next()) break;
+                    assert rs != null;
+            while(rs.next()) {
                         unresolved_model.addElement("Task - " + rs.getString("NAME"));
                     }
                 } catch (Exception e) {

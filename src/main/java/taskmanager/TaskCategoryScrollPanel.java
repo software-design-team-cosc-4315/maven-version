@@ -239,7 +239,8 @@ public class TaskCategoryScrollPanel extends JScrollPane {
             
             ResultSet rs = DBConnection.execute_query(ps);
             try {
-                while (true) {
+                assert rs != null;
+            while(rs.next()) {
                     assert rs != null;
                     if (!rs.next()) break;
                     task_IDs.add(rs.getInt("TASK_ID")); }
@@ -305,7 +306,8 @@ public class TaskCategoryScrollPanel extends JScrollPane {
 
                 rs = DBConnection.execute_query(ps);
                 try {
-                    while (true) {
+                    assert rs != null;
+            while(rs.next()) {
                         assert rs != null;
                         if (!rs.next()) break;
                         // Add subtask as child to its parent task:
@@ -344,9 +346,8 @@ public class TaskCategoryScrollPanel extends JScrollPane {
             
             ResultSet rs = DBConnection.execute_query(ps);
             try {
-                while (true) {
-                    assert rs != null;
-                    if (!rs.next()) break;
+                assert rs != null;
+            while(rs.next()) {
                     // Add task to the task list:
                     Task task = new Task();
                     task.set_ID(rs.getInt("TASK_ID"));
@@ -383,9 +384,8 @@ public class TaskCategoryScrollPanel extends JScrollPane {
                 
                 rs = DBConnection.execute_query(ps);
                 try {
-                    while (true) {
-                        assert rs != null;
-                        if (!rs.next()) break;
+                    assert rs != null;
+            while(rs.next()) {
                         // Add subtask as child to its parent task:
                         Subtask subtask = new Subtask(task);
                         subtask.set_ID(rs.getInt("SUBTASK_ID"));

@@ -1531,9 +1531,8 @@ public class TaskPage extends javax.swing.JFrame {
         ResultSet rs = DBConnection.execute_query(ps);
         try {
             // Add task category name to list
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 updated_cats.add(rs.getString("CATEGORY_NAME"));
             }
         } catch (Exception e) {
@@ -1740,9 +1739,8 @@ public class TaskPage extends javax.swing.JFrame {
 
         ResultSet rs = DBConnection.execute_query(ps);
         try {
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 // Add task category to tree map
                 TaskCategory category = new TaskCategory();
                 category.set_ID( Integer.parseInt(rs.getString("TASK_CATEGORY_ID")) );
@@ -1769,9 +1767,8 @@ public class TaskPage extends javax.swing.JFrame {
 
         ResultSet rs = DBConnection.execute_query(ps);
         try {
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 // Add task to task list:
                 Task task = new Task();
                 task.set_ID(rs.getInt("TASK_ID"));
@@ -1835,9 +1832,8 @@ public class TaskPage extends javax.swing.JFrame {
 
         ResultSet rs = DBConnection.execute_query(ps);
         try {
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 // Add task to each category:
                 Task task = new Task();
                 task.set_ID(rs.getInt("TASK_ID"));
@@ -1879,9 +1875,8 @@ public class TaskPage extends javax.swing.JFrame {
 
         ResultSet rs = DBConnection.execute_query(ps);
         try {
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 // Add task to each category:
                 Subtask subtask = new Subtask(task);
                 subtask.set_ID(rs.getInt("SUBTASK_ID"));
@@ -1955,9 +1950,8 @@ public class TaskPage extends javax.swing.JFrame {
                             && DBConnection.set_statement_value(ps, 2, task.ID());
 
                 ResultSet rs = DBConnection.execute_query(ps);
-                try { while (true) {
-                    assert rs != null;
-                    if (!rs.next()) break;
+                try { assert rs != null;
+            while(rs.next()) {
                     category_panel.data_source().add_task(task);
                 }
                 } // add task to corresponding category
@@ -1989,9 +1983,8 @@ public class TaskPage extends javax.swing.JFrame {
         ResultSet rs = DBConnection.execute_query(ps);
         try {
             // 2. for each subtask name from the query, create a local subtask instance to be a child of @task and store the name in the created instance:
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 Subtask subtask = new Subtask(task);
                 subtask.set_name(rs.getString("SUBTASK_NAME")); // *** NOTE: This name must first be set before adding the instance as a subtask to @task; otherwise, the tree structure in @task will not be able to identify the subtask without a name (Refer to the implementation file of the Task class: Task.java).
                 task.add_subtask(subtask);
@@ -2056,9 +2049,8 @@ public class TaskPage extends javax.swing.JFrame {
         ResultSet rs = DBConnection.execute_query(ps);
         try {
             // 2. for each task name from the query, create a local task instance to be a child of @category and store the name in the created instance:
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 // Add subtask name to list
                 Task task = new Task();
                 task.set_name(rs.getString("TASK_NAME")); // *** NOTE: This name must first be set before adding the instance as a child task to @category; otherwise, the tree structure in @category will not be able to identify the task without a name (Refer to the implementation file of the TaskCategory class: TaskCategory.java).
