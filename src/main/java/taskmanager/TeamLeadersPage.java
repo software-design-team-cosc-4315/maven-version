@@ -1897,9 +1897,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         TreeMap<Integer, Task> task_map = new TreeMap<>();
         rs = DBConnection.get_cursor_result(cs, ":tsk_cur");
         try {
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 Task task = new Task();
                 task.set_ID(rs.getInt("TASK_ID"));
                 task.set_name(rs.getString("NAME"));
@@ -1954,9 +1953,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         // Get category-task groupings:
         rs = DBConnection.get_cursor_result(cs, ":tsk_group_cur");
         try {
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 TaskCategory category = this._task_category_map.get(rs.getString("CATEGORY_NAME"));
                 Task task = task_map.get(rs.getInt("TASK_ID"));
                 category.add_task(task);    // couple local tasks and task categories
@@ -1980,9 +1978,8 @@ public class TeamLeadersPage extends javax.swing.JFrame {
         ResultSet rs = DBConnection.execute_query(ps);
         
         try {
-            while (true) {
-                assert rs != null;
-                if (!rs.next()) break;
+            assert rs != null;
+            while(rs.next()) {
                 AppUser user = new AppUser();
                 user.setUsername(rs.getString("USERNAME"));
                 user.setRole(AppUser.toUserType(rs.getString("MEMBER_ROLE")));
