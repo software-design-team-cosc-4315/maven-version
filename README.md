@@ -16,7 +16,7 @@ Made by Erick Flores, Kevin Do, Ganondorf Jallida, Timothy Chandler
 </details>
 
 <details>
-	<summary>Kevin "Swiftnicity" Do</summary>
+	<summary>Kevin Do</summary>
 	<ul>
     		<li> Assisted in the development of the frontend </li>
     		<li> Assisted in the connection of the database and the frontend </li>
@@ -27,7 +27,7 @@ Made by Erick Flores, Kevin Do, Ganondorf Jallida, Timothy Chandler
 </details>
 
 <details>
-	<summary>Erick "Skinnysalvi" Flores</summary>
+	<summary>Erick Flores</summary>
 	<ul>
 		<li> Created database tables in ORACLE (PL/SQL) </li>
 		<li> Contributed to the creation of database constraints </li>
@@ -41,7 +41,7 @@ Made by Erick Flores, Kevin Do, Ganondorf Jallida, Timothy Chandler
 </details>
 
 <details>
-	<summary>Timothy "Ernaldis" Chandler</summary>
+	<summary>Timothy Chandler</summary>
 	<ul>
 		<li> Created VCS repository and guided team members in its use </li>
 		<li> Assisted in the creation of the schema of the database </li>
